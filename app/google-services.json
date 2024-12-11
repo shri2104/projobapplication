@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "866264838181",
+    "project_id": "projobliveapp-fe9c2",
+    "storage_bucket": "projobliveapp-fe9c2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:866264838181:android:e78c7fbb241cda331b4fcc",
+        "android_client_info": {
+          "package_name": "com.example.projobliveapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBV6k6p86l-PAsNAK4BOHQ8NQWJNb1Fog8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
