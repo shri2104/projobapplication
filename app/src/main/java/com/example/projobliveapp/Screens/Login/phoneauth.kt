@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavHostController
+import com.example.projobliveapp.Navigation.Screen
 
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FirebaseAuth
@@ -48,7 +49,8 @@ fun LoginDialog(navController: NavHostController) {
                 dismissOnClickOutside = false
             )
         ) {
-            CompleteDialogContent()
+
+            CompleteDialogContent(navController = navController)
         }
     }
 }
@@ -59,7 +61,7 @@ var storedVerificationId: String = ""
 @OptIn(ExperimentalMaterial3Api::class)
 
 @Composable
-fun CompleteDialogContent(navController: NavHostController? = null) {
+fun CompleteDialogContent(navController: NavHostController) {
     val context = LocalContext.current
     var phoneNumber by remember { mutableStateOf(TextFieldValue("")) }
     var otp by remember { mutableStateOf(TextFieldValue("")) }
@@ -146,13 +148,13 @@ fun CompleteDialogContent(navController: NavHostController? = null) {
             // Login with Email button
             Button(
                 onClick = {
-                    navController?.navigate("emailLoginScreen") // Replace with your email login screen route
+                    navController.navigate(Screen.LoginScreen.name)
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 8.dp),
                 colors = ButtonDefaults.buttonColors(
-                    Color.Blue // Different color to distinguish it from phone login
+                    Color.Blue
                 )
             ) {
                 Text(
@@ -239,8 +241,3 @@ private fun signInWithPhoneAuthCredential(context: Context, credential: PhoneAut
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    CompleteDialogContent()
-}

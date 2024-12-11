@@ -22,6 +22,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,11 +39,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.projobliveapp.Component.EmailInput
+import com.example.projobliveapp.Component.InputField
 import com.example.projobliveapp.Component.PasswordInput
 import com.example.projobliveapp.Navigation.Screen
 import com.example.projobliveapp.R
-
-
 @ExperimentalComposeUiApi
 @Composable
 fun LoginScreen(
@@ -54,33 +54,32 @@ fun LoginScreen(
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center, // Center vertically
-            modifier = Modifier.padding(16.dp) // Added padding for spacing
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.padding(16.dp)
         ) {
-            logo() // Assuming this displays the logo at the top
+            logo() // Display the logo at the top
 
-            // Display the appropriate form based on showLoginForm
             if (showLoginForm.value) {
-                UserForm(
-                    loading = false,
-                    isCreateAccount = false
+                // Login form
+                LoginForm(
+                    loading = false
                 ) { email, password ->
                     viewModel.signInWithEmailAndPassword(email, password) {
-                        navController.navigate(Screen.HomeScreen.name)
+                        navController?.navigate(Screen.HomeScreen.name)
                     }
                 }
             } else {
-                UserForm(
-                    loading = false,
-                    isCreateAccount = true
-                ) { email, password ->
-                    viewModel.createUserWithEmailAndPassword(email, password) {
+
+                RegistrationForm(
+                    loading = false
+                ) { email, password, firstName, lastName, location ->
+                    viewModel.createUserWithEmailAndPassword(email, password, firstName, lastName, location) {
                         navController.navigate(Screen.HomeScreen.name)
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(20.dp)) // Space before the toggle
+            Spacer(modifier = Modifier.height(20.dp))
 
             Row(
                 modifier = Modifier
@@ -91,22 +90,21 @@ fun LoginScreen(
             ) {
                 val actionText = if (showLoginForm.value) "Sign up" else "Log in"
                 Text(
-                    text = "New User?",
+                    text = if (showLoginForm.value) "New User?" else "Already have an account?",
                     style = MaterialTheme.typography.labelLarge
                 )
                 Text(
                     text = actionText,
                     modifier = Modifier
-                        .clickable {
-                            showLoginForm.value = !showLoginForm.value
-                        }
+                        .clickable { showLoginForm.value = !showLoginForm.value }
                         .padding(start = 5.dp),
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary // Highlight the clickable text
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
 
-            Spacer(modifier = Modifier.height(20.dp)) // Space before the phone sign-in button
+            Spacer(modifier = Modifier.height(20.dp))
+
 
             Button(
                 onClick = {
@@ -124,14 +122,10 @@ fun LoginScreen(
     }
 }
 
-
-
-
 @Composable
-fun UserForm(
-    loading: Boolean = false,
-    isCreateAccount: Boolean = false,
-    onDone: (String, String) -> Unit = { email, pwd ->}
+fun LoginForm(
+    loading: Boolean,
+    onDone: (String, String) -> Unit
 ) {
     val email = rememberSaveable { mutableStateOf("") }
     val password = rememberSaveable { mutableStateOf("") }
@@ -140,39 +134,119 @@ fun UserForm(
     val keyboardController = LocalSoftwareKeyboardController.current
     val valid = remember(email.value, password.value) {
         email.value.trim().isNotEmpty() && password.value.trim().isNotEmpty()
-
     }
-    val modifier = Modifier
-        .height(250.dp)
-        .background(MaterialTheme.colorScheme.background)
-        .verticalScroll(rememberScrollState())
-    Column(modifier,
-        horizontalAlignment = Alignment.CenterHorizontally) {
-        if (isCreateAccount) Text(text = stringResource(id = R.string.create_acct),
-            modifier = Modifier.padding(4.dp)) else Text("")
+
+    Column(
+        modifier = Modifier
+            .height(300.dp)
+            .background(MaterialTheme.colorScheme.background)
+            .verticalScroll(rememberScrollState()),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = "Log in", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(4.dp))
+
         EmailInput(
-            emailState = email, enabled = true,
-            onAction = KeyboardActions {
-                passwordFocusRequest.requestFocus()
-            },
+            emailState = email,
+            enabled = true,
+            onAction = KeyboardActions { passwordFocusRequest.requestFocus() },
         )
+
         PasswordInput(
             modifier = Modifier.focusRequester(passwordFocusRequest),
             passwordState = password,
             labelId = "Password",
-            enabled = !loading, //Todo change this
+            enabled = !loading,
             passwordVisibility = passwordVisibility,
             onAction = KeyboardActions {
                 if (!valid) return@KeyboardActions
                 onDone(email.value.trim(), password.value.trim())
-            })
+            }
+        )
     }
+
     SubmitButton(
-        textId = if (isCreateAccount) "Create Account" else "Login",
+        textId = "Login",
         loading = loading,
         validInputs = valid
-    ){
+    ) {
         onDone(email.value.trim(), password.value.trim())
+        keyboardController?.hide()
+    }
+}
+
+@Composable
+fun RegistrationForm(
+    loading: Boolean,
+    onDone: (String, String, String, String, String) -> Unit
+) {
+    val email = rememberSaveable { mutableStateOf("") }
+    val password = rememberSaveable { mutableStateOf("") }
+    val firstName = rememberSaveable { mutableStateOf("") }
+    val lastName = rememberSaveable { mutableStateOf("") }
+    val location = rememberSaveable { mutableStateOf("") }
+    val passwordVisibility = rememberSaveable { mutableStateOf(false) }
+    val passwordFocusRequest = FocusRequester.Default
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val valid = remember(email.value, password.value, firstName.value, lastName.value, location.value) {
+        email.value.trim().isNotEmpty() &&
+                password.value.trim().isNotEmpty() &&
+                firstName.value.trim().isNotEmpty() &&
+                lastName.value.trim().isNotEmpty() &&
+                location.value.trim().isNotEmpty()
+    }
+
+    Column(
+        modifier = Modifier
+            .height(400.dp)
+            .background(MaterialTheme.colorScheme.background)
+            .verticalScroll(rememberScrollState()),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = "Create Account", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(4.dp))
+
+        EmailInput(
+            emailState = email,
+            enabled = true,
+            onAction = KeyboardActions { passwordFocusRequest.requestFocus() },
+        )
+
+        PasswordInput(
+            modifier = Modifier.focusRequester(passwordFocusRequest),
+            passwordState = password,
+            labelId = "Password",
+            enabled = !loading,
+            passwordVisibility = passwordVisibility,
+            onAction = KeyboardActions.Default
+        )
+
+        InputField(
+            valueState = firstName,
+            labelId = "First Name",
+            enabled = !loading,
+            onAction = KeyboardActions.Default
+        )
+
+        InputField(
+            valueState = lastName,
+            labelId = "Last Name",
+            enabled = !loading,
+            onAction = KeyboardActions.Default
+        )
+
+        InputField(
+            valueState = location,
+            labelId = "Location",
+            enabled = !loading,
+            onAction = KeyboardActions.Default
+        )
+    }
+
+    SubmitButton(
+        textId = "Create Account",
+        loading = loading,
+        validInputs = valid
+    ) {
+        onDone(email.value.trim(), password.value.trim(), firstName.value.trim(), lastName.value.trim(), location.value.trim())
         keyboardController?.hide()
     }
 }

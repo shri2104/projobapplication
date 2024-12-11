@@ -7,6 +7,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.projobliveapp.Screens.Home.HomeScreen
 import com.example.projobliveapp.Screens.Login.LoginDialog
 import com.example.projobliveapp.Screens.Login.LoginScreen
 
@@ -25,7 +26,7 @@ fun Navigation(){
             LoginScreen(navController=navController)
         }
         composable(Screen.HomeScreen.name){
-
+            HomeScreen(navController = navController)
         }
         composable(Screen.PhoneAuthScreen.name){
             LoginDialog(navController=navController)
