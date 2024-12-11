@@ -86,9 +86,9 @@ fun SplashScreen(navController: NavHostController) {
                 verticalArrangement = Arrangement.Center
             ) {
                 logo() // Logo
-                Spacer(modifier = Modifier.height(15.dp))
+                Spacer(modifier = Modifier.height(5.dp))
                 Text(
-                    text = "\"Connect with Alums \"",
+                    text = "\"Simplifying Connections.\"",
                     style = MaterialTheme.typography.headlineSmall,
                     color = Color.LightGray
                 )
@@ -101,7 +101,7 @@ fun SplashScreen(navController: NavHostController) {
 fun logo(modifier: Modifier = Modifier) {
     Row(
         modifier = modifier
-            .padding(16.dp)
+            .padding(2.dp)
             .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
