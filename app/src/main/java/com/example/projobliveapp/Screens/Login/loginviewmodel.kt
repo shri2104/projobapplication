@@ -31,8 +31,8 @@ class LoginScreenViewModel : ViewModel() {
                 auth.signInWithEmailAndPassword(email, password)
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful) {
-                            fetchUserData() // Fetch user data from Firestore
-                            home() // Navigate to the home screen
+                            fetchUserData()
+                            home()
                         } else {
                             Log.d("FB", "Sign-in failed: ${task.exception?.message}")
                         }
@@ -41,7 +41,6 @@ class LoginScreenViewModel : ViewModel() {
                 Log.d("FB", "Exception during sign-in: ${ex.message}")
             }
         }
-
     /**
      * Create a new user with email and password, save additional user information in Firestore,
      * and navigate to the home screen if successful.
