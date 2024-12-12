@@ -25,7 +25,7 @@ import androidx.navigation.compose.rememberNavController
 
 @Composable
 fun LoginSelectionScreen(navController: NavController) {
-    // Main Column that holds the buttons
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -34,7 +34,7 @@ fun LoginSelectionScreen(navController: NavController) {
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "Select Login Type",
+            text = "How You Want to Login?",
             style = MaterialTheme.typography.labelLarge,
             modifier = Modifier.padding(bottom = 40.dp)
         )
