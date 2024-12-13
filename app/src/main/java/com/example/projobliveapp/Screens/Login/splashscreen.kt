@@ -107,7 +107,7 @@ fun logo(modifier: Modifier = Modifier) {
         horizontalArrangement = Arrangement.Center
     ) {
         Image(
-            painter = painterResource(id = R.drawable.screenshot_2024_12_11_at_12_17_32am), // Replace with your image resource
+            painter = painterResource(id = R.drawable.projob_logo1_12fc55031a756ac453bf), // Replace with your image resource
             contentDescription = "Logo",
             modifier = Modifier
                 .size(120.dp)

@@ -72,7 +72,7 @@ fun ProfileHeader() {
         contentAlignment = Alignment.Center
     ) {
         Image(
-            painter = painterResource(id = R.drawable.screenshot_2024_12_11_at_12_17_32am), // Replace with your app logo
+            painter = painterResource(id = R.drawable.projob_logo1_12fc55031a756ac453bf), // Replace with your app logo
             contentDescription = "App Logo",
             modifier = Modifier.size(150.dp)
         )
