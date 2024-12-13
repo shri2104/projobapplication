@@ -1,9 +1,6 @@
 package com.example.projobliveapp.Screens.frontscreen
 
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -19,8 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-
-
+import com.example.projobliveapp.Navigation.Screen
 
 
 @Composable
@@ -41,7 +37,7 @@ fun LoginSelectionScreen(navController: NavController) {
 
         Button(
             onClick = {
-                navController.navigate("employerLogin")
+                navController.navigate(Screen.LoginScreen.name)
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -56,7 +52,7 @@ fun LoginSelectionScreen(navController: NavController) {
 
         Button(
             onClick = {
-                navController.navigate("candidateLogin")
+                navController.navigate(Screen.LoginScreen.name)
             },
             modifier = Modifier
                 .fillMaxWidth()

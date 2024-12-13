@@ -7,7 +7,7 @@ enum class Screen{
     LoginScreen,
     CreateAccountScreen,
     HomeScreen,
-    SearchScreen,
+    FrontScreen,
     PhoneAuthScreen,
     UpdateScreen,
     ReaderStatsScreen;
@@ -18,7 +18,7 @@ enum class Screen{
             LoginScreen.name->LoginScreen
             CreateAccountScreen.name->CreateAccountScreen
             HomeScreen.name->HomeScreen
-            SearchScreen.name->SearchScreen
+            FrontScreen.name->FrontScreen
             PhoneAuthScreen.name->PhoneAuthScreen
             UpdateScreen.name->UpdateScreen
             ReaderStatsScreen.name->ReaderStatsScreen

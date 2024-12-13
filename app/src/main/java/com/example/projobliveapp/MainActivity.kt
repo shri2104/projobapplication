@@ -12,6 +12,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.projobliveapp.Navigation.Navigation
+import com.example.projobliveapp.Screens.profile.NavigationMenu
+import com.example.projobliveapp.Screens.profile.ScrollableProfileScreen
 import com.example.projobliveapp.ui.theme.ProJobLiveAppTheme
 
 class MainActivity : ComponentActivity() {
@@ -20,7 +22,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ProJobLiveAppTheme {
-                Navigation()
+                ScrollableProfileScreen()
             }
         }
     }
