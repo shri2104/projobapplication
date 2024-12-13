@@ -49,17 +49,13 @@ fun LoginDialog(navController: NavHostController) {
                 dismissOnClickOutside = false
             )
         ) {
-
             CompleteDialogContent(navController = navController)
         }
     }
 }
-
 val auth = FirebaseAuth.getInstance()
 var storedVerificationId: String = ""
-
 @OptIn(ExperimentalMaterial3Api::class)
-
 @Composable
 fun CompleteDialogContent(navController: NavHostController) {
     val context = LocalContext.current
@@ -120,8 +116,6 @@ fun CompleteDialogContent(navController: NavHostController) {
                     )
                 )
             }
-
-            // Send OTP or Verify button
             Button(
                 onClick = {
                     if (!isOtpVisible) {
@@ -144,8 +138,6 @@ fun CompleteDialogContent(navController: NavHostController) {
                     color = Color.White
                 )
             }
-
-            // Login with Email button
             Button(
                 onClick = {
                     navController.navigate(Screen.LoginScreen.name)
