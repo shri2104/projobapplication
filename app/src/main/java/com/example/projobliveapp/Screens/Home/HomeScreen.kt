@@ -1,57 +1,35 @@
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardColors
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
+import com.example.projobliveapp.Navigation.Screen
 import com.example.projobliveapp.R
 
-class JobSearchHomePageActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            JobSearchHomePage()
-        }
-    }
-}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun JobSearchHomePage() {
+fun JobSearchHomePage(navController: NavHostController) {
     val scrollState = rememberScrollState()
     val openMenu = remember { mutableStateOf(false) }
 
@@ -72,24 +50,37 @@ fun JobSearchHomePage() {
                     ) {
                         DropdownMenuItem(
                             onClick = {
-                                // Handle navigation to Applied Jobs
-                                openMenu.value = false // Close the menu
+                                openMenu.value = false
+                                navController.navigate(Screen.profilesection.name) // Navigate to Profile Screen
                             },
-                            text = { Text("Applied Jobs") } // Correctly pass the Text here
+                            text = { Text("Profile") }
                         )
                         DropdownMenuItem(
                             onClick = {
-                                // Handle navigation to Profile
-                                openMenu.value = false // Close the menu
+                                openMenu.value = false
+                                navController.navigate(Screen.profilesection.name) // Navigate to Login Screen
                             },
-                            text = { Text("Profile") } // Correctly pass the Text here
+                            text = { Text("Login") }
                         )
                     }
-
-
-
                 }
             )
+        },
+        bottomBar = {
+            BottomAppBar() {
+                IconButton(onClick = {  }) {
+                    Icon(Icons.Default.Home, contentDescription = "Home")
+                }
+                IconButton(onClick = {}) {
+                    Icon(Icons.Default.Search, contentDescription = "Search")
+                }
+                IconButton(onClick = { }) {
+                    Icon(Icons.Default.Check, contentDescription = "Applied Jobs")
+                }
+                IconButton(onClick = {  }) {
+                    Icon(Icons.Default.Person, contentDescription = "Profile")
+                }
+            }
         }
     ) { paddingValues ->
         Column(
@@ -99,8 +90,10 @@ fun JobSearchHomePage() {
                 .verticalScroll(scrollState)
         ) {
             SearchBarSection()
+            TrendingJobsSection()
             TrustedByCompaniesSection()
             BrowseByCategorySection()
+            RecentlyViewedJobsSection()
         }
     }
 }
@@ -112,35 +105,57 @@ fun SearchBarSection() {
             .fillMaxWidth()
             .padding(16.dp)
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            OutlinedTextField(
-                value = "",
-                onValueChange = {},
-                label = { Text("Search Jobs") },
-                modifier = Modifier.weight(1f)
-            )
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            OutlinedTextField(
-                value = "",
-                onValueChange = {},
-                label = { Text("City") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                modifier = Modifier.weight(1f)
-            )
-        }
-
+        OutlinedTextField(
+            value = "",
+            onValueChange = {},
+            label = { Text("Search Jobs by Title or Location") },
+            leadingIcon = {
+                Icon(Icons.Default.Search, contentDescription = null)
+            },
+            modifier = Modifier.fillMaxWidth()
+        )
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            onClick = { /* Handle Search Action */ },
+            onClick = {  },
             modifier = Modifier.align(Alignment.End)
         ) {
             Text("Search")
+        }
+    }
+}
+
+@Composable
+fun TrendingJobsSection() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        Text(
+            text = "Trending Jobs",
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+
+        LazyRow(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            items(10) {
+                Card(
+                    modifier = Modifier
+                        .size(150.dp)
+                        .padding(8.dp),
+                    elevation = CardDefaults.cardElevation(4.dp)
+                ) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(text = "Job $it", textAlign = TextAlign.Center)
+                    }
+                }
+            }
         }
     }
 }
@@ -161,9 +176,9 @@ fun TrustedByCompaniesSection() {
         LazyRow(
             modifier = Modifier.fillMaxWidth()
         ) {
-            items(10) { // Replace with the actual list of companies
+            items(10) {
                 Image(
-                    painter = painterResource(id = R.drawable.microsoft), // Replace with actual company logo drawable
+                    painter = painterResource(id = R.drawable.microsoft),
                     contentDescription = "Company Logo",
                     modifier = Modifier
                         .size(64.dp)
@@ -177,6 +192,12 @@ fun TrustedByCompaniesSection() {
 
 @Composable
 fun BrowseByCategorySection() {
+    val categories = listOf(
+        "Development", "Management", "Health & Care",
+        "Finance", "Design", "Education",
+        "Marketing", "Engineering", "Sales"
+    )
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -188,29 +209,34 @@ fun BrowseByCategorySection() {
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
-        Row(
+        LazyRow(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceAround
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            contentPadding = PaddingValues(horizontal = 16.dp)
         ) {
-            CategoryCard(category = "Development")
-            CategoryCard(category = "Management")
-            CategoryCard(category = "Health & Care")
+            items(categories) { category ->
+                CategoryCard(category = category) {
+
+                    println("Clicked on $category")
+                }
+            }
         }
     }
 }
 
 @Composable
-fun CategoryCard(category: String) {
+fun CategoryCard(category: String, onClick: () -> Unit) {
     Card(
         modifier = Modifier
-            .width(100.dp)
-            .height(120.dp),
-        elevation = CardDefaults.cardElevation(4.dp) // Set elevation for the card
+            .width(120.dp)
+            .height(150.dp)
+            .clickable(onClick = onClick),
+        elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFFBBDEFB)), // Set background color here
+                .background(Color(0xFFBBDEFB)),
             contentAlignment = Alignment.Center
         ) {
             Text(
@@ -223,8 +249,39 @@ fun CategoryCard(category: String) {
 }
 
 
-@Preview(showBackground = true)
+
 @Composable
-fun JobSearchHomePagePreview() {
-    JobSearchHomePage()
+fun RecentlyViewedJobsSection() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        Text(
+            text = "Recently Viewed Jobs",
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+
+        LazyRow(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            items(5) {
+                Card(
+                    modifier = Modifier
+                        .size(150.dp)
+                        .padding(8.dp),
+                    elevation = CardDefaults.cardElevation(4.dp)
+                ) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(text = "Job $it", textAlign = TextAlign.Center)
+                    }
+                }
+            }
+        }
+    }
 }
+

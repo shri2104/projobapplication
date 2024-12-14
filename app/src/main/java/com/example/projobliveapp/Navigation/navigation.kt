@@ -3,6 +3,7 @@ package com.example.projobliveapp.Navigation
 
 
 
+import JobSearchHomePage
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.navigation.compose.NavHost
@@ -14,6 +15,7 @@ import com.example.projobliveapp.Screens.Login.LoginScreen
 
 import com.example.projobliveapp.Screens.Login.SplashScreen
 import com.example.projobliveapp.Screens.frontscreen.LoginSelectionScreen
+import com.example.projobliveapp.Screens.profile.ScrollableProfileScreen
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -27,7 +29,7 @@ fun Navigation(){
             LoginScreen(navController=navController)
         }
         composable(Screen.HomeScreen.name){
-//            Screen.HomeScreen(navController = navController)
+             JobSearchHomePage(navController=navController)
         }
         composable(Screen.PhoneAuthScreen.name){
             LoginDialog(navController=navController)
@@ -35,6 +37,11 @@ fun Navigation(){
         composable(Screen.FrontScreen.name){
             LoginSelectionScreen(navController=navController)
         }
+        composable(Screen.profilesection.name){
+            ScrollableProfileScreen(navController=navController)
+        }
+
+
 
     }
 }

@@ -45,11 +45,12 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.projobliveapp.R
 
 @Composable
-fun ScrollableProfileScreen() {
+fun ScrollableProfileScreen(navController: NavHostController) {
 
     Column(
         modifier = Modifier
@@ -62,7 +63,6 @@ fun ScrollableProfileScreen() {
         NavigationMenu()
     }
 }
-
 @Composable
 fun ProfileHeader() {
     Box(
@@ -78,7 +78,6 @@ fun ProfileHeader() {
         )
     }
 }
-
 @Composable
 fun ProfileSection() {
     var imageUri by remember { mutableStateOf<Uri?>(null) }
@@ -192,9 +191,9 @@ fun NavigationMenuItem(title: String, icon: ImageVector) {
         )
     }
 }
-@Preview(showBackground = true)
-@Composable
-fun ScrollableProfileScreenPreview() {
-    ScrollableProfileScreen()
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun ScrollableProfileScreenPreview() {
+//    ScrollableProfileScreen(navController)
+//}
 
