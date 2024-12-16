@@ -141,18 +141,22 @@ fun TrendingJobsSection() {
         LazyRow(
             modifier = Modifier.fillMaxWidth()
         ) {
-            items(10) {
+            items(10) { index ->
                 Card(
                     modifier = Modifier
                         .size(150.dp)
-                        .padding(8.dp),
+                        .padding(8.dp)
+                        .clickable {
+                            println("Clicked on Trending Job $index")
+
+                        },
                     elevation = CardDefaults.cardElevation(4.dp)
                 ) {
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = "Job $it", textAlign = TextAlign.Center)
+                        Text(text = "Job $index", textAlign = TextAlign.Center)
                     }
                 }
             }
@@ -216,8 +220,8 @@ fun BrowseByCategorySection() {
         ) {
             items(categories) { category ->
                 CategoryCard(category = category) {
+                    println("Clicked on $category category")
 
-                    println("Clicked on $category")
                 }
             }
         }
@@ -266,22 +270,25 @@ fun RecentlyViewedJobsSection() {
         LazyRow(
             modifier = Modifier.fillMaxWidth()
         ) {
-            items(5) {
+            items(5) { index ->
                 Card(
                     modifier = Modifier
                         .size(150.dp)
-                        .padding(8.dp),
+                        .padding(8.dp)
+                        .clickable {
+                            println("Clicked on Recently Viewed Job $index")
+                            // You can navigate or open details screen here
+                        },
                     elevation = CardDefaults.cardElevation(4.dp)
                 ) {
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = "Job $it", textAlign = TextAlign.Center)
+                        Text(text = "Job $index", textAlign = TextAlign.Center)
                     }
                 }
             }
         }
     }
 }
-
