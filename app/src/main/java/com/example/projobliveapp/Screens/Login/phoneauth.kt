@@ -19,7 +19,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.tooling.preview.Preview
+
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -65,7 +65,7 @@ fun CompleteDialogContent(navController: NavHostController) {
 
     Card(
         modifier = Modifier
-            .height(400.dp) // Adjusted height to fit additional buttons
+            .height(400.dp)
             .fillMaxWidth()
             .wrapContentHeight(),
         shape = RoundedCornerShape(4.dp)

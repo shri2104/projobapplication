@@ -1,3 +1,5 @@
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -16,8 +18,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -25,7 +30,8 @@ import androidx.navigation.NavHostController
 import com.example.projobliveapp.Navigation.Screen
 import com.example.projobliveapp.R
 
-
+import android.content.Context
+import androidx.compose.ui.platform.LocalContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,18 +73,38 @@ fun JobSearchHomePage(navController: NavHostController) {
             )
         },
         bottomBar = {
-            BottomAppBar() {
-                IconButton(onClick = {  }) {
+            BottomAppBar(
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                IconButton(
+                    onClick = { },
+                    modifier = Modifier.weight(1f)
+                ) {
                     Icon(Icons.Default.Home, contentDescription = "Home")
                 }
-                IconButton(onClick = {}) {
+                IconButton(
+                    onClick = { },
+                    modifier = Modifier.weight(1f)
+                ) {
                     Icon(Icons.Default.Search, contentDescription = "Search")
                 }
-                IconButton(onClick = { }) {
+                IconButton(
+                    onClick = { },
+                    modifier = Modifier.weight(1f)
+                ) {
                     Icon(Icons.Default.Check, contentDescription = "Applied Jobs")
                 }
-                IconButton(onClick = {  }) {
+                IconButton(
+                    onClick = { },
+                    modifier = Modifier.weight(1f)
+                ) {
                     Icon(Icons.Default.Person, contentDescription = "Profile")
+                }
+                IconButton(
+                    onClick = { },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Icon( Icons.Default.List, contentDescription = "list")
                 }
             }
         }
@@ -91,12 +117,220 @@ fun JobSearchHomePage(navController: NavHostController) {
         ) {
             SearchBarSection()
             TrendingJobsSection()
-            TrustedByCompaniesSection()
-            BrowseByCategorySection()
             RecentlyViewedJobsSection()
+            ActiveJobsInCitiesSection()
+            BrowseByCategorySection()
+            TrustedByCompaniesSection()
+            HowItWorksSection()
         }
     }
 }
+@Composable
+fun HowItWorksSection() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        Text(
+            text = "How It Works?",
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+
+        val steps = listOf(
+            Step(
+                title = "Register an account to start",
+                description = "To register as a recruiter, visit the recruitment platform’s website, select the recruiter sign-up option, fill in the required details, verify your email, and complete your profile to start recruiting.",
+                icon = Icons.Default.PersonAdd
+            ),
+            Step(
+                title = "Explore over thousands of resumes",
+                description = "Explore over thousands of resumes to find the perfect candidates for your job openings, leveraging a vast database to match skill sets and experiences with your requirements.",
+                icon = Icons.Default.Lock
+            ),
+            Step(
+                title = "Find the most suitable candidate",
+                description = "Explore thousands of resumes to discover ideal candidates for your vacancies, tapping into a broad pool of talents and experiences tailored to your needs.",
+                icon = Icons.Default.List
+            )
+        )
+
+        steps.forEach { step ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = step.icon,
+                    contentDescription = null,
+                    modifier = Modifier.size(40.dp).padding(end = 16.dp),
+                    tint = LocalContentColor.current
+                )
+                Column {
+                    Text(
+                        text = step.title,
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(text = step.description)
+                }
+            }
+        }
+    }
+}
+
+data class Step(
+    val title: String,
+    val description: String,
+    val icon: ImageVector
+)
+
+@Composable
+fun ActiveJobsInCitiesSection() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        Text(
+            text = "Active Jobs in Cities",
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+
+        val cities = listOf(
+            City("New York", Icons.Default.Home),
+            City("San Francisco", Icons.Default.DirectionsBoat),
+            City("Austin", Icons.Default.Place),
+            City("Los Angeles", Icons.Default.Star),
+            City("Chicago", Icons.Default.LocationCity)
+        )
+
+        LazyRow(
+            modifier = Modifier.fillMaxWidth(),
+            contentPadding = PaddingValues(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            items(cities) { city ->
+                CityCard(city = city)
+            }
+        }
+    }
+}
+
+data class City(
+    val name: String,
+    val icon: ImageVector
+)
+
+@Composable
+fun CityCard(city: City) {
+    Card(
+        modifier = Modifier
+            .size(150.dp)
+            .clickable { println("Clicked on ${city.name}") },
+        elevation = CardDefaults.cardElevation(4.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color(0xFFF3E5F5)),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.padding(8.dp)
+            ) {
+                Icon(
+                    imageVector = city.icon,
+                    contentDescription = city.name,
+                    modifier = Modifier.size(40.dp)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = city.name,
+                    style = MaterialTheme.typography.bodyLarge,
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun ContactDetailsSection() {
+    val context = LocalContext.current
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+
+        Text(
+            text = "Contact Details",
+            style = MaterialTheme.typography.headlineMedium,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+
+        Text(
+            text = "ProJob",
+            style = MaterialTheme.typography.headlineLarge,
+            modifier = Modifier.padding(bottom = 4.dp)
+        )
+        Text(
+            text = "Raheja Platinum, off Andheri – Kurla Road, Sag Baug, Marol, Andheri East, Mumbai, Maharashtra 400059",
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+
+        Row(modifier = Modifier.padding(vertical = 8.dp)) {
+            Icon(imageVector = Icons.Default.Phone, contentDescription = null, modifier = Modifier.padding(end = 8.dp))
+            Text(text = "+91 88502 31081", style = MaterialTheme.typography.bodyLarge)
+        }
+        Row(modifier = Modifier.padding(vertical = 8.dp)) {
+            Icon(imageVector = Icons.Default.Email, contentDescription = null, modifier = Modifier.padding(end = 8.dp))
+            Text(text = "info@projob.co.in", style = MaterialTheme.typography.bodyLarge)
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = "Visit Our Website",
+            style = MaterialTheme.typography.headlineMedium,
+            modifier = Modifier.padding(bottom = 4.dp)
+        )
+
+        Text(
+            text = "Explore all the features of our platform to help you find the best candidates and advertise your job openings to millions of users.",
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+
+        Button(
+            onClick = {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.projob.co.in"))
+                context.startActivity(intent)
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(text = "Visit Our Website")
+        }
+    }
+}
+
+
+
 
 @Composable
 fun SearchBarSection() {
@@ -176,7 +410,6 @@ fun TrustedByCompaniesSection() {
             style = MaterialTheme.typography.headlineSmall,
             modifier = Modifier.padding(bottom = 8.dp)
         )
-
         LazyRow(
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -193,7 +426,6 @@ fun TrustedByCompaniesSection() {
         }
     }
 }
-
 @Composable
 fun BrowseByCategorySection() {
     val categories = listOf(
@@ -201,7 +433,6 @@ fun BrowseByCategorySection() {
         "Finance", "Design", "Education",
         "Marketing", "Engineering", "Sales"
     )
-
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -212,7 +443,6 @@ fun BrowseByCategorySection() {
             style = MaterialTheme.typography.headlineSmall,
             modifier = Modifier.padding(bottom = 8.dp)
         )
-
         LazyRow(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -227,7 +457,6 @@ fun BrowseByCategorySection() {
         }
     }
 }
-
 @Composable
 fun CategoryCard(category: String, onClick: () -> Unit) {
     Card(
@@ -251,9 +480,6 @@ fun CategoryCard(category: String, onClick: () -> Unit) {
         }
     }
 }
-
-
-
 @Composable
 fun RecentlyViewedJobsSection() {
     Column(
@@ -277,7 +503,6 @@ fun RecentlyViewedJobsSection() {
                         .padding(8.dp)
                         .clickable {
                             println("Clicked on Recently Viewed Job $index")
-                            // You can navigate or open details screen here
                         },
                     elevation = CardDefaults.cardElevation(4.dp)
                 ) {

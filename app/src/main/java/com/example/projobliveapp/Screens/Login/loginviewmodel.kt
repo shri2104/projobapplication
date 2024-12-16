@@ -92,7 +92,6 @@ class LoginScreenViewModel : ViewModel() {
                 profession = "Android Developer",
                 id = null
             )
-
             firestore.collection("users")
                 .document(userId)
                 .set(user)
