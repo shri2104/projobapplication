@@ -3,14 +3,15 @@ package com.example.projobliveapp.Navigation
 
 
 
-import JobSearchHomePage
+import JobAppSlidingMenuScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.bawp.freader.screens.login.LoginScreen
 import com.example.projobliveapp.Screens.Login.LoginDialog
-import com.example.projobliveapp.Screens.Login.LoginScreen
+
 
 
 import com.example.projobliveapp.Screens.Login.SplashScreen
@@ -29,7 +30,7 @@ fun Navigation(){
             LoginScreen(navController=navController)
         }
         composable(Screen.HomeScreen.name){
-             JobSearchHomePage(navController=navController)
+            JobAppSlidingMenuScreen(navController=navController)
         }
         composable(Screen.PhoneAuthScreen.name){
             LoginDialog(navController=navController)
@@ -40,7 +41,9 @@ fun Navigation(){
         composable(Screen.profilesection.name){
             ScrollableProfileScreen(navController=navController)
         }
-
+        composable(Screen.profilesection.name){
+            ScrollableProfileScreen(navController=navController)
+        }
 
 
     }

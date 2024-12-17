@@ -7,9 +7,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -17,114 +14,52 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.projobliveapp.Navigation.Screen
 import com.example.projobliveapp.R
 
-import android.content.Context
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.foundation.shape.RoundedCornerShape
 
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
-fun JobSearchHomePage(navController: NavHostController) {
-    val scrollState = rememberScrollState()
-    val openMenu = remember { mutableStateOf(false) }
+fun JobAppSlidingMenuScreen(navController: NavHostController) {
+    var isMenuVisible by remember { mutableStateOf(false) }
+    val menuWidth by animateFloatAsState(
+        targetValue = if (isMenuVisible) 0.85f else 0f,
+        label = "MenuWidthAnimation"
+    )
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Home Dashboard", style = MaterialTheme.typography.headlineSmall) },
-                actions = {
-                    IconButton(onClick = { openMenu.value = true }) {
-                        Icon(
-                            Icons.Default.Person,
-                            contentDescription = "Profile Icon"
-                        )
-                    }
-                    DropdownMenu(
-                        expanded = openMenu.value,
-                        onDismissRequest = { openMenu.value = false }
-                    ) {
-                        DropdownMenuItem(
-                            onClick = {
-                                openMenu.value = false
-                                navController.navigate(Screen.profilesection.name) // Navigate to Profile Screen
-                            },
-                            text = { Text("Profile") }
-                        )
-                        DropdownMenuItem(
-                            onClick = {
-                                openMenu.value = false
-                                navController.navigate(Screen.profilesection.name) // Navigate to Login Screen
-                            },
-                            text = { Text("Login") }
-                        )
-                    }
-                }
+    Box(modifier = Modifier.fillMaxSize()) {
+        if (!isMenuVisible) {
+            MainJobScreenContent(
+                onMenuClick = { isMenuVisible = true }
             )
-        },
-        bottomBar = {
-            BottomAppBar(
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                IconButton(
-                    onClick = { },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Icon(Icons.Default.Home, contentDescription = "Home")
-                }
-                IconButton(
-                    onClick = { },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Icon(Icons.Default.Search, contentDescription = "Search")
-                }
-                IconButton(
-                    onClick = { },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Icon(Icons.Default.Check, contentDescription = "Applied Jobs")
-                }
-                IconButton(
-                    onClick = { },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Icon(Icons.Default.Person, contentDescription = "Profile")
-                }
-                IconButton(
-                    onClick = { },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Icon( Icons.Default.List, contentDescription = "list")
-                }
-            }
         }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .verticalScroll(scrollState)
-        ) {
-            SearchBarSection()
-            TrendingJobsSection()
-            RecentlyViewedJobsSection()
-            ActiveJobsInCitiesSection()
-            BrowseByCategorySection()
-            TrustedByCompaniesSection()
-            HowItWorksSection()
+        if (isMenuVisible) {
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .fillMaxWidth(menuWidth)
+                    .align(Alignment.CenterStart)
+                    .background(
+                        Color(0xFF1E1E1E),
+                        RoundedCornerShape(topEnd = 16.dp, bottomEnd = 16.dp)
+                    )
+            ) {
+                JobAppMenuContent(
+                    onCloseMenu = { isMenuVisible = false }
+                )
+            }
         }
     }
 }
+
 @Composable
 fun HowItWorksSection() {
     Column(

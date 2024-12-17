@@ -1,6 +1,6 @@
 package com.example.projobliveapp
 
-import JobSearchHomePage
+
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent

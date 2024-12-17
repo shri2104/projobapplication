@@ -1,130 +1,109 @@
-package com.example.projobliveapp.Screens.Login
-
+package com.bawp.freader.screens.login
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.projobliveapp.Component.EmailInput
-import com.example.projobliveapp.Component.InputField
 import com.example.projobliveapp.Component.PasswordInput
 import com.example.projobliveapp.Navigation.Screen
 import com.example.projobliveapp.R
+import com.example.projobliveapp.Screens.Login.LoginScreenViewModel
+import com.example.projobliveapp.Screens.Login.logo
+
 @ExperimentalComposeUiApi
 @Composable
 fun LoginScreen(
     navController: NavController,
     viewModel: LoginScreenViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
-    val showLoginForm = rememberSaveable { mutableStateOf(true) }
+    val showLoginForm = rememberSaveable { mutableStateOf(true) } // Toggle login or signup form
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier.padding(16.dp)
+            verticalArrangement = Arrangement.Top
         ) {
-            logo() // Display the logo at the top
+            logo() // App Logo
 
+            // Conditional Login/Sign-up Form
             if (showLoginForm.value) {
-                // Login form
-                LoginForm(
-                    loading = false
+                UserForm(
+                    loading = false,
+                    isCreateAccount = false
                 ) { email, password ->
                     viewModel.signInWithEmailAndPassword(email, password) {
-                        navController?.navigate(Screen.HomeScreen.name)
+                        navController.navigate(Screen.HomeScreen.name)
                     }
                 }
             } else {
-
-                RegistrationForm(
-                    loading = false
-                ) { email, password, firstName, lastName, location ->
-                    viewModel.createUserWithEmailAndPassword(email, password, firstName, lastName, location) {
+                UserForm(
+                    loading = false,
+                    isCreateAccount = true
+                ) { email, password ->
+                    viewModel.createUserWithEmailAndPassword(email, password) {
                         navController.navigate(Screen.HomeScreen.name)
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            // Spacer
+            Spacer(modifier = Modifier.height(15.dp))
 
+            // Toggle Between Login & Sign-up
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 15.dp),
+                modifier = Modifier.padding(15.dp),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                val actionText = if (showLoginForm.value) "Sign up" else "Log in"
+                val text = if (showLoginForm.value) "Sign up" else "Login"
+                Text("New User?")
+
                 Text(
-                    text = if (showLoginForm.value) "New User?" else "Already have an account?",
-                    style = MaterialTheme.typography.labelLarge
-                )
-                Text(
-                    text = actionText,
+                    text = text,
                     modifier = Modifier
                         .clickable { showLoginForm.value = !showLoginForm.value }
                         .padding(start = 5.dp),
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.secondary
                 )
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-
-            Button(
-                onClick = {
-                    navController.navigate(Screen.PhoneAuthScreen.name)
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(5.dp),
-                shape = CircleShape,
-                colors = ButtonDefaults.buttonColors(Color.DarkGray)
-            ) {
-                Text(text = "Sign in with Phone Number")
             }
         }
     }
 }
 
+@ExperimentalComposeUiApi
 @Composable
-fun LoginForm(
-    loading: Boolean,
+fun UserForm(
+    loading: Boolean = false,
+    isCreateAccount: Boolean = false,
     onDone: (String, String) -> Unit
 ) {
     val email = rememberSaveable { mutableStateOf("") }
@@ -132,25 +111,35 @@ fun LoginForm(
     val passwordVisibility = rememberSaveable { mutableStateOf(false) }
     val passwordFocusRequest = FocusRequester.Default
     val keyboardController = LocalSoftwareKeyboardController.current
+
     val valid = remember(email.value, password.value) {
         email.value.trim().isNotEmpty() && password.value.trim().isNotEmpty()
     }
 
+    val modifier = Modifier
+        .height(250.dp)
+        .background(MaterialTheme.colorScheme.background)
+        .verticalScroll(rememberScrollState())
+
     Column(
-        modifier = Modifier
-            .height(300.dp)
-            .background(MaterialTheme.colorScheme.background)
-            .verticalScroll(rememberScrollState()),
+        modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "Log in", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(4.dp))
-
-        EmailInput(
-            emailState = email,
-            enabled = true,
-            onAction = KeyboardActions { passwordFocusRequest.requestFocus() },
+        // Header Text
+        Text(
+            text = if (isCreateAccount) stringResource(id = R.string.create_acct) else "",
+            modifier = Modifier.padding(4.dp),
+            style = MaterialTheme.typography.headlineSmall
         )
 
+        // Email Input Field
+        EmailInput(
+            emailState = email,
+            enabled = !loading,
+            onAction = KeyboardActions { passwordFocusRequest.requestFocus() }
+        )
+
+        // Password Input Field
         PasswordInput(
             modifier = Modifier.focusRequester(passwordFocusRequest),
             passwordState = password,
@@ -162,110 +151,38 @@ fun LoginForm(
                 onDone(email.value.trim(), password.value.trim())
             }
         )
-    }
 
-    SubmitButton(
-        textId = "Login",
-        loading = loading,
-        validInputs = valid
-    ) {
-        onDone(email.value.trim(), password.value.trim())
-        keyboardController?.hide()
+        // Submit Button
+        SubmitButton(
+            textId = if (isCreateAccount) "Create Account" else "Login",
+            loading = loading,
+            validInputs = valid
+        ) {
+            onDone(email.value.trim(), password.value.trim())
+            keyboardController?.hide()
+        }
     }
 }
 
 @Composable
-fun RegistrationForm(
+fun SubmitButton(
+    textId: String,
     loading: Boolean,
-    onDone: (String, String, String, String, String) -> Unit
+    validInputs: Boolean,
+    onClick: () -> Unit
 ) {
-    val email = rememberSaveable { mutableStateOf("") }
-    val password = rememberSaveable { mutableStateOf("") }
-    val firstName = rememberSaveable { mutableStateOf("") }
-    val lastName = rememberSaveable { mutableStateOf("") }
-    val location = rememberSaveable { mutableStateOf("") }
-    val passwordVisibility = rememberSaveable { mutableStateOf(false) }
-    val passwordFocusRequest = FocusRequester.Default
-    val keyboardController = LocalSoftwareKeyboardController.current
-    val valid = remember(email.value, password.value, firstName.value, lastName.value, location.value) {
-        email.value.trim().isNotEmpty() &&
-                password.value.trim().isNotEmpty() &&
-                firstName.value.trim().isNotEmpty() &&
-                lastName.value.trim().isNotEmpty() &&
-                location.value.trim().isNotEmpty()
-    }
-
-    Column(
-        modifier = Modifier
-            .height(400.dp)
-            .background(MaterialTheme.colorScheme.background)
-            .verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(text = "Create Account", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(4.dp))
-
-        EmailInput(
-            emailState = email,
-            enabled = true,
-            onAction = KeyboardActions { passwordFocusRequest.requestFocus() },
-        )
-
-        PasswordInput(
-            modifier = Modifier.focusRequester(passwordFocusRequest),
-            passwordState = password,
-            labelId = "Password",
-            enabled = !loading,
-            passwordVisibility = passwordVisibility,
-            onAction = KeyboardActions.Default
-        )
-
-        InputField(
-            valueState = firstName,
-            labelId = "First Name",
-            enabled = !loading,
-            onAction = KeyboardActions.Default
-        )
-
-        InputField(
-            valueState = lastName,
-            labelId = "Last Name",
-            enabled = !loading,
-            onAction = KeyboardActions.Default
-        )
-
-        InputField(
-            valueState = location,
-            labelId = "Location",
-            enabled = !loading,
-            onAction = KeyboardActions.Default
-        )
-    }
-
-    SubmitButton(
-        textId = "Create Account",
-        loading = loading,
-        validInputs = valid
-    ) {
-        onDone(email.value.trim(), password.value.trim(), firstName.value.trim(), lastName.value.trim(), location.value.trim())
-        keyboardController?.hide()
-    }
-}
-@Composable
-fun SubmitButton(textId: String,
-                 loading: Boolean,
-                 validInputs: Boolean,
-                 onClick: () -> Unit) {
     Button(
         onClick = onClick,
         modifier = Modifier
-            .padding(3.dp)
+            .padding(8.dp)
             .fillMaxWidth(),
         enabled = !loading && validInputs,
         shape = CircleShape
     ) {
-        if (loading) CircularProgressIndicator(modifier = Modifier.size(25.dp))
-        else Text(text = textId, modifier = Modifier.padding(5.dp))
-
+        if (loading) {
+            CircularProgressIndicator(modifier = Modifier.size(25.dp))
+        } else {
+            Text(text = textId, modifier = Modifier.padding(5.dp))
+        }
     }
-
 }
