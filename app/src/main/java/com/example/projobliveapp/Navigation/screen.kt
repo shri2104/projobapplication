@@ -11,6 +11,13 @@ enum class Screen{
     PhoneAuthScreen,
     JobSearchHomePage,
     profilesection,
+    phMainScreen,
+    OtpScreen,
+    PHHomeScreen,
+    InputDataScreen,
+    ContactUsScreen,
+    HelpandSupport,
+    MoreScreen,
     MenuScreen;
     companion object{
         fun fromRoute(route: String?):Screen
@@ -24,6 +31,13 @@ enum class Screen{
             JobSearchHomePage.name->JobSearchHomePage
             profilesection.name->profilesection
             MenuScreen.name->MenuScreen
+            phMainScreen.name->phMainScreen
+            OtpScreen.name->OtpScreen
+            PHHomeScreen.name->PHHomeScreen
+            InputDataScreen.name->InputDataScreen
+            MoreScreen.name->MoreScreen
+            HelpandSupport.name->HelpandSupport
+            ContactUsScreen.name->ContactUsScreen
             null->HomeScreen
             else -> throw IllegalArgumentException("Route $route is not recognized")
         }

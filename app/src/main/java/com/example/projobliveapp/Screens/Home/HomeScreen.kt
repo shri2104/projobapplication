@@ -53,7 +53,8 @@ fun JobAppSlidingMenuScreen(navController: NavHostController) {
                     )
             ) {
                 JobAppMenuContent(
-                    onCloseMenu = { isMenuVisible = false }
+                    onCloseMenu = { isMenuVisible = false },
+                    navController=navController
                 )
             }
         }

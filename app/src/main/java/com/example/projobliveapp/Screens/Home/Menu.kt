@@ -12,11 +12,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import com.example.projobliveapp.Navigation.Screen
 import com.example.projobliveapp.R
-
+import com.google.firebase.auth.FirebaseAuth
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -55,20 +56,15 @@ fun MainJobScreenContent(onMenuClick: () -> Unit) {
                     onClick = { },
                     modifier = Modifier.weight(1f)
                 ) {
-                    Icon(Icons.Default.Check, contentDescription = "Applied Jobs")
+                    Icon(Icons.Default.Groups, contentDescription = "internship")
                 }
                 IconButton(
                     onClick = { },
                     modifier = Modifier.weight(1f)
                 ) {
-                    Icon(Icons.Default.Person, contentDescription = "Profile")
+                    Icon(Icons.Default.Work, contentDescription = "Jobs")
                 }
-                IconButton(
-                    onClick = { },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Icon( Icons.Default.List, contentDescription = "list")
-                }
+
             }
         }
     ) { paddingValues ->
@@ -90,7 +86,7 @@ fun MainJobScreenContent(onMenuClick: () -> Unit) {
 }
 
 @Composable
-fun JobAppMenuContent(onCloseMenu: () -> Unit) {
+fun JobAppMenuContent(onCloseMenu: () -> Unit, navController: NavHostController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -119,12 +115,25 @@ fun JobAppMenuContent(onCloseMenu: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(20.dp),
             modifier = Modifier.padding(top = 8.dp)
         ) {
-            MenuItem(icon = Icons.Default.Person, label = "Profile", onClick = {  })
+            MenuItem(icon = Icons.Default.Person, label = "Profile", onClick = {
+                navController.navigate(Screen.profilesection.name)
+            })
             MenuItem(icon = Icons.Default.Favorite, label = "Saved Jobs", onClick = {  })
             MenuItem(icon = Icons.Default.Email, label = "Applications", onClick = {  })
-            MenuItem(icon = Icons.Default.SupportAgent, label = "Help & Support", onClick = { })
-            MenuItem(icon = Icons.Default.Phone, label = "Contact Us", onClick = { })
-            MenuItem(icon = Icons.Default.Logout, label = "Logout", onClick = {  })
+            MenuItem(icon = Icons.Default.SupportAgent, label = "Help & Support", onClick = {
+                navController.navigate(Screen.HelpandSupport.name)
+            })
+            MenuItem(icon = Icons.Default.Phone, label = "Contact Us", onClick = {
+                navController.navigate(Screen.ContactUsScreen.name)
+            })
+            MenuItem(icon = Icons.Default.AddCircleOutline, label = "More", onClick = {
+                navController.navigate(Screen.MoreScreen.name)
+            })
+            MenuItem(icon = Icons.Default.Logout, label = "Logout", onClick = {
+                FirebaseAuth.getInstance().signOut()
+                navController.navigate(Screen.LoginScreen.name)
+            })
+
         }
         Spacer(modifier = Modifier.weight(1f))
         Text(
