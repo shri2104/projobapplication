@@ -45,17 +45,17 @@ fun HelpAndSupportPage(navController: NavController) {
                 )
             )
         },
-        // Set the background color of the screen to match the top app bar
+
         content = { padding ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
                     .padding(1.dp)
-                    .background(appBarColor), // Set the screen background color to match top bar
+                    .background(appBarColor),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Help and Support content
+
                 Text(
                     text = "Need help? Reach us via email:",
                     style = MaterialTheme.typography.bodyMedium,
@@ -74,15 +74,12 @@ fun HelpAndSupportPage(navController: NavController) {
 @Composable
 fun ClickableEmail(email: String) {
     val context = LocalContext.current
-
-    // Create a clickable email text
     Text(
         text = email,
         style = TextStyle(fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary),
         modifier = Modifier
             .padding(8.dp)
             .clickable {
-                // Open Gmail or any email app
                 val intent = Intent(Intent.ACTION_SENDTO).apply {
                     data = Uri.parse("mailto:$email")
                 }

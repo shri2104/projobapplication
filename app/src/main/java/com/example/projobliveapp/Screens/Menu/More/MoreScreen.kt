@@ -1,4 +1,4 @@
-package com.example.projobliveapp.Screens.Menu
+package com.example.projobliveapp.Screens.Menu.More
 
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -9,7 +9,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -21,6 +20,7 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Lock
 import androidx.navigation.NavHostController
+import com.example.projobliveapp.Navigation.Screen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,14 +52,14 @@ fun MorePage(navController: NavHostController) {
                 horizontalAlignment = Alignment.Start
             ) {
                 Spacer(Modifier.height(30.dp))
-                SafetyTermsAndPrivacy()
+                SafetyTermsAndPrivacy(navController)
             }
         }
     )
 }
 
 @Composable
-fun SafetyTermsAndPrivacy() {
+fun SafetyTermsAndPrivacy(navController: NavHostController) {
     val context = LocalContext.current
 
     Column(
@@ -73,7 +73,8 @@ fun SafetyTermsAndPrivacy() {
             ClickableText(
                 text = AnnotatedString("Safety Tips"),
                 onClick = {
-                    Toast.makeText(context, "Clicked Safety Tips", Toast.LENGTH_SHORT).show()
+                    navController.navigate(Screen.SafetyTips.name)
+                    Toast.makeText(context, "Safety Tips", Toast.LENGTH_SHORT).show()
                 },
                 style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium)
             )
@@ -110,6 +111,7 @@ fun SafetyTermsAndPrivacy() {
             ClickableText(
                 text = AnnotatedString("About"),
                 onClick = {
+                    navController.navigate(Screen.AboutScreen.name)
                     Toast.makeText(context, "About", Toast.LENGTH_SHORT).show()
                 },
                 style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium)

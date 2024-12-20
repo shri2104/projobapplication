@@ -1,7 +1,9 @@
 package com.example.projobliveapp.Navigation
 
 
+import AboutScreen
 import JobAppSlidingMenuScreen
+import ProJobSafetyTipsScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.navigation.compose.NavHost
@@ -12,7 +14,7 @@ import com.example.projobliveapp.Screens.Inputdata.JobApplicationForm
 import com.example.projobliveapp.Screens.Login.SplashScreen
 import com.example.projobliveapp.Screens.Menu.ContactUsPage
 import com.example.projobliveapp.Screens.Menu.HelpAndSupportPage
-import com.example.projobliveapp.Screens.Menu.MorePage
+import com.example.projobliveapp.Screens.Menu.More.MorePage
 import com.example.projobliveapp.Screens.PhoneAuth.OtpScreen
 import com.example.projobliveapp.Screens.PhoneAuth.PHHomeScreen
 
@@ -59,6 +61,12 @@ fun Navigation(){
         }
         composable(Screen.HelpandSupport.name){
             HelpAndSupportPage(navController=navController)
+        }
+        composable(Screen.SafetyTips.name){
+            ProJobSafetyTipsScreen(navController=navController)
+        }
+        composable(Screen.AboutScreen.name){
+            AboutScreen(navController=navController)
         }
     }
 }

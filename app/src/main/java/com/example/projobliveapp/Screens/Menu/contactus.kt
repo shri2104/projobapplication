@@ -121,8 +121,4 @@ fun ContactDetailItem(icon: ImageVector, title: String, detail: String) {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun ContactUsPagePreview() {
-    ContactUsPage(navController = NavController(context = LocalContext.current))
-}
+
