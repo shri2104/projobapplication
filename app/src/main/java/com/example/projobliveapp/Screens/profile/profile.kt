@@ -32,6 +32,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -81,9 +82,17 @@ fun ProfileHeader() {
 @Composable
 fun ProfileSection() {
     var imageUri by remember { mutableStateOf<Uri?>(null) }
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+    val imageLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         imageUri = uri
     }
+
+    var resumeUri by remember { mutableStateOf<Uri?>(null) }
+    val resumeLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        resumeUri = uri
+    }
+
+    var locationQuery by remember { mutableStateOf("") }
+    val suggestedLocations = listOf("New York", "San Francisco", "Los Angeles", "Chicago", "Seattle")
 
     Column(
         modifier = Modifier
@@ -92,6 +101,7 @@ fun ProfileSection() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
+        // Profile Image
         Box(
             modifier = Modifier
                 .size(80.dp)
@@ -100,14 +110,12 @@ fun ProfileSection() {
             contentAlignment = Alignment.Center
         ) {
             if (imageUri != null) {
-
                 Image(
                     painter = rememberAsyncImagePainter(imageUri),
                     contentDescription = "Selected Profile Image",
                     modifier = Modifier.fillMaxSize()
                 )
             } else {
-
                 Icon(
                     imageVector = Icons.Default.Person,
                     contentDescription = "User Icon",
@@ -118,13 +126,61 @@ fun ProfileSection() {
         }
         Spacer(modifier = Modifier.height(8.dp))
         Button(
-            onClick = { launcher.launch("image/*") }, // Open file picker
+            onClick = { imageLauncher.launch("image/*") }, // Open file picker for image
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5CB85C)) // Green button
         ) {
             Text(text = "Browse Image", color = Color.White)
         }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Resume Upload
+        Button(
+            onClick = { resumeLauncher.launch("application/pdf") }, // Open file picker for PDF
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5CB85C)) // Green button
+        ) {
+            Text(text = "Upload Resume", color = Color.White)
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = if (resumeUri != null) "Resume Uploaded: ${resumeUri?.lastPathSegment}" else "No Resume Uploaded",
+            style = MaterialTheme.typography.bodySmall,
+            color = Color.Gray
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Location Autocomplete
+        TextField(
+            value = locationQuery,
+            onValueChange = { locationQuery = it },
+            label = { Text("Location") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        if (locationQuery.isNotEmpty()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.White)
+            ) {
+                suggestedLocations.filter { it.contains(locationQuery, ignoreCase = true) }
+                    .forEach { location ->
+                        Text(
+                            text = location,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    locationQuery = location
+                                }
+                                .padding(8.dp)
+                        )
+                    }
+            }
+        }
     }
 }
+
 
 @Composable
 fun NavigationMenu() {

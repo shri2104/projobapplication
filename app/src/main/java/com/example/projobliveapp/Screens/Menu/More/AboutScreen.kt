@@ -18,7 +18,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.projobliveapp.R
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AboutScreen(navController: NavController) {
@@ -56,14 +55,12 @@ fun AboutScreen(navController: NavController) {
                             .size(150.dp)
                             .padding(bottom = 1.dp)
                     )
-
                     Text(
                         text = "Version 1.0.0",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Medium,
                         modifier = Modifier.padding(bottom = 2.dp)
                     )
-
                     Text(
                         text = "© ProJob 2024",
                         fontSize = 14.sp,

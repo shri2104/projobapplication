@@ -40,14 +40,16 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ListItemDefaults.containerColor
 import androidx.compose.material3.contentColorFor
+import com.example.projobliveapp.DataBase.createApiService
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val apiService = createApiService()
         enableEdgeToEdge()
         setContent {
             ProJobLiveAppTheme {
-                  Navigation()
+                  Navigation(apiService = apiService)
             }
         }
     }

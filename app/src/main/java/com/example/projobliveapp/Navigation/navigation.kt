@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.bawp.freader.screens.login.LoginScreen
+import com.example.projobliveapp.DataBase.ApiService
 import com.example.projobliveapp.Screens.Inputdata.JobApplicationForm
 import com.example.projobliveapp.Screens.Login.SplashScreen
 import com.example.projobliveapp.Screens.Menu.ContactUsPage
@@ -23,7 +24,7 @@ import com.example.projobliveapp.Screens.profile.ScrollableProfileScreen
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun Navigation(){
+fun Navigation(apiService: ApiService){
     val navController= rememberNavController()
     NavHost(navController=navController,startDestination = Screen.SplashScreen.name){
         composable(Screen.SplashScreen.name){
@@ -51,7 +52,7 @@ fun Navigation(){
             OtpScreen(navController=navController)
         }
         composable(Screen.InputDataScreen.name){
-            JobApplicationForm(navController=navController)
+            JobApplicationForm(navController =navController,apiService= apiService)
         }
         composable(Screen.ContactUsScreen.name){
             ContactUsPage(navController=navController)

@@ -1,5 +1,6 @@
 package com.example.projobliveapp.Screens.Inputdata
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -12,23 +13,33 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.NavHostController
+import androidx.navigation.NavController
+import com.example.projobliveapp.Component.EmailInput
+import com.example.projobliveapp.DataBase.ApiService
+import com.example.projobliveapp.DataBase.JobApplication
 import com.example.projobliveapp.Navigation.Screen
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
-fun JobApplicationForm(navController: NavHostController) {
+fun JobApplicationForm(navController: NavController,apiService: ApiService) {
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+
+    // Form Fields
     val firstName = rememberSaveable { mutableStateOf("") }
     val lastName = rememberSaveable { mutableStateOf("") }
     val email = rememberSaveable { mutableStateOf("") }
     val phoneNumber = rememberSaveable { mutableStateOf("") }
-    val resume = rememberSaveable { mutableStateOf("") }
     val location = rememberSaveable { mutableStateOf("") }
     val skills = rememberSaveable { mutableStateOf("") }
     val about = rememberSaveable { mutableStateOf("") }
@@ -36,6 +47,14 @@ fun JobApplicationForm(navController: NavHostController) {
     val jobCity = rememberSaveable { mutableStateOf("") }
     val roleLooking = rememberSaveable { mutableStateOf("") }
 
+    // Dropdown for location suggestions
+    val locationSuggestions = listOf("New York", "Los Angeles", "Chicago", "San Francisco", "Boston")
+    val filteredSuggestions = remember(location.value) {
+        locationSuggestions.filter { it.contains(location.value, ignoreCase = true) }
+    }
+    var showSuggestions by remember { mutableStateOf(false) }
+
+    // Validation Check
     val isFormValid = remember(
         firstName.value,
         lastName.value,
@@ -46,7 +65,7 @@ fun JobApplicationForm(navController: NavHostController) {
     ) {
         firstName.value.isNotBlank() &&
                 lastName.value.isNotBlank() &&
-                email.value.isNotBlank() &&
+                email.value.endsWith("@gmail.com", ignoreCase = true) &&
                 phoneNumber.value.isNotBlank() &&
                 location.value.isNotBlank() &&
                 skills.value.isNotBlank()
@@ -61,7 +80,7 @@ fun JobApplicationForm(navController: NavHostController) {
         ) {
             // Title
             Text(
-                text = "PROFILE",
+                text = "Profile",
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 16.dp)
@@ -69,29 +88,109 @@ fun JobApplicationForm(navController: NavHostController) {
 
             InputField(valueState = firstName, label = "First Name", isRequired = true, icon = Icons.Default.Person)
             InputField(valueState = lastName, label = "Last Name", isRequired = true, icon = Icons.Default.Person)
-            InputField(valueState = email, label = "Email", isRequired = true, isEmail = true, icon = Icons.Default.Email)
-            InputField(valueState = phoneNumber, label = "Phone Number", isRequired = true, isNumeric = true, icon = Icons.Default.Phone)
-            InputField(valueState = location, label = "Location", isRequired = true, icon = Icons.Default.LocationOn)
+
+            EmailInput(
+                emailState = email,
+                labelId = "Email",
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            InputField(
+                valueState = phoneNumber,
+                label = "Phone Number",
+                isRequired = true,
+                isNumeric = true,
+                icon = Icons.Default.Phone
+            )
+
+            // Location with dropdown suggestions
+            Box(modifier = Modifier.fillMaxWidth()) {
+                InputField(
+                    valueState = location,
+                    label = "Location",
+                    isRequired = true,
+                    icon = Icons.Default.LocationOn,
+                    onFocusChanged = { showSuggestions = it }
+                )
+                DropdownMenu(
+                    expanded = showSuggestions && filteredSuggestions.isNotEmpty(),
+                    onDismissRequest = { showSuggestions = false },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    filteredSuggestions.forEach { suggestion ->
+                        DropdownMenuItem(
+                            text = { Text(suggestion) },
+                            onClick = {
+                                location.value = suggestion
+                                showSuggestions = false
+                            }
+                        )
+                    }
+                }
+            }
+
             InputField(valueState = skills, label = "Skills", isRequired = true, icon = Icons.Default.Build)
             InputField(valueState = about, label = "About (Optional)", icon = Icons.Default.Info)
             InputField(valueState = workExperience, label = "Work Experience (Optional)", icon = Icons.Default.Work)
             InputField(valueState = jobCity, label = "Looking Job in Which City (Optional)", icon = Icons.Default.LocationCity)
             InputField(valueState = roleLooking, label = "Role Looking (Optional)", icon = Icons.Default.Search)
-            InputField(valueState = resume, label = "Resume (Optional)", icon = Icons.Default.AttachFile)
-            Spacer(modifier = Modifier.height(20.dp))
+
+            // Resume Upload Button
             Button(
-                onClick = { navController.navigate(Screen.HomeScreen.name) },
-                enabled = isFormValid,
-                colors = ButtonDefaults.buttonColors(
-                    disabledContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
-                    disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
-                ),
+                onClick = { /* TODO: Implement resume import logic */ },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(8.dp),
-                shape = CircleShape
+                    .padding(vertical = 8.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
-                Text(text = "Save", modifier = Modifier.padding(5.dp))
+                Icon(imageVector = Icons.Default.AttachFile, contentDescription = "Upload Resume")
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(text = "Import Resume")
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Submit Button
+            Button(
+                onClick = {
+                    val userData = JobApplication(
+                        firstName = firstName.value,
+                        lastName = lastName.value,
+                        email = email.value,
+                        phoneNumber = phoneNumber.value,
+                        location = location.value,
+                        skills = skills.value,
+                        about = about.value,
+                        workExperience = workExperience.value,
+                        jobCity = jobCity.value,
+                        roleLooking = roleLooking.value,
+                        resume = "" // Replace with appropriate resume value
+                    )
+
+                    coroutineScope.launch(Dispatchers.IO) {
+                        try {
+                            // Replace `apiService.storeUserData` with actual API call
+                            val response = apiService.storeUserData(userData)
+                            withContext(Dispatchers.Main) {
+                                if (response.isSuccessful) {
+                                    Toast.makeText(context, "User data added successfully!", Toast.LENGTH_SHORT).show()
+                                } else {
+                                    Toast.makeText(context, "Error: ${response.message()}", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        } catch (e: Exception) {
+                            withContext(Dispatchers.Main) {
+                                Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp),
+                enabled = isFormValid
+            ) {
+                Text("Submit")
             }
         }
     }
@@ -104,7 +203,8 @@ fun InputField(
     isRequired: Boolean = false,
     isEmail: Boolean = false,
     isNumeric: Boolean = false,
-    icon: ImageVector
+    icon: ImageVector,
+    onFocusChanged: ((Boolean) -> Unit)? = null
 ) {
     val keyboardType = when {
         isEmail -> KeyboardType.Email
@@ -121,13 +221,21 @@ fun InputField(
         keyboardOptions = KeyboardOptions.Default.copy(keyboardType = keyboardType, imeAction = ImeAction.Next),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
+            .padding(vertical = 8.dp)
+            .onFocusChanged { onFocusChanged?.invoke(it.isFocused) },
         colors = TextFieldDefaults.colors(
-           focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+            focusedIndicatorColor = MaterialTheme.colorScheme.primary,
             unfocusedIndicatorColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-            focusedLabelColor =MaterialTheme.colorScheme.primary,
+            focusedLabelColor = MaterialTheme.colorScheme.primary,
             cursorColor = MaterialTheme.colorScheme.primary
         )
     )
 }
 
+
+
+//@Preview(showBackground = true, showSystemUi = true)
+//@Composable
+//fun JobApplicationFormPreview() {
+//    JobApplicationForm(navController = NavController(LocalContext.current))
+//}

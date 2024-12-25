@@ -1,7 +1,5 @@
 package com.example.projobliveapp.Screens.Login
 
-
-
 import android.view.animation.OvershootInterpolator
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
@@ -41,7 +39,7 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun SplashScreen(navController: NavHostController) {
-    // Animation scale state
+
     val scale = remember {
         Animatable(0f)
     }
@@ -63,8 +61,6 @@ fun SplashScreen(navController: NavHostController) {
             navController.navigate(Screen.HomeScreen.name)
         }
     }
-
-    // Centering the Splash Screen content
     Box(
         modifier = Modifier
             .fillMaxWidth()

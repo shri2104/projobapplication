@@ -42,7 +42,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -66,8 +65,7 @@ dependencies {
     implementation(libs.firebase.analytics)
     implementation (libs.androidx.material.icons.extended)
     implementation (libs.coil.compose)
-
-
-
-
+    implementation (libs.retrofit)
+    implementation (libs.converter.gson)
+    implementation (libs.okhttp)
 }
