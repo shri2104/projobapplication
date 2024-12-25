@@ -1,197 +1,182 @@
 package com.example.projobliveapp.Screens.Inputdata
 
 import android.widget.Toast
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.projobliveapp.Component.EmailInput
 import com.example.projobliveapp.DataBase.ApiService
 import com.example.projobliveapp.DataBase.JobApplication
 import com.example.projobliveapp.Navigation.Screen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.sp
+import com.example.projobliveapp.R
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun JobApplicationForm(navController: NavController,apiService: ApiService) {
+fun JobApplicationForm(navController: NavController, apiService: ApiService, onNext: () -> Unit) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
-    // Form Fields
-    val firstName = rememberSaveable { mutableStateOf("") }
-    val lastName = rememberSaveable { mutableStateOf("") }
-    val email = rememberSaveable { mutableStateOf("") }
-    val phoneNumber = rememberSaveable { mutableStateOf("") }
-    val location = rememberSaveable { mutableStateOf("") }
-    val skills = rememberSaveable { mutableStateOf("") }
-    val about = rememberSaveable { mutableStateOf("") }
-    val workExperience = rememberSaveable { mutableStateOf("") }
-    val jobCity = rememberSaveable { mutableStateOf("") }
-    val roleLooking = rememberSaveable { mutableStateOf("") }
-
-    // Dropdown for location suggestions
-    val locationSuggestions = listOf("New York", "Los Angeles", "Chicago", "San Francisco", "Boston")
-    val filteredSuggestions = remember(location.value) {
-        locationSuggestions.filter { it.contains(location.value, ignoreCase = true) }
-    }
-    var showSuggestions by remember { mutableStateOf(false) }
-
-    // Validation Check
-    val isFormValid = remember(
-        firstName.value,
-        lastName.value,
-        email.value,
-        phoneNumber.value,
-        location.value,
-        skills.value
+    // Form state variables
+    val firstName = remember { mutableStateOf("") }
+    val lastName = remember { mutableStateOf("") }
+    val email = remember { mutableStateOf("") }
+    val phoneNumber = remember { mutableStateOf("") }
+    val location = remember { mutableStateOf("") }
+    val skills = remember { mutableStateOf("") }
+    val about = remember { mutableStateOf("Write about yourself here...") } // Editable value for "About You"
+    val workExperience = remember { mutableStateOf("") }
+    val jobCity = remember { mutableStateOf("") }
+    val roleLooking = remember { mutableStateOf("") }
+    val isFormValid = firstName.value.isNotBlank() &&
+            lastName.value.isNotBlank() &&
+            email.value.isNotBlank() &&
+            phoneNumber.value.isNotBlank() &&
+            location.value.isNotBlank() &&
+            skills.value.isNotBlank()
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
     ) {
-        firstName.value.isNotBlank() &&
-                lastName.value.isNotBlank() &&
-                email.value.endsWith("@gmail.com", ignoreCase = true) &&
-                phoneNumber.value.isNotBlank() &&
-                location.value.isNotBlank() &&
-                skills.value.isNotBlank()
-    }
-
-    Surface(modifier = Modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // Title
-            Text(
-                text = "Profile",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
-
-            InputField(valueState = firstName, label = "First Name", isRequired = true, icon = Icons.Default.Person)
-            InputField(valueState = lastName, label = "Last Name", isRequired = true, icon = Icons.Default.Person)
-
-            EmailInput(
-                emailState = email,
-                labelId = "Email",
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            InputField(
-                valueState = phoneNumber,
-                label = "Phone Number",
-                isRequired = true,
-                isNumeric = true,
-                icon = Icons.Default.Phone
-            )
-
-            // Location with dropdown suggestions
-            Box(modifier = Modifier.fillMaxWidth()) {
-                InputField(
-                    valueState = location,
-                    label = "Location",
-                    isRequired = true,
-                    icon = Icons.Default.LocationOn,
-                    onFocusChanged = { showSuggestions = it }
-                )
-                DropdownMenu(
-                    expanded = showSuggestions && filteredSuggestions.isNotEmpty(),
-                    onDismissRequest = { showSuggestions = false },
-                    modifier = Modifier.fillMaxWidth()
+        TopAppBar(
+            title = {
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
                 ) {
-                    filteredSuggestions.forEach { suggestion ->
-                        DropdownMenuItem(
-                            text = { Text(suggestion) },
-                            onClick = {
-                                location.value = suggestion
-                                showSuggestions = false
-                            }
-                        )
-                    }
+                    Image(
+                        painter = painterResource(id = R.drawable.projob_logo1_12fc55031a756ac453bf), // Replace with your logo resource
+                        contentDescription = "App Logo",
+                        modifier = Modifier.size(82.dp)
+                    )
                 }
             }
-
-            InputField(valueState = skills, label = "Skills", isRequired = true, icon = Icons.Default.Build)
-            InputField(valueState = about, label = "About (Optional)", icon = Icons.Default.Info)
-            InputField(valueState = workExperience, label = "Work Experience (Optional)", icon = Icons.Default.Work)
-            InputField(valueState = jobCity, label = "Looking Job in Which City (Optional)", icon = Icons.Default.LocationCity)
-            InputField(valueState = roleLooking, label = "Role Looking (Optional)", icon = Icons.Default.Search)
-
-            // Resume Upload Button
-            Button(
-                onClick = { /* TODO: Implement resume import logic */ },
+        )
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .verticalScroll(rememberScrollState())
+        ) {
+            Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = "Registration",
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            InputField(valueState = firstName, label = "First Name", isRequired = true, icon = Icons.Filled.Person)
+            InputField(valueState = lastName, label = "Last Name", isRequired = true, icon = Icons.Filled.Person)
+            InputField(valueState = email, label = "Email", isRequired = true, isEmail = true, icon = Icons.Filled.Email)
+            InputField(valueState = phoneNumber, label = "Phone Number", isRequired = true, isNumeric = true, icon = Icons.Filled.Phone)
+            InputField(valueState = location, label = "Location", isRequired = true, icon = Icons.Filled.Place)
+            InputField(valueState = skills, label = "Skills", isRequired = true, icon = Icons.Filled.Build)
+            InputField(valueState = workExperience, label = "Work Experience", icon = Icons.Filled.Work)
+            InputField(valueState = jobCity, label = "Preferred Job City", icon = Icons.Filled.LocationCity)
+            InputField(valueState = roleLooking, label = "Role You're Looking For", icon = Icons.Filled.Search)
+            TextField(
+                value = about.value,
+                onValueChange = { about.value = it },
+                label = { Text("About You") },
                 modifier = Modifier
                     .fillMaxWidth()
+                    .heightIn(min = 120.dp)
                     .padding(vertical = 8.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                placeholder = { Text("Write about yourself here...") },
+                maxLines = 5, // Limits the lines
+                singleLine = false,
+                colors = TextFieldDefaults.colors(
+                    focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+                    unfocusedIndicatorColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+                    cursorColor = MaterialTheme.colorScheme.primary
+                )
+            )
+
+
+            Spacer(modifier = Modifier.height(16.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState())
             ) {
-                Icon(imageVector = Icons.Default.AttachFile, contentDescription = "Upload Resume")
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(text = "Import Resume")
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            // Submit Button
-            Button(
-                onClick = {
-                    val userData = JobApplication(
-                        firstName = firstName.value,
-                        lastName = lastName.value,
-                        email = email.value,
-                        phoneNumber = phoneNumber.value,
-                        location = location.value,
-                        skills = skills.value,
-                        about = about.value,
-                        workExperience = workExperience.value,
-                        jobCity = jobCity.value,
-                        roleLooking = roleLooking.value,
-                        resume = "" // Replace with appropriate resume value
+                TextButton(
+                    onClick = {
+                        navController.navigate(Screen.LoginScreen.name)
+                    }
+                ) {
+                    Text(
+                        text = "Already Registered? Log In",
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.primary,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
                     )
+                }
+            }
+        }
 
-                    coroutineScope.launch(Dispatchers.IO) {
-                        try {
-                            // Replace `apiService.storeUserData` with actual API call
-                            val response = apiService.storeUserData(userData)
-                            withContext(Dispatchers.Main) {
-                                if (response.isSuccessful) {
-                                    Toast.makeText(context, "User data added successfully!", Toast.LENGTH_SHORT).show()
-                                } else {
-                                    Toast.makeText(context, "Error: ${response.message()}", Toast.LENGTH_SHORT).show()
-                                }
-                            }
-                        } catch (e: Exception) {
-                            withContext(Dispatchers.Main) {
-                                Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+        Spacer(modifier = Modifier.height(8.dp))
+        Button(
+            onClick = {
+                val userData = JobApplication(
+                    firstName = firstName.value,
+                    lastName = lastName.value,
+                    email = email.value,
+                    phoneNumber = phoneNumber.value,
+                    location = location.value,
+                    skills = skills.value,
+                    about = about.value,
+                    workExperience = workExperience.value,
+                    jobCity = jobCity.value,
+                    roleLooking = roleLooking.value,
+                    resume = "" // Optional, can be added later
+                )
+
+                coroutineScope.launch(Dispatchers.IO) {
+                    try {
+                        val response = apiService.storeUserData(userData)
+                        withContext(Dispatchers.Main) {
+                            if (response.isSuccessful) {
+                                Toast.makeText(context, "User data added successfully!", Toast.LENGTH_SHORT).show()
+                                onNext()
+                            } else {
+                                Toast.makeText(context, "Error: ${response.message()}", Toast.LENGTH_SHORT).show()
                             }
                         }
+                    } catch (e: Exception) {
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                        }
                     }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp),
-                enabled = isFormValid
-            ) {
-                Text("Submit")
-            }
+                }
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp),
+            enabled = isFormValid
+        ) {
+            Text("Next")
         }
     }
 }
@@ -203,8 +188,7 @@ fun InputField(
     isRequired: Boolean = false,
     isEmail: Boolean = false,
     isNumeric: Boolean = false,
-    icon: ImageVector,
-    onFocusChanged: ((Boolean) -> Unit)? = null
+    icon: ImageVector
 ) {
     val keyboardType = when {
         isEmail -> KeyboardType.Email
@@ -221,8 +205,7 @@ fun InputField(
         keyboardOptions = KeyboardOptions.Default.copy(keyboardType = keyboardType, imeAction = ImeAction.Next),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp)
-            .onFocusChanged { onFocusChanged?.invoke(it.isFocused) },
+            .padding(vertical = 8.dp),
         colors = TextFieldDefaults.colors(
             focusedIndicatorColor = MaterialTheme.colorScheme.primary,
             unfocusedIndicatorColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
@@ -231,11 +214,3 @@ fun InputField(
         )
     )
 }
-
-
-
-//@Preview(showBackground = true, showSystemUi = true)
-//@Composable
-//fun JobApplicationFormPreview() {
-//    JobApplicationForm(navController = NavController(LocalContext.current))
-//}

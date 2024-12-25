@@ -21,22 +21,22 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.projobliveapp.Component.EmailInput
 import com.example.projobliveapp.Component.PasswordInput
+import com.example.projobliveapp.DataBase.ApiService
 import com.example.projobliveapp.Navigation.Screen
 import com.example.projobliveapp.R
+import com.example.projobliveapp.Screens.Inputdata.JobApplicationForm
 import com.example.projobliveapp.Screens.Login.LoginScreenViewModel
 import com.example.projobliveapp.Screens.Login.logo
+
 @ExperimentalComposeUiApi
 @Composable
 fun LoginScreen(
     navController: NavController,
     viewModel: LoginScreenViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
-    val showLoginForm = rememberSaveable { mutableStateOf(true) }
-
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -44,14 +44,72 @@ fun LoginScreen(
             modifier = Modifier.padding(16.dp)
         ) {
             logo()
-            if (showLoginForm.value) {
-                UserForm(
-                    loading = false,
-                    isCreateAccount = false
-                ) { email, password ->
-                    viewModel.signInWithEmailAndPassword(email, password) {
-                        navController.navigate(Screen.HomeScreen.name)
-                    }
+            UserForm(
+                loading = false,
+                isCreateAccount = false
+            ) { email, password ->
+                viewModel.signInWithEmailAndPassword(email, password) {
+                    navController.navigate(Screen.HomeScreen.name)
+                }
+            }
+            Spacer(modifier = Modifier.height(20.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 15.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(text = "New User?", style = MaterialTheme.typography.labelLarge)
+                Text(
+                    text = "Sign up",
+                    modifier = Modifier
+                        .clickable {
+                            navController.navigate(Screen.Signupscreen.name)  // Navigate to SignupScreen
+                        }
+                        .padding(start = 5.dp),
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+            Spacer(modifier = Modifier.height(30.dp))
+
+            Button(
+                onClick = {
+                    navController.navigate(Screen.PHHomeScreen.name)
+                },
+                modifier = Modifier.padding(horizontal = 12.dp),
+                colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary)
+            ) {
+                Text(text = "Login with Phone Number")
+            }
+        }
+    }
+}
+
+
+
+@ExperimentalComposeUiApi
+@Composable
+fun SignupScreen(
+    navController: NavController,
+    viewModel: LoginScreenViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+    apiService: ApiService
+) {
+    // State to manage the form to display
+    var showUserForm by remember { mutableStateOf(false) }
+
+    Surface(modifier = Modifier.fillMaxSize()) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.padding(16.dp)
+        ) {
+
+
+            if (!showUserForm) {
+                JobApplicationForm(navController = navController, apiService = apiService) {
+                    showUserForm = true
                 }
             } else {
                 UserForm(
@@ -59,58 +117,26 @@ fun LoginScreen(
                     isCreateAccount = true
                 ) { email, password ->
                     viewModel.createUserWithEmailAndPassword(email, password) {
-                        navController.navigate(Screen.InputDataScreen.name)
+                        navController.navigate(Screen.HomeScreen.name)
                     }
                 }
             }
-            Spacer(modifier = Modifier.height(20.dp))
-            Column (verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally){
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 15.dp),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    val actionText = if (showLoginForm.value) "Sign up" else "Log in"
-                    Text(
-                        text = "New User?",
-                        style = MaterialTheme.typography.labelLarge
-                    )
-                    Text(
-                        text = actionText,
-                        modifier = Modifier
-                            .clickable {
-                                showLoginForm.value = !showLoginForm.value
-                            }
-                            .padding(start = 5.dp),
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
-                    )
 
-                }
-                Spacer(modifier = Modifier.height(30.dp))
+            Spacer(modifier = Modifier.height(30.dp))
 
+            if (showUserForm) {
                 Button(
                     onClick = {
-                        navController.navigate(Screen.PHHomeScreen.name)
+                        navController.navigate(Screen.LoginScreen.name)  // Navigate back to LoginScreen
                     },
                     modifier = Modifier.padding(horizontal = 12.dp),
                     colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary)
                 ) {
-                    Text(text = "Login with Phone Number")
+                    Text(text = "Already have an account? Log in")
                 }
-
-
-
             }
         }
-
-
     }
-
-
-
 }
 
 

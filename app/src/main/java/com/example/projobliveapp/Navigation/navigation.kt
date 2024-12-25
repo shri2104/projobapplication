@@ -10,6 +10,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.bawp.freader.screens.login.LoginScreen
+import com.bawp.freader.screens.login.SignupScreen
+import com.bawp.freader.screens.login.UserForm
 import com.example.projobliveapp.DataBase.ApiService
 import com.example.projobliveapp.Screens.Inputdata.JobApplicationForm
 import com.example.projobliveapp.Screens.Login.SplashScreen
@@ -51,9 +53,7 @@ fun Navigation(apiService: ApiService){
         composable(Screen.OtpScreen.name){
             OtpScreen(navController=navController)
         }
-        composable(Screen.InputDataScreen.name){
-            JobApplicationForm(navController =navController,apiService= apiService)
-        }
+
         composable(Screen.ContactUsScreen.name){
             ContactUsPage(navController=navController)
         }
@@ -68,6 +68,12 @@ fun Navigation(apiService: ApiService){
         }
         composable(Screen.AboutScreen.name){
             AboutScreen(navController=navController)
+        }
+        composable(Screen.Userform.name){
+            UserForm()
+        }
+        composable(Screen.Signupscreen.name){
+            SignupScreen(navController=navController,apiService=apiService)
         }
     }
 }
