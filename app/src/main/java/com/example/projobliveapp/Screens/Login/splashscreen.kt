@@ -36,13 +36,9 @@ import com.google.firebase.auth.FirebaseAuth
 
 import kotlinx.coroutines.delay
 
-
 @Composable
 fun SplashScreen(navController: NavHostController) {
-
-    val scale = remember {
-        Animatable(0f)
-    }
+    val scale = remember { Animatable(0f) }
 
     LaunchedEffect(key1 = true) {
         scale.animateTo(
@@ -55,23 +51,21 @@ fun SplashScreen(navController: NavHostController) {
             )
         )
         delay(2000L)
-        if (FirebaseAuth.getInstance().currentUser?.email.isNullOrEmpty()) {
+        val userEmail = FirebaseAuth.getInstance().currentUser?.email
+
+        if (userEmail.isNullOrEmpty()) {
             navController.navigate(Screen.FrontScreen.name)
         } else {
-            navController.navigate(Screen.HomeScreen.name)
+            navController.navigate("homeScreen/$userEmail")
         }
     }
+
     Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight(),
+        modifier = Modifier.fillMaxWidth().fillMaxHeight(),
         contentAlignment = Alignment.Center
     ) {
         Surface(
-            modifier = Modifier
-                .padding(15.dp)
-                .size(330.dp)
-                .scale(scale.value), // Apply scale animation
+            modifier = Modifier.padding(15.dp).size(330.dp).scale(scale.value),
             shape = CircleShape,
             color = Color.White,
             border = BorderStroke(width = 2.dp, color = Color.LightGray)
@@ -81,7 +75,7 @@ fun SplashScreen(navController: NavHostController) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                logo() // Logo
+                logo()
                 Spacer(modifier = Modifier.height(5.dp))
                 Text(
                     text = "\"Simplifying Connections.\"",
@@ -92,7 +86,6 @@ fun SplashScreen(navController: NavHostController) {
         }
     }
 }
-
 @Composable
 fun logo(modifier: Modifier = Modifier) {
     Row(

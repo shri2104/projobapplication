@@ -86,7 +86,7 @@ fun MainJobScreenContent(onMenuClick: () -> Unit) {
 }
 
 @Composable
-fun JobAppMenuContent(onCloseMenu: () -> Unit, navController: NavHostController) {
+fun JobAppMenuContent(onCloseMenu: () -> Unit, navController: NavHostController, userEmail: String) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -116,7 +116,7 @@ fun JobAppMenuContent(onCloseMenu: () -> Unit, navController: NavHostController)
             modifier = Modifier.padding(top = 8.dp)
         ) {
             MenuItem(icon = Icons.Default.Person, label = "Profile", onClick = {
-                navController.navigate(Screen.profilesection.name)
+                navController.navigate("profileSection/$userEmail")
             })
             MenuItem(icon = Icons.Default.Favorite, label = "Saved Jobs", onClick = {  })
             MenuItem(icon = Icons.Default.Email, label = "Applications", onClick = {  })

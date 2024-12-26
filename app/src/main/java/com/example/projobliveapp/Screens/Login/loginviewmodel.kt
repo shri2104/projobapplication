@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.projobliveapp.DataBase.ApiService
 import com.example.projobliveapp.models.MUser
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -12,7 +13,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 
-class LoginScreenViewModel : ViewModel() {
+class LoginScreenViewModel() : ViewModel() {
 
     private val auth: FirebaseAuth = Firebase.auth
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()

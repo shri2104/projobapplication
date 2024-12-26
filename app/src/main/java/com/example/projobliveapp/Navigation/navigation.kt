@@ -13,7 +13,6 @@ import com.bawp.freader.screens.login.LoginScreen
 import com.bawp.freader.screens.login.SignupScreen
 import com.bawp.freader.screens.login.UserForm
 import com.example.projobliveapp.DataBase.ApiService
-import com.example.projobliveapp.Screens.Inputdata.JobApplicationForm
 import com.example.projobliveapp.Screens.Login.SplashScreen
 import com.example.projobliveapp.Screens.Menu.ContactUsPage
 import com.example.projobliveapp.Screens.Menu.HelpAndSupportPage
@@ -22,6 +21,8 @@ import com.example.projobliveapp.Screens.PhoneAuth.OtpScreen
 import com.example.projobliveapp.Screens.PhoneAuth.PHHomeScreen
 
 import com.example.projobliveapp.Screens.frontscreen.LoginSelectionScreen
+import com.example.projobliveapp.Screens.profile.ProfilePage
+
 import com.example.projobliveapp.Screens.profile.ScrollableProfileScreen
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -35,17 +36,16 @@ fun Navigation(apiService: ApiService){
         composable(Screen.LoginScreen.name){
             LoginScreen(navController=navController)
         }
-        composable(Screen.HomeScreen.name){
-            JobAppSlidingMenuScreen(navController=navController)
+        composable("homeScreen/{email}"){ backStackEntry ->
+            val userEmail = backStackEntry.arguments?.getString("email") ?: ""
+            JobAppSlidingMenuScreen(navController = navController, userEmail = userEmail)
         }
         composable(Screen.FrontScreen.name){
             LoginSelectionScreen(navController=navController)
         }
-        composable(Screen.profilesection.name){
-            ScrollableProfileScreen(navController=navController)
-        }
-        composable(Screen.profilesection.name){
-            ScrollableProfileScreen(navController=navController)
+        composable("profileSection/{email}") { backStackEntry ->
+            val email = backStackEntry.arguments?.getString("email")
+            ScrollableProfileScreen(navController = navController, userEmail = email)
         }
         composable(Screen.PHHomeScreen.name){
             PHHomeScreen(navController=navController)
@@ -75,5 +75,11 @@ fun Navigation(apiService: ApiService){
         composable(Screen.Signupscreen.name){
             SignupScreen(navController=navController,apiService=apiService)
         }
+        composable("profilePage/{email}") { backStackEntry ->
+            val email = backStackEntry.arguments?.getString("email")
+            ProfilePage(navController = navController, userEmail = email,apiService = apiService)
+        }
+
+
     }
 }

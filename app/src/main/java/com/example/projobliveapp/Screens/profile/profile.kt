@@ -1,5 +1,10 @@
 package com.example.projobliveapp.Screens.profile
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Text
+
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -7,13 +12,10 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -31,7 +33,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -44,14 +45,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
+import com.example.projobliveapp.Navigation.Screen
 import com.example.projobliveapp.R
 
 @Composable
-fun ScrollableProfileScreen(navController: NavHostController) {
+fun ScrollableProfileScreen(navController: NavHostController, userEmail: String?) {
 
     Column(
         modifier = Modifier
@@ -61,7 +62,10 @@ fun ScrollableProfileScreen(navController: NavHostController) {
     ) {
         ProfileHeader()
         ProfileSection()
-        NavigationMenu()
+        NavigationMenu(
+            navController = navController,
+            userEmail=userEmail
+        )
     }
 }
 @Composable
@@ -91,8 +95,6 @@ fun ProfileSection() {
         resumeUri = uri
     }
 
-    var locationQuery by remember { mutableStateOf("") }
-    val suggestedLocations = listOf("New York", "San Francisco", "Los Angeles", "Chicago", "Seattle")
 
     Column(
         modifier = Modifier
@@ -151,46 +153,17 @@ fun ProfileSection() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Location Autocomplete
-        TextField(
-            value = locationQuery,
-            onValueChange = { locationQuery = it },
-            label = { Text("Location") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        if (locationQuery.isNotEmpty()) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color.White)
-            ) {
-                suggestedLocations.filter { it.contains(locationQuery, ignoreCase = true) }
-                    .forEach { location ->
-                        Text(
-                            text = location,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    locationQuery = location
-                                }
-                                .padding(8.dp)
-                        )
-                    }
-            }
-        }
+
     }
 }
-
-
 @Composable
-fun NavigationMenu() {
+fun NavigationMenu(navController: NavHostController, userEmail: String?) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
 
     ) {
-        // Section heading
         Text(
             text = "User Dashboard",
             style = MaterialTheme.typography.bodyMedium,
@@ -218,19 +191,30 @@ fun NavigationMenu() {
         )
 
         menuItems.forEach { item ->
-            NavigationMenuItem(title = item.first, icon = item.second)
+            NavigationMenuItem(
+                title = item.first, icon = item.second,
+                navController =navController,userEmail=userEmail
+            )
             Spacer(modifier = Modifier.height(8.dp))
         }
     }
 }
-
 @Composable
-fun NavigationMenuItem(title: String, icon: ImageVector) {
+fun NavigationMenuItem(
+    title: String,
+    icon: ImageVector,
+    navController: NavHostController,
+    userEmail: String?
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
-            .clickable { /* Handle navigation item click */ },
+            .clickable {
+                when (title) {
+                    "Profile" -> navController.navigate("profilePage/$userEmail")
+                }
+            },
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
@@ -247,9 +231,4 @@ fun NavigationMenuItem(title: String, icon: ImageVector) {
         )
     }
 }
-//@Preview(showBackground = true)
-//@Composable
-//fun ScrollableProfileScreenPreview() {
-//    ScrollableProfileScreen(navController)
-//}
 

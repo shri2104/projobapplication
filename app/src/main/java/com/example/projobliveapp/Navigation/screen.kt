@@ -11,6 +11,7 @@ enum class Screen{
     PhoneAuthScreen,
     JobSearchHomePage,
     profilesection,
+    profilepage,
     phMainScreen,
     OtpScreen,
     PHHomeScreen,
@@ -46,6 +47,7 @@ enum class Screen{
             ContactUsScreen.name->ContactUsScreen
             Signupscreen.name->Signupscreen
             Userform.name->Userform
+            profilepage.name->profilepage
             null->HomeScreen
             else -> throw IllegalArgumentException("Route $route is not recognized")
         }

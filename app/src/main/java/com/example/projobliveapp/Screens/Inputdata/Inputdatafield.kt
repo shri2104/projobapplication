@@ -35,15 +35,13 @@ import com.example.projobliveapp.R
 fun JobApplicationForm(navController: NavController, apiService: ApiService, onNext: () -> Unit) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-
-    // Form state variables
     val firstName = remember { mutableStateOf("") }
     val lastName = remember { mutableStateOf("") }
     val email = remember { mutableStateOf("") }
     val phoneNumber = remember { mutableStateOf("") }
     val location = remember { mutableStateOf("") }
     val skills = remember { mutableStateOf("") }
-    val about = remember { mutableStateOf("Write about yourself here...") } // Editable value for "About You"
+    val about = remember { mutableStateOf("Write about yourself here...") }
     val workExperience = remember { mutableStateOf("") }
     val jobCity = remember { mutableStateOf("") }
     val roleLooking = remember { mutableStateOf("") }

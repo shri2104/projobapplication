@@ -28,7 +28,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 
 
 @Composable
-fun JobAppSlidingMenuScreen(navController: NavHostController) {
+fun JobAppSlidingMenuScreen(navController: NavHostController, userEmail: String) {
     var isMenuVisible by remember { mutableStateOf(false) }
     val menuWidth by animateFloatAsState(
         targetValue = if (isMenuVisible) 0.85f else 0f,
@@ -54,7 +54,8 @@ fun JobAppSlidingMenuScreen(navController: NavHostController) {
             ) {
                 JobAppMenuContent(
                     onCloseMenu = { isMenuVisible = false },
-                    navController=navController
+                    navController=navController,
+                    userEmail=userEmail
                 )
             }
         }

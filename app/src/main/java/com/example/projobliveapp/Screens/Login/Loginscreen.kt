@@ -31,6 +31,8 @@ import com.example.projobliveapp.Screens.Inputdata.JobApplicationForm
 import com.example.projobliveapp.Screens.Login.LoginScreenViewModel
 import com.example.projobliveapp.Screens.Login.logo
 
+
+
 @ExperimentalComposeUiApi
 @Composable
 fun LoginScreen(
@@ -49,7 +51,7 @@ fun LoginScreen(
                 isCreateAccount = false
             ) { email, password ->
                 viewModel.signInWithEmailAndPassword(email, password) {
-                    navController.navigate(Screen.HomeScreen.name)
+                    navController.navigate("homeScreen/$email")
                 }
             }
             Spacer(modifier = Modifier.height(20.dp))
@@ -65,7 +67,7 @@ fun LoginScreen(
                     text = "Sign up",
                     modifier = Modifier
                         .clickable {
-                            navController.navigate(Screen.Signupscreen.name)  // Navigate to SignupScreen
+                            navController.navigate(Screen.Signupscreen.name)
                         }
                         .padding(start = 5.dp),
                     fontWeight = FontWeight.Bold,
@@ -117,7 +119,7 @@ fun SignupScreen(
                     isCreateAccount = true
                 ) { email, password ->
                     viewModel.createUserWithEmailAndPassword(email, password) {
-                        navController.navigate(Screen.HomeScreen.name)
+                        navController.navigate("homeScreen/$email")
                     }
                 }
             }
