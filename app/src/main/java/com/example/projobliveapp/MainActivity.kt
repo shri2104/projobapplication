@@ -15,7 +15,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val apiService = createApiService()
-
         enableEdgeToEdge()
         setContent {
             ProJobLiveAppTheme {

@@ -34,11 +34,11 @@ fun JobAppSlidingMenuScreen(navController: NavHostController, userEmail: String)
         targetValue = if (isMenuVisible) 0.85f else 0f,
         label = "MenuWidthAnimation"
     )
-
     Box(modifier = Modifier.fillMaxSize()) {
         if (!isMenuVisible) {
             MainJobScreenContent(
-                onMenuClick = { isMenuVisible = true }
+                onMenuClick = { isMenuVisible = true },
+                navController = navController,
             )
         }
         if (isMenuVisible) {

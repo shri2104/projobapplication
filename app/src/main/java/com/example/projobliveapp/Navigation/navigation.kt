@@ -13,6 +13,7 @@ import com.bawp.freader.screens.login.LoginScreen
 import com.bawp.freader.screens.login.SignupScreen
 import com.bawp.freader.screens.login.UserForm
 import com.example.projobliveapp.DataBase.ApiService
+import com.example.projobliveapp.Screens.Jobs.JobList
 import com.example.projobliveapp.Screens.Login.SplashScreen
 import com.example.projobliveapp.Screens.Menu.ContactUsPage
 import com.example.projobliveapp.Screens.Menu.HelpAndSupportPage
@@ -79,7 +80,9 @@ fun Navigation(apiService: ApiService){
             val email = backStackEntry.arguments?.getString("email")
             ProfilePage(navController = navController, userEmail = email,apiService = apiService)
         }
-
+        composable(Screen.AvailableJobs.name){
+            JobList(navController=navController,apiService=apiService)
+        }
 
     }
 }

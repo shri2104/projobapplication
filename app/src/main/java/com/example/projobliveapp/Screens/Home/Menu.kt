@@ -22,13 +22,13 @@ import com.google.firebase.auth.FirebaseAuth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainJobScreenContent(onMenuClick: () -> Unit) {
+fun MainJobScreenContent(onMenuClick: () -> Unit,navController: NavHostController) {
     val scrollState = rememberScrollState()
     val openMenu = remember { mutableStateOf(false) }
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Job App", fontWeight = FontWeight.Bold) },
+                title = { Text("ProJob", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onMenuClick) {
                         Icon(Icons.Default.Menu, contentDescription = "Menu Icon")
@@ -59,7 +59,7 @@ fun MainJobScreenContent(onMenuClick: () -> Unit) {
                     Icon(Icons.Default.Groups, contentDescription = "internship")
                 }
                 IconButton(
-                    onClick = { },
+                    onClick = { navController.navigate(Screen.AvailableJobs.name)},
                     modifier = Modifier.weight(1f)
                 ) {
                     Icon(Icons.Default.Work, contentDescription = "Jobs")

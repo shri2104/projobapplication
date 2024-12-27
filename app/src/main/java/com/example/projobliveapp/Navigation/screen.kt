@@ -23,6 +23,7 @@ enum class Screen{
     AboutScreen,
     Userform,
     Signupscreen,
+    AvailableJobs,
     MenuScreen;
     companion object{
         fun fromRoute(route: String?):Screen
@@ -48,6 +49,7 @@ enum class Screen{
             Signupscreen.name->Signupscreen
             Userform.name->Userform
             profilepage.name->profilepage
+            AvailableJobs.name->AvailableJobs
             null->HomeScreen
             else -> throw IllegalArgumentException("Route $route is not recognized")
         }

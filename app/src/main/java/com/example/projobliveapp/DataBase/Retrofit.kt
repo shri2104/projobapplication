@@ -22,6 +22,18 @@ data class JobApplication(
     val jobCity: String?,
     val roleLooking: String?
 )
+data class Job(
+    val id: String,
+    val title: String,
+    val company: String,
+    val description: String,
+    val location: String,
+    val salary: String,
+    val postedDate: String,
+    val type: String,
+    val skillsRequired: List<String>
+)
+data class JobApiResponse(val success: Boolean, val jobs: List<Job>)
 data class ApiResponse(val success: Boolean, val id: String?)
 
 interface ApiService {
@@ -33,7 +45,15 @@ interface ApiService {
 
     @POST("storeData")
     suspend fun storeUserData(@Body jobData: JobApplication): Response<ApiResponse>
+
+    @GET("getJobs")
+    suspend fun getAllJobs(): List<Job>
+
+    @GET("getJob/{id}")
+    suspend fun getJobById(@Path("id") id: String): Job
 }
+
+
 fun createApiService(): ApiService {
     val retrofit = Retrofit.Builder()
         .baseUrl("http://10.0.2.2:3000/")

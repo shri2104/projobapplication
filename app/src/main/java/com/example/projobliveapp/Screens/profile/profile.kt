@@ -102,8 +102,6 @@ fun ProfileSection() {
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
-        // Profile Image
         Box(
             modifier = Modifier
                 .size(80.dp)
