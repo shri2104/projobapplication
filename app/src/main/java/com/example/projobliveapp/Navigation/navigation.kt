@@ -80,8 +80,9 @@ fun Navigation(apiService: ApiService){
             val email = backStackEntry.arguments?.getString("email")
             ProfilePage(navController = navController, userEmail = email,apiService = apiService)
         }
-        composable(Screen.AvailableJobs.name){
-            JobList(navController=navController,apiService=apiService)
+        composable("AvailableJobs/{email}") { backStackEntry ->
+            val userEmail = backStackEntry.arguments?.getString("email") ?: ""
+            JobList(navController = navController, apiService = apiService, userEmail = userEmail)
         }
 
     }

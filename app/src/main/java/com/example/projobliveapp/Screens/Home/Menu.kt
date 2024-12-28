@@ -1,3 +1,4 @@
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -10,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -22,18 +24,34 @@ import com.google.firebase.auth.FirebaseAuth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainJobScreenContent(onMenuClick: () -> Unit,navController: NavHostController) {
+fun MainJobScreenContent(
+    onMenuClick: () -> Unit,
+    navController: NavHostController,
+    userEmail: String
+) {
     val scrollState = rememberScrollState()
     val openMenu = remember { mutableStateOf(false) }
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("ProJob", fontWeight = FontWeight.Bold) },
+                title = {
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.projob_logo1_12fc55031a756ac453bf),
+                            contentDescription = "App Logo",
+                            modifier = Modifier.size(96.dp),
+                            contentScale = ContentScale.Fit
+                        )
+                    }
+                },
                 navigationIcon = {
                     IconButton(onClick = onMenuClick) {
                         Icon(Icons.Default.Menu, contentDescription = "Menu Icon")
                     }
-                }
+                },
+
             )
         },
         bottomBar = {
@@ -59,7 +77,7 @@ fun MainJobScreenContent(onMenuClick: () -> Unit,navController: NavHostControlle
                     Icon(Icons.Default.Groups, contentDescription = "internship")
                 }
                 IconButton(
-                    onClick = { navController.navigate(Screen.AvailableJobs.name)},
+                    onClick = { navController.navigate("AvailableJobs/$userEmail")},
                     modifier = Modifier.weight(1f)
                 ) {
                     Icon(Icons.Default.Work, contentDescription = "Jobs")

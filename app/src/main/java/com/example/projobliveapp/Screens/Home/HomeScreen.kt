@@ -39,6 +39,7 @@ fun JobAppSlidingMenuScreen(navController: NavHostController, userEmail: String)
             MainJobScreenContent(
                 onMenuClick = { isMenuVisible = true },
                 navController = navController,
+                userEmail=userEmail
             )
         }
         if (isMenuVisible) {

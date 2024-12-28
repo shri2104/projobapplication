@@ -23,16 +23,23 @@ data class JobApplication(
     val roleLooking: String?
 )
 data class Job(
-    val id: String,
-    val title: String,
+    val jobTitle: String,
+    val jobDescription: String,
+    val jobLocation: String,
+    val minExperience: String,
+    val maxExperience: String,
+    val minSalary: String,
+    val maxSalary: String,
+    val keySkills: String,
     val company: String,
-    val description: String,
-    val location: String,
-    val salary: String,
-    val postedDate: String,
-    val type: String,
-    val skillsRequired: List<String>
+    val createdBy: String,  // Assuming ObjectId is a string for simplicity
+    val createdByEmp: String,  // Assuming ObjectId is a string for simplicity
+    val shortlisted: List<String>,  // Assuming it's a list of user IDs or application IDs
+    val applications: List<String>,  // Assuming it's a list of application IDs
+    val createdAt: String,
+    val updatedAt: String,
 )
+
 data class JobApiResponse(val success: Boolean, val jobs: List<Job>)
 data class ApiResponse(val success: Boolean, val id: String?)
 

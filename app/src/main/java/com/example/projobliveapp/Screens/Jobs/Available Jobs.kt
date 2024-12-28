@@ -1,14 +1,24 @@
 package com.example.projobliveapp.Screens.Jobs
 
 import android.widget.Toast
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material3.*
+
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -17,7 +27,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -29,9 +38,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
@@ -41,9 +49,10 @@ import com.example.projobliveapp.DataBase.Job
 import com.example.projobliveapp.R
 
 @Composable
-fun JobList(apiService: ApiService, navController: NavHostController) {
+fun JobList(apiService: ApiService, navController: NavHostController, userEmail: String) {
     val jobList = remember { mutableStateListOf<Job>() }
     val context = LocalContext.current
+    var expanded by remember { mutableStateOf(false) }
 
     LaunchedEffect(true) {
         try {
@@ -57,16 +66,28 @@ fun JobList(apiService: ApiService, navController: NavHostController) {
         }
     }
 
-    JobListScreen(jobs = jobList)
+    JobListScreen(
+        jobs = jobList,
+        expanded = expanded,
+        onExpandChanged = { expanded = it },
+        navController = navController,
+        userEmail=userEmail
+    )
 }
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun JobListScreen(jobs: List<Job>) {
+fun JobListScreen(
+    jobs: List<Job>,
+    expanded: Boolean,
+    onExpandChanged: (Boolean) -> Unit,
+    navController: NavHostController,
+    userEmail: String
+) {
     var isSearchMode by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
-    val totalJobs = jobs.size // Calculate the total number of jobs
+    val totalJobs = jobs.size
+    val interactionSource = remember { MutableInteractionSource() }
 
     Scaffold(
         topBar = {
@@ -74,13 +95,42 @@ fun JobListScreen(jobs: List<Job>) {
                 title = {
                     Box(
                         modifier = Modifier.fillMaxWidth(),
-                        contentAlignment = Alignment.Center
                     ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.projob_logo1_12fc55031a756ac453bf), // Replace with your app logo resource
+                        Image(
+                            painter = painterResource(id = R.drawable.projob_logo1_12fc55031a756ac453bf),
                             contentDescription = "App Logo",
-                            modifier = Modifier.size(86.dp) // Adjust size as needed
+                            modifier = Modifier.size(86.dp),
+                            contentScale = ContentScale.Fit
                         )
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { onExpandChanged(!expanded) }) {
+                        Icon(
+                            imageVector = Icons.Filled.AccountCircle,
+                            contentDescription = "Profile Icon",
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { onExpandChanged(false) }
+                    ) {
+                        DropdownMenuItem(
+                            onClick = {
+                                navController.navigate("homeScreen/$userEmail")
+                                onExpandChanged(false)
+                            },
+                            text = { Text("Home") }
+                        )
+                        DropdownMenuItem(
+                            onClick = {
+                                navController.navigate("profileSection/$userEmail")
+                                onExpandChanged(false)
+                            },
+                            text = { Text("Profile") }
+                        )
+
                     }
                 }
             )
@@ -91,35 +141,12 @@ fun JobListScreen(jobs: List<Job>) {
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                if (isSearchMode) {
-                    TextField(
-                        value = searchQuery,
-                        onValueChange = { searchQuery = it },
-                        placeholder = { Text("Search jobs...") },
-                        modifier = Modifier.weight(1f)
-                    )
-                } else {
-                    Text(
-                        text = "$totalJobs Available Jobs", // Dynamic text for total jobs
-                        style = androidx.compose.material3.MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.weight(1f),
-                        fontSize = 20.sp
-                    )
-                }
-
-                IconButton(onClick = { isSearchMode = !isSearchMode }) {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = if (isSearchMode) "Close Search" else "Open Search"
-                    )
-                }
-            }
+            Text(
+                text = "$totalJobs Available Jobs",
+                style = MaterialTheme.typography.bodyLarge,
+                fontSize = 20.sp,
+                modifier = Modifier.padding(16.dp)
+            )
 
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
@@ -127,9 +154,9 @@ fun JobListScreen(jobs: List<Job>) {
             ) {
                 val filteredJobs = if (isSearchMode) {
                     jobs.filter {
-                        it.title.contains(searchQuery, ignoreCase = true) ||
+                        it.jobTitle.contains(searchQuery, ignoreCase = true) ||
                                 it.company.contains(searchQuery, ignoreCase = true) ||
-                                it.location.contains(searchQuery, ignoreCase = true)
+                                it.jobLocation.contains(searchQuery, ignoreCase = true)
                     }
                 } else {
                     jobs
@@ -152,6 +179,8 @@ fun JobListScreen(jobs: List<Job>) {
         }
     }
 }
+
+
 @Composable
 fun JobCard(job: Job) {
     var isFavorite by remember { mutableStateOf(false) }
@@ -167,7 +196,7 @@ fun JobCard(job: Job) {
                 .padding(16.dp)
         ) {
             Text(
-                text = job.title,
+                text = job.jobTitle,
                 style = androidx.compose.material3.MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Bold,
                 color = Color.Blue,
@@ -190,7 +219,7 @@ fun JobCard(job: Job) {
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = job.location,
+                    text = job.jobLocation,
                     style = androidx.compose.material3.MaterialTheme.typography.bodyMedium
                 )
             }
