@@ -172,7 +172,10 @@ fun JobListScreen(
                     }
                 } else {
                     items(filteredJobs) { job ->
-                        JobCard(job = job)
+                        JobCard(
+                            job = job,
+                            navController = navController
+                        )
                     }
                 }
             }
@@ -182,7 +185,7 @@ fun JobListScreen(
 
 
 @Composable
-fun JobCard(job: Job) {
+fun JobCard(job: Job, navController: NavHostController) {
     var isFavorite by remember { mutableStateOf(false) }
     Card(
         elevation = CardDefaults.cardElevation(8.dp),
@@ -197,17 +200,15 @@ fun JobCard(job: Job) {
         ) {
             Text(
                 text = job.jobTitle,
-                style = androidx.compose.material3.MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Bold,
                 color = Color.Blue,
                 fontSize = 20.sp
             )
             Text(
                 text = job.company,
-                style = androidx.compose.material3.MaterialTheme.typography.bodyMedium
+                style = MaterialTheme.typography.bodyMedium
             )
-
-            // Add location icon and location text
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -220,7 +221,7 @@ fun JobCard(job: Job) {
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
                     text = job.jobLocation,
-                    style = androidx.compose.material3.MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
 
@@ -242,6 +243,10 @@ fun JobCard(job: Job) {
 
                 Button(
                     onClick = {
+                        navController.navigate(
+                            "jobDetailScreen/${job.jobTitle}/${job.jobDescription}/${job.jobLocation}/${job.company}/${job.minSalary}/${job.maxSalary}/${job.createdAt}/${job.minExperience}/${job.maxExperience}/${job.keySkills}/${job.createdBy}/${job.createdByEmp}/${job.shortlisted}/${job.applications}/${job.updatedAt}"
+                        )
+
                     }
                 ) {
                     Text("View and Apply")

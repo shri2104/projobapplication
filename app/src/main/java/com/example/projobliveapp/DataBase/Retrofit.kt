@@ -32,10 +32,10 @@ data class Job(
     val maxSalary: String,
     val keySkills: String,
     val company: String,
-    val createdBy: String,  // Assuming ObjectId is a string for simplicity
-    val createdByEmp: String,  // Assuming ObjectId is a string for simplicity
-    val shortlisted: List<String>,  // Assuming it's a list of user IDs or application IDs
-    val applications: List<String>,  // Assuming it's a list of application IDs
+    val createdBy: String,
+    val createdByEmp: String,
+    val shortlisted: List<String>,
+    val applications: List<String>,
     val createdAt: String,
     val updatedAt: String,
 )

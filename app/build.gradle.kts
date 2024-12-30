@@ -69,5 +69,7 @@ dependencies {
     implementation (libs.converter.gson)
     implementation (libs.okhttp)
     implementation (libs.androidx.material3.v110)
+    implementation (libs.threetenabp)
+    implementation (libs.threetenabp.v131)
 
 }

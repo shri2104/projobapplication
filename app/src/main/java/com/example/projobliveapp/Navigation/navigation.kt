@@ -6,13 +6,17 @@ import JobAppSlidingMenuScreen
 import ProJobSafetyTipsScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.bawp.freader.screens.login.LoginScreen
 import com.bawp.freader.screens.login.SignupScreen
 import com.bawp.freader.screens.login.UserForm
 import com.example.projobliveapp.DataBase.ApiService
+import com.example.projobliveapp.DataBase.Job
+import com.example.projobliveapp.Screens.Jobs.JobDetailScreen
 import com.example.projobliveapp.Screens.Jobs.JobList
 import com.example.projobliveapp.Screens.Login.SplashScreen
 import com.example.projobliveapp.Screens.Menu.ContactUsPage
@@ -84,6 +88,45 @@ fun Navigation(apiService: ApiService){
             val userEmail = backStackEntry.arguments?.getString("email") ?: ""
             JobList(navController = navController, apiService = apiService, userEmail = userEmail)
         }
+        composable(
+            route = "jobDetailScreen/{jobTitle}/{jobDescription}/{jobLocation}/{company}/{minSalary}/{maxSalary}/{createdAt}/{minExperience}/{maxExperience}/{keySkills}/{createdBy}/{createdByEmp}/{shortlisted}/{applications}/{updatedAt}"
+        ) { backStackEntry ->
+            val jobTitle = backStackEntry.arguments?.getString("jobTitle") ?: ""
+            val jobDescription = backStackEntry.arguments?.getString("jobDescription") ?: ""
+            val jobLocation = backStackEntry.arguments?.getString("jobLocation") ?: ""
+            val company = backStackEntry.arguments?.getString("company") ?: ""
+            val minSalary = backStackEntry.arguments?.getString("minSalary") ?: ""
+            val maxSalary = backStackEntry.arguments?.getString("maxSalary") ?: ""
+            val createdAt = backStackEntry.arguments?.getString("createdAt") ?: ""
+            val minExperience = backStackEntry.arguments?.getString("minExperience") ?: ""
+            val maxExperience = backStackEntry.arguments?.getString("maxExperience") ?: ""
+            val keySkills = backStackEntry.arguments?.getString("keySkills") ?: ""
+            val createdBy = backStackEntry.arguments?.getString("createdBy") ?: ""
+            val createdByEmp = backStackEntry.arguments?.getString("createdByEmp") ?: ""
+            val shortlisted = backStackEntry.arguments?.getString("shortlisted") ?: ""
+            val applications = backStackEntry.arguments?.getString("applications") ?: ""
+            val updatedAt = backStackEntry.arguments?.getString("updatedAt") ?: ""
+
+            JobDetailScreen(
+                navController = navController,
+                jobTitle = jobTitle,
+                jobDescription = jobDescription,
+                jobLocation = jobLocation,
+                company = company,
+                minSalary = minSalary,
+                maxSalary = maxSalary,
+                createdAt = createdAt,
+                minExperience = minExperience,
+                maxExperience = maxExperience,
+                keySkills = keySkills,
+                createdBy = createdBy,
+                createdByEmp = createdByEmp,
+                shortlisted = shortlisted,
+                applications = applications,
+                updatedAt = updatedAt
+            )
+        }
+
 
     }
 }

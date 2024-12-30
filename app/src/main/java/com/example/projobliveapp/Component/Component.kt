@@ -43,7 +43,22 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.projobliveapp.R
+import org.threeten.bp.Instant
+
+
+fun formatDateTime(isoDate: String): String {
+    // Parse the ISO 8601 date string to Instant
+    val instant = Instant.parse(isoDate)
+
+    // Convert Instant to LocalDateTime in UTC
+    val dateTime = org.threeten.bp.LocalDateTime.ofInstant(instant, org.threeten.bp.ZoneOffset.UTC)
+
+    // Define the desired output format
+    val formatter = org.threeten.bp.format.DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm")
+
+    // Format the parsed date to a more readable format
+    return dateTime.format(formatter)
+}
 
 @Composable
 fun EmailInput(

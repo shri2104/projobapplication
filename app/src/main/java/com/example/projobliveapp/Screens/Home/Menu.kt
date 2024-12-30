@@ -51,7 +51,6 @@ fun MainJobScreenContent(
                         Icon(Icons.Default.Menu, contentDescription = "Menu Icon")
                     }
                 },
-
             )
         },
         bottomBar = {
@@ -82,7 +81,6 @@ fun MainJobScreenContent(
                 ) {
                     Icon(Icons.Default.Work, contentDescription = "Jobs")
                 }
-
             }
         }
     ) { paddingValues ->
@@ -128,7 +126,6 @@ fun JobAppMenuContent(onCloseMenu: () -> Unit, navController: NavHostController,
                 Icon(Icons.Default.Close, contentDescription = "Close Menu", tint = Color.White)
             }
         }
-
         Column(
             verticalArrangement = Arrangement.spacedBy(20.dp),
             modifier = Modifier.padding(top = 8.dp)
@@ -151,7 +148,6 @@ fun JobAppMenuContent(onCloseMenu: () -> Unit, navController: NavHostController,
                 FirebaseAuth.getInstance().signOut()
                 navController.navigate(Screen.LoginScreen.name)
             })
-
         }
         Spacer(modifier = Modifier.weight(1f))
         Text(
