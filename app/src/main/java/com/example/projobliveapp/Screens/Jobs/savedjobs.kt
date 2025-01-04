@@ -1,39 +1,39 @@
-package com.example.projobliveapp.Screens.Jobs
-
-import SavedJobItem
 import android.util.Log
 import android.widget.Toast
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-
-import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material3.*
-
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -41,167 +41,131 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.projobliveapp.DataBase.ApiService
 import com.example.projobliveapp.DataBase.Job
 import com.example.projobliveapp.DataBase.SaveJob
-import com.example.projobliveapp.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-@Composable
-fun JobList(apiService: ApiService, navController: NavHostController, userEmail: String) {
-    val jobList = remember { mutableStateListOf<Job>() }
-    val context = LocalContext.current
-    var expanded by remember { mutableStateOf(false) }
-    LaunchedEffect(true) {
-        try {
-            val response = apiService.getAllJobs()
-            if (response.isNotEmpty()) {
-                jobList.clear()
-                jobList.addAll(response)
-            }
-        } catch (e: Exception) {
-            Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    JobListScreen(
-        jobs = jobList,
-        expanded = expanded,
-        onExpandChanged = { expanded = it },
-        navController = navController,
-        userEmail=userEmail,
-        apiService= apiService
-    )
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun JobListScreen(
-    jobs: List<Job>,
-    expanded: Boolean,
-    onExpandChanged: (Boolean) -> Unit,
-    navController: NavHostController,
-    userEmail: String,
-    apiService: ApiService
-) {
-    var isSearchMode by remember { mutableStateOf(false) }
-    var searchQuery by remember { mutableStateOf("") }
-    val totalJobs = jobs.size
-    val interactionSource = remember { MutableInteractionSource() }
+fun SavedJobs(apiService: ApiService, email: String, navController: NavHostController) {
+    val coroutineScope = rememberCoroutineScope()
+    var savedJobDetails by remember { mutableStateOf<List<Job>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(Unit) {
+        coroutineScope.launch {
+            try {
+                val response = apiService.getSavedJobs(email)
+                val jobIds = response.jobIds.flatten()
+
+                val jobDetails = mutableListOf<Job>()
+                for (id in jobIds) {
+                    try {
+                        val job = apiService.getJobById(id)
+                        jobDetails.add(job)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+                savedJobDetails = jobDetails
+                isLoading = false
+            } catch (e: Exception) {
+                errorMessage = "Failed to load saved jobs: ${e.localizedMessage}"
+                isLoading = false
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {
-                    Box(
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.projob_logo1_12fc55031a756ac453bf),
-                            contentDescription = "App Logo",
-                            modifier = Modifier.size(86.dp),
-                            contentScale = ContentScale.Fit
-                        )
+                title = { Text("Saved Jobs") },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
                 },
                 actions = {
-                    IconButton(onClick = { onExpandChanged(!expanded) }) {
-                        Icon(
-                            imageVector = Icons.Filled.AccountCircle,
-                            contentDescription = "Profile Icon",
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
-                    DropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { onExpandChanged(false) }
-                    ) {
-                        DropdownMenuItem(
-                            onClick = {
-                                navController.navigate("homeScreen/$userEmail")
-                                onExpandChanged(false)
-                            },
-                            text = { Text("Home") }
-                        )
-                        DropdownMenuItem(
-                            onClick = {
-                                navController.navigate("profileSection/$userEmail")
-                                onExpandChanged(false)
-                            },
-                            text = { Text("Profile") }
-                        )
-                        DropdownMenuItem(
-                            onClick = {
-                                navController.navigate("SavedJobs/$userEmail")
-                                onExpandChanged(false)
-                            },
-                            text = { Text("Saved Jobs") }
-                        )
-
-                    }
+                    ProfileMenu(navController,email)
                 }
             )
         }
-    ) { innerPadding ->
-        Column(
+    ) { paddingValues ->
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
+                .padding(paddingValues)
         ) {
-            Text(
-                text = "$totalJobs Available Jobs",
-                style = MaterialTheme.typography.bodyLarge,
-                fontSize = 20.sp,
-                modifier = Modifier.padding(16.dp)
-            )
-
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(16.dp)
-            ) {
-                val filteredJobs = if (isSearchMode) {
-                    jobs.filter {
-                        it.jobTitle.contains(searchQuery, ignoreCase = true) ||
-                                it.company.contains(searchQuery, ignoreCase = true) ||
-                                it.jobLocation.contains(searchQuery, ignoreCase = true)
-                    }
-                } else {
-                    jobs
-                }
-
-                if (filteredJobs.isEmpty()) {
-                    item {
-                        Text(
-                            text = "No jobs found.",
-                            modifier = Modifier.fillMaxWidth(),
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                } else {
-                    items(filteredJobs) { job ->
-                        JobCard(
+            when {
+                isLoading -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                errorMessage != null -> Text(
+                    text = errorMessage ?: "",
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.align(Alignment.Center)
+                )
+                savedJobDetails.isNotEmpty() -> LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    items(savedJobDetails) { job ->
+                        SavedJobItem(
                             job = job,
                             navController = navController,
                             apiService = apiService,
-                            userEmail = userEmail
+                            userEmail = email
                         )
                     }
                 }
+                else -> Text(
+                    text = "No saved jobs found.",
+                    modifier = Modifier.align(Alignment.Center),
+                    style = MaterialTheme.typography.bodyLarge
+                )
             }
         }
     }
 }
 
 @Composable
-fun JobCard(
+fun ProfileMenu(navController: NavHostController, userEmail: String) {
+    var expanded by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
+    Box {
+        IconButton(onClick = { expanded = !expanded }) {
+            Icon(Icons.Default.AccountCircle, contentDescription = "Profile")
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            DropdownMenuItem(
+                onClick = {
+                    navController.navigate("homeScreen/$userEmail")
+                    expanded = false
+                },
+                text = { Text("Home") }
+            )
+            DropdownMenuItem(
+                onClick = {
+                    navController.navigate("profileSection/$userEmail")
+                    expanded = false
+                },
+                text = { Text("Profile") }
+            )
+        }
+    }
+}
+
+@Composable
+fun SavedJobItem(
     job: Job,
     navController: NavHostController,
     apiService: ApiService,
@@ -217,6 +181,7 @@ fun JobCard(
             if (response.isSuccessful) {
                 isFavorite = response.body()?.success ?: false
             } else {
+                Toast.makeText(context, "Error fetching favorite status", Toast.LENGTH_SHORT).show()
             }
         } catch (e: Exception) {
             Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
@@ -320,6 +285,3 @@ fun JobCard(
         }
     }
 }
-
-
-

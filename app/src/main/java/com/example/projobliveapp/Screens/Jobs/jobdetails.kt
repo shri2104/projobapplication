@@ -47,7 +47,7 @@ fun JobDetailScreen(
 ) {
     val scrollState = rememberLazyListState()
     val isTitleVisible = remember { mutableStateOf(false) }
-    val isFavorite = remember { mutableStateOf(false) } // State to manage favorite icon
+    val isFavorite = remember { mutableStateOf(false) }
 
     LaunchedEffect(scrollState.firstVisibleItemIndex, scrollState.firstVisibleItemScrollOffset) {
         isTitleVisible.value =
@@ -75,7 +75,7 @@ fun JobDetailScreen(
                 },
                 actions = {
                     IconButton(onClick = {
-                        isFavorite.value = !isFavorite.value // Toggle favorite state
+                        isFavorite.value = !isFavorite.value
                     }) {
                         val icon = if (isFavorite.value) Icons.Default.Favorite else Icons.Default.FavoriteBorder
                         val iconTint = if (isFavorite.value) Color.Red else Color.Gray
@@ -113,13 +113,11 @@ fun JobDetailScreen(
                             fontWeight = FontWeight.Medium,
                             modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
                         )
-
                         Column(
                             modifier = Modifier
                                 .padding(horizontal = 16.dp)
                                 .fillMaxWidth()
                         ) {
-                            // Location
                             Row(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {

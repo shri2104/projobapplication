@@ -235,10 +235,7 @@ fun ContactDetailsSection() {
             Icon(imageVector = Icons.Default.Email, contentDescription = null, modifier = Modifier.padding(end = 8.dp))
             Text(text = "info@projob.co.in", style = MaterialTheme.typography.bodyLarge)
         }
-
         Spacer(modifier = Modifier.height(16.dp))
-
-
         Spacer(modifier = Modifier.height(16.dp))
         Text(
             text = "Visit Our Website",

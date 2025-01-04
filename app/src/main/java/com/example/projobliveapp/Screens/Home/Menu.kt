@@ -133,7 +133,7 @@ fun JobAppMenuContent(onCloseMenu: () -> Unit, navController: NavHostController,
             MenuItem(icon = Icons.Default.Person, label = "Profile", onClick = {
                 navController.navigate("profileSection/$userEmail")
             })
-            MenuItem(icon = Icons.Default.Favorite, label = "Saved Jobs", onClick = {  })
+            MenuItem(icon = Icons.Default.Favorite, label = "Saved Jobs", onClick = { navController.navigate("SavedJobs/$userEmail") })
             MenuItem(icon = Icons.Default.Email, label = "Applications", onClick = {  })
             MenuItem(icon = Icons.Default.SupportAgent, label = "Help & Support", onClick = {
                 navController.navigate(Screen.HelpandSupport.name)
