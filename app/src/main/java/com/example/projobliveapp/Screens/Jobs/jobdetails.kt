@@ -10,8 +10,12 @@ import androidx.compose.material.icons.filled.AccessTimeFilled
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Groups
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Message
 import androidx.compose.material.icons.filled.Money
+import androidx.compose.material.icons.filled.Work
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -43,7 +47,8 @@ fun JobDetailScreen(
     createdByEmp: String,
     shortlisted: String,
     applications: String,
-    updatedAt: String
+    updatedAt: String,
+    userEmail: String
 ) {
     val scrollState = rememberLazyListState()
     val isTitleVisible = remember { mutableStateOf(false) }
@@ -83,6 +88,47 @@ fun JobDetailScreen(
                     }
                 }
             )
+        },bottomBar = {
+            BottomAppBar(
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                IconButton(
+                    onClick = { navController.navigate("homeScreen/$userEmail")},
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(Icons.Default.Home, contentDescription = "Home",)
+                        Text(text = "Home", style = MaterialTheme.typography.titleSmall)
+                    }
+                }
+                IconButton(
+                    onClick = { },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(Icons.Default.Groups, contentDescription = "Internships")
+                        Text(text = "Internships", style = MaterialTheme.typography.titleSmall)
+                    }
+                }
+                IconButton(
+                    onClick = { navController.navigate("AvailableJobs/$userEmail")},
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(Icons.Default.Work, contentDescription = "Jobs")
+                        Text(text = "Jobs", style = MaterialTheme.typography.titleSmall)
+                    }
+                }
+                IconButton(
+                    onClick = { },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(Icons.Default.Message, contentDescription = "Messages")
+                        Text(text = "Messages", style = MaterialTheme.typography.titleSmall)
+                    }
+                }
+            }
         }
     ) { innerPadding ->
         Box(
@@ -228,12 +274,11 @@ fun JobDetailScreen(
                     .fillMaxWidth()
                     .padding(16.dp)
                     .align(Alignment.BottomEnd)
-                    .offset(y = (-50).dp),
+                    .offset(y = (-125).dp),
                 containerColor = Color(0xFF1E3A8A)
             ) {
                 Text(text = "Apply", color = Color.White)
             }
-
 
         }
     }

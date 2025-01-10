@@ -5,6 +5,8 @@ import AboutScreen
 import JobAppSlidingMenuScreen
 import ProJobSafetyTipsScreen
 import SavedJobs
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
@@ -28,9 +30,11 @@ import com.example.projobliveapp.Screens.PhoneAuth.PHHomeScreen
 
 import com.example.projobliveapp.Screens.frontscreen.LoginSelectionScreen
 import com.example.projobliveapp.Screens.profile.ProfilePage
+import com.example.projobliveapp.Screens.profile.ProfileSection
 
 import com.example.projobliveapp.Screens.profile.ScrollableProfileScreen
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun Navigation(apiService: ApiService){
@@ -45,7 +49,7 @@ fun Navigation(apiService: ApiService){
         }
         composable("homeScreen/{email}"){ backStackEntry ->
             val userEmail = backStackEntry.arguments?.getString("email") ?: ""
-            JobAppSlidingMenuScreen(navController = navController, userEmail = userEmail)
+            JobAppSlidingMenuScreen(navController = navController, userEmail = userEmail,apiservice=apiService)
         }
         composable(Screen.FrontScreen.name){
             LoginSelectionScreen(navController=navController)
@@ -91,7 +95,7 @@ fun Navigation(apiService: ApiService){
             JobList(navController = navController, apiService = apiService, userEmail = userEmail)
         }
         composable(
-            route = "jobDetailScreen/{jobTitle}/{jobDescription}/{jobLocation}/{company}/{minSalary}/{maxSalary}/{createdAt}/{minExperience}/{maxExperience}/{keySkills}/{createdBy}/{createdByEmp}/{shortlisted}/{applications}/{updatedAt}"
+            route = "jobDetailScreen/{jobTitle}/{jobDescription}/{jobLocation}/{company}/{minSalary}/{maxSalary}/{createdAt}/{minExperience}/{maxExperience}/{keySkills}/{createdBy}/{createdByEmp}/{shortlisted}/{applications}/{updatedAt}/{email}"
         ) { backStackEntry ->
             val jobTitle = backStackEntry.arguments?.getString("jobTitle") ?: ""
             val jobDescription = backStackEntry.arguments?.getString("jobDescription") ?: ""
@@ -108,6 +112,7 @@ fun Navigation(apiService: ApiService){
             val shortlisted = backStackEntry.arguments?.getString("shortlisted") ?: ""
             val applications = backStackEntry.arguments?.getString("applications") ?: ""
             val updatedAt = backStackEntry.arguments?.getString("updatedAt") ?: ""
+            val userEmail = backStackEntry.arguments?.getString("email") ?: ""
 
             JobDetailScreen(
                 navController = navController,
@@ -125,12 +130,20 @@ fun Navigation(apiService: ApiService){
                 createdByEmp = createdByEmp,
                 shortlisted = shortlisted,
                 applications = applications,
-                updatedAt = updatedAt
+                updatedAt = updatedAt,
+                userEmail = userEmail
             )
         }
         composable("SavedJobs/{email}") { backStackEntry ->
             val userEmail = backStackEntry.arguments?.getString("email") ?: ""
             SavedJobs(
+                apiService = apiService, userEmail,
+                navController =navController
+            )
+        }
+        composable("MyResume/{email}") { backStackEntry ->
+            val userEmail = backStackEntry.arguments?.getString("email") ?: ""
+            ProfileSection(
                 apiService = apiService, userEmail,
                 navController =navController
             )

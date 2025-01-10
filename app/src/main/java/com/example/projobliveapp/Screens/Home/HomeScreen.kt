@@ -1,5 +1,7 @@
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -25,10 +27,86 @@ import androidx.navigation.NavHostController
 import com.example.projobliveapp.R
 
 import androidx.compose.foundation.shape.RoundedCornerShape
+import com.example.projobliveapp.DataBase.ApiService
+import java.time.LocalTime
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun JobAppSlidingMenuScreen(navController: NavHostController, userEmail: String) {
+fun UserGreetingScreen(email: String, apiService: ApiService) {
+    var userName by remember { mutableStateOf<String?>(null) }
+    var loading by remember { mutableStateOf(false) }
+    var error by remember { mutableStateOf<String?>(null) }
+
+    val currentTime = LocalTime.now()
+    val greeting = when (currentTime.hour) {
+        in 5..11 -> "Good morning"
+        in 12..17 -> "Good afternoon"
+        else -> "Good evening"
+    }
+    LaunchedEffect(email) {
+        if (email.isNotBlank()) {
+            loading = true
+            try {
+                val userData = apiService.getProfileDataByEmail(email)
+                userName = userData.firstName
+            } catch (e: Exception) {
+                error = "Failed to fetch user data: ${e.message}"
+            } finally {
+                loading = false
+            }
+        } else {
+            error = "Please enter a valid email"
+        }
+    }
+
+    Surface(modifier = Modifier.fillMaxWidth()) {
+        when {
+            loading -> {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
+            error != null -> {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Text(text = error ?: "Unknown error")
+                }
+            }
+            userName != null -> {
+                Column(
+                    horizontalAlignment = Alignment.Start,
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier.fillMaxSize().padding(16.dp)
+                ) {
+                    Text(
+                        text = "Hi, $userName! 👋",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "Your next opportunity is just a click away!",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+            }
+        }
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun JobAppSlidingMenuScreen(
+    navController: NavHostController,
+    userEmail: String,
+    apiservice: ApiService
+) {
     var isMenuVisible by remember { mutableStateOf(false) }
     val menuWidth by animateFloatAsState(
         targetValue = if (isMenuVisible) 0.85f else 0f,
@@ -39,7 +117,8 @@ fun JobAppSlidingMenuScreen(navController: NavHostController, userEmail: String)
             MainJobScreenContent(
                 onMenuClick = { isMenuVisible = true },
                 navController = navController,
-                userEmail=userEmail
+                userEmail=userEmail,
+                apiservice=apiservice
             )
         }
         if (isMenuVisible) {
@@ -56,7 +135,8 @@ fun JobAppSlidingMenuScreen(navController: NavHostController, userEmail: String)
                 JobAppMenuContent(
                     onCloseMenu = { isMenuVisible = false },
                     navController=navController,
-                    userEmail=userEmail
+                    userEmail=userEmail,
+                    apiservice= apiservice
                 )
             }
         }

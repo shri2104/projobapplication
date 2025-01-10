@@ -1,6 +1,9 @@
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -17,17 +20,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.projobliveapp.DataBase.ApiService
 import com.example.projobliveapp.Navigation.Screen
 import com.example.projobliveapp.R
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.launch
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainJobScreenContent(
     onMenuClick: () -> Unit,
     navController: NavHostController,
-    userEmail: String
+    userEmail: String,
+    apiservice: ApiService
 ) {
     val scrollState = rememberScrollState()
     val openMenu = remember { mutableStateOf(false) }
@@ -51,9 +58,14 @@ fun MainJobScreenContent(
                         Icon(Icons.Default.Menu, contentDescription = "Menu Icon")
                     }
                 },
+                actions = {
+                    IconButton(onClick = onMenuClick) {
+                        Icon(Icons.Default.Notifications, contentDescription = "Notification Icon")
+                    }
+                }
             )
-        },
-        bottomBar = {
+        }
+        ,bottomBar = {
             BottomAppBar(
                 modifier = Modifier.fillMaxWidth(),
             ) {
@@ -61,28 +73,41 @@ fun MainJobScreenContent(
                     onClick = { },
                     modifier = Modifier.weight(1f)
                 ) {
-                    Icon(Icons.Default.Home, contentDescription = "Home")
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(Icons.Default.Home, contentDescription = "Home",)
+                        Text(text = "Home", style = MaterialTheme.typography.titleSmall)
+                    }
                 }
                 IconButton(
                     onClick = { },
                     modifier = Modifier.weight(1f)
                 ) {
-                    Icon(Icons.Default.Search, contentDescription = "Search")
-                }
-                IconButton(
-                    onClick = { },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Icon(Icons.Default.Groups, contentDescription = "internship")
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(Icons.Default.Groups, contentDescription = "Internships")
+                        Text(text = "Internships", style = MaterialTheme.typography.titleSmall)
+                    }
                 }
                 IconButton(
                     onClick = { navController.navigate("AvailableJobs/$userEmail")},
                     modifier = Modifier.weight(1f)
                 ) {
-                    Icon(Icons.Default.Work, contentDescription = "Jobs")
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(Icons.Default.Work, contentDescription = "Jobs")
+                        Text(text = "Jobs", style = MaterialTheme.typography.titleSmall)
+                    }
+                }
+                IconButton(
+                    onClick = { },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(Icons.Default.Message, contentDescription = "Messages")
+                        Text(text = "Messages", style = MaterialTheme.typography.titleSmall)
+                    }
                 }
             }
         }
+
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -90,7 +115,11 @@ fun MainJobScreenContent(
                 .padding(paddingValues)
                 .verticalScroll(scrollState)
         ) {
-            SearchBarSection()
+            UserGreetingScreen(
+                email = userEmail,
+                apiService = apiservice
+            )
+
             TrendingJobsSection()
             RecentlyViewedJobsSection()
             ActiveJobsInCitiesSection()
@@ -100,9 +129,31 @@ fun MainJobScreenContent(
         }
     }
 }
-
 @Composable
-fun JobAppMenuContent(onCloseMenu: () -> Unit, navController: NavHostController, userEmail: String) {
+fun JobAppMenuContent(
+    onCloseMenu: () -> Unit,
+    navController: NavHostController,
+    userEmail: String,
+    apiservice: ApiService
+) {
+    var userName by remember { mutableStateOf("Loading...") }
+    var userlastName by remember { mutableStateOf("Loading...") }
+    var userFetchedEmail by remember { mutableStateOf("Loading...") }
+    val scope = rememberCoroutineScope()
+    LaunchedEffect(Unit) {
+        scope.launch {
+            try {
+                val userProfile = apiservice.getProfileDataByEmail(userEmail)
+                userName = userProfile.firstName
+                userlastName = userProfile.lastName
+                userFetchedEmail = userProfile.email
+            } catch (e: Exception) {
+                userName = "User"
+                userFetchedEmail = "Unavailable"
+            }
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -116,42 +167,92 @@ fun JobAppMenuContent(onCloseMenu: () -> Unit, navController: NavHostController,
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
+            Image(
                 painter = painterResource(id = R.drawable.projob_logo1_12fc55031a756ac453bf),
                 contentDescription = "App Logo",
-                tint = Color.White,
-                modifier = Modifier.size(96.dp)
+                modifier = Modifier.size(86.dp),
+                contentScale = ContentScale.Fit
             )
             IconButton(onClick = onCloseMenu) {
                 Icon(Icons.Default.Close, contentDescription = "Close Menu", tint = Color.White)
             }
         }
         Column(
-            verticalArrangement = Arrangement.spacedBy(20.dp),
-            modifier = Modifier.padding(top = 8.dp)
+            modifier = Modifier.padding(bottom = 24.dp)
         ) {
-            MenuItem(icon = Icons.Default.Person, label = "Profile", onClick = {
-                navController.navigate("profileSection/$userEmail")
-            })
-            MenuItem(icon = Icons.Default.Favorite, label = "Saved Jobs", onClick = { navController.navigate("SavedJobs/$userEmail") })
-            MenuItem(icon = Icons.Default.Email, label = "Applications", onClick = {  })
-            MenuItem(icon = Icons.Default.SupportAgent, label = "Help & Support", onClick = {
-                navController.navigate(Screen.HelpandSupport.name)
-            })
-            MenuItem(icon = Icons.Default.Phone, label = "Contact Us", onClick = {
-                navController.navigate(Screen.ContactUsScreen.name)
-            })
-            MenuItem(icon = Icons.Default.AddCircleOutline, label = "More", onClick = {
-                navController.navigate(Screen.MoreScreen.name)
-            })
-            MenuItem(icon = Icons.Default.Logout, label = "Logout", onClick = {
-                FirebaseAuth.getInstance().signOut()
-                navController.navigate(Screen.LoginScreen.name)
-            })
+            Text(
+                text = "$userName $userlastName",
+                fontSize = 20.sp,
+                color = Color.White,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = userFetchedEmail,
+                fontSize = 16.sp,
+                color = Color.LightGray
+            )
         }
+        Text(
+            text = "EXPLORE",
+            fontSize = 22.sp,
+            color = Color.White,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(20.dp),
+            modifier = Modifier.fillMaxSize()
+        ) {
+            item {
+                MenuItem(icon = Icons.Default.Person, label = "Profile") {
+                    navController.navigate("profileSection/$userEmail")
+                }
+            }
+            item {
+                MenuItem(icon = Icons.Default.Favorite, label = "Saved Jobs") {
+                    navController.navigate("SavedJobs/$userEmail")
+                }
+            }
+            item {
+                MenuItem(icon = Icons.Default.Email, label = "Applications") {
+                }
+            }
+            item {
+                MenuItem(icon = Icons.Default.WorkOutline, label = "Jobs") {
+                    navController.navigate("Jobs/$userEmail")
+                }
+            }
+            item {
+                MenuItem(icon = Icons.Default.School, label = "Internships") {
+                    navController.navigate("Internships/$userEmail")
+                }
+            }
+            item {
+                MenuItem(icon = Icons.Default.SupportAgent, label = "Help & Support") {
+                    navController.navigate(Screen.HelpandSupport.name)
+                }
+            }
+            item {
+                MenuItem(icon = Icons.Default.Phone, label = "Contact Us") {
+                    navController.navigate(Screen.ContactUsScreen.name)
+                }
+            }
+            item {
+                MenuItem(icon = Icons.Default.AddCircleOutline, label = "More") {
+                    navController.navigate(Screen.MoreScreen.name)
+                }
+            }
+            item {
+                MenuItem(icon = Icons.Default.Logout, label = "Logout") {
+                    FirebaseAuth.getInstance().signOut()
+                    navController.navigate(Screen.LoginScreen.name)
+                }
+            }
+        }
+
         Spacer(modifier = Modifier.weight(1f))
         Text(
-            "Version 1.0.0",
+            text = "Version 1.0.0",
             fontSize = 14.sp,
             color = Color.LightGray,
             modifier = Modifier.align(Alignment.CenterHorizontally)
@@ -187,4 +288,3 @@ fun MenuItem(
         )
     }
 }
-

@@ -1,6 +1,5 @@
 package com.example.projobliveapp.Screens.Jobs
 
-import SavedJobItem
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -20,7 +19,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Groups
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Message
+import androidx.compose.material.icons.filled.Work
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -60,6 +63,8 @@ fun JobList(apiService: ApiService, navController: NavHostController, userEmail:
     val jobList = remember { mutableStateListOf<Job>() }
     val context = LocalContext.current
     var expanded by remember { mutableStateOf(false) }
+
+    // Fetching job data
     LaunchedEffect(true) {
         try {
             val response = apiService.getAllJobs()
@@ -72,15 +77,63 @@ fun JobList(apiService: ApiService, navController: NavHostController, userEmail:
         }
     }
 
-    JobListScreen(
-        jobs = jobList,
-        expanded = expanded,
-        onExpandChanged = { expanded = it },
-        navController = navController,
-        userEmail=userEmail,
-        apiService= apiService
-    )
+    Scaffold(
+        bottomBar = {
+            BottomAppBar(
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                IconButton(
+                    onClick = { navController.navigate("homeScreen/$userEmail") },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(Icons.Default.Home, contentDescription = "Home")
+                        Text(text = "Home", style = MaterialTheme.typography.titleSmall)
+                    }
+                }
+                IconButton(
+                    onClick = {  },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(Icons.Default.Groups, contentDescription = "Internships")
+                        Text(text = "Internships", style = MaterialTheme.typography.titleSmall)
+                    }
+                }
+                IconButton(
+                    onClick = { },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(Icons.Default.Work, contentDescription = "Jobs")
+                        Text(text = "Jobs", style = MaterialTheme.typography.titleSmall)
+                    }
+                }
+                IconButton(
+                    onClick = { },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(Icons.Default.Message, contentDescription = "Messages")
+                        Text(text = "Messages", style = MaterialTheme.typography.titleSmall)
+                    }
+                }
+            }
+        }
+    ) { paddingValues ->
+        JobListScreen(
+            jobs = jobList,
+            expanded = expanded,
+            onExpandChanged = { expanded = it },
+            navController = navController,
+            userEmail = userEmail,
+            apiService = apiService,
+            modifier = Modifier.padding(paddingValues) // Ensure the padding is applied
+        )
+    }
 }
+
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -90,7 +143,8 @@ fun JobListScreen(
     onExpandChanged: (Boolean) -> Unit,
     navController: NavHostController,
     userEmail: String,
-    apiService: ApiService
+    apiService: ApiService,
+    modifier: Modifier
 ) {
     var isSearchMode by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
@@ -310,7 +364,7 @@ fun JobCard(
                 Button(
                     onClick = {
                         navController.navigate(
-                            "jobDetailScreen/${job.jobTitle}/${job.jobDescription}/${job.jobLocation}/${job.company}/${job.minSalary}/${job.maxSalary}/${job.createdAt}/${job.minExperience}/${job.maxExperience}/${job.keySkills}/${job.createdBy}/${job.createdByEmp}/${job.shortlisted}/${job.applications}/${job.updatedAt}"
+                            "jobDetailScreen/${job.jobTitle}/${job.jobDescription}/${job.jobLocation}/${job.company}/${job.minSalary}/${job.maxSalary}/${job.createdAt}/${job.minExperience}/${job.maxExperience}/${job.keySkills}/${job.createdBy}/${job.createdByEmp}/${job.shortlisted}/${job.applications}/${job.updatedAt}/${userEmail}"
                         )
                     }
                 ) {
