@@ -17,7 +17,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Groups
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Message
+import androidx.compose.material.icons.filled.Work
+import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -84,7 +89,6 @@ fun SavedJobs(apiService: ApiService, email: String, navController: NavHostContr
             }
         }
     }
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -95,9 +99,51 @@ fun SavedJobs(apiService: ApiService, email: String, navController: NavHostContr
                     }
                 },
                 actions = {
-                    ProfileMenu(navController,email)
+                    ProfileMenu(navController, email)
                 }
             )
+        },
+        bottomBar = {
+            BottomAppBar(
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                IconButton(
+                    onClick = { navController.navigate("homeScreen/$email")},
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(Icons.Default.Home, contentDescription = "Home",)
+                        Text(text = "Home", style = MaterialTheme.typography.titleSmall)
+                    }
+                }
+                IconButton(
+                    onClick = { },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(Icons.Default.Groups, contentDescription = "Internships")
+                        Text(text = "Internships", style = MaterialTheme.typography.titleSmall)
+                    }
+                }
+                IconButton(
+                    onClick = { navController.navigate("AvailableJobs/$email")},
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(Icons.Default.Work, contentDescription = "Jobs")
+                        Text(text = "Jobs", style = MaterialTheme.typography.titleSmall)
+                    }
+                }
+                IconButton(
+                    onClick = { },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(Icons.Default.Message, contentDescription = "Messages")
+                        Text(text = "Messages", style = MaterialTheme.typography.titleSmall)
+                    }
+                }
+            }
         }
     ) { paddingValues ->
         Box(
@@ -131,6 +177,7 @@ fun SavedJobs(apiService: ApiService, email: String, navController: NavHostContr
         }
     }
 }
+
 
 @Composable
 fun ProfileMenu(navController: NavHostController, userEmail: String) {
@@ -227,13 +274,8 @@ fun SavedJobItem(
                         coroutineScope.launch(Dispatchers.IO) {
                             val newFavoriteState = !isFavorite
                             try {
-                                // Prepare the SaveJob object
                                 val saveJob = SaveJob(userEmail, listOf(job._id))
-
-                                // Log to check the structure of SaveJob
                                 Log.d("SaveJob", "Saving job: $saveJob")
-
-                                // Make the API call
                                 val response = if (newFavoriteState) {
                                     apiService.addJobToFavorite(saveJob)
                                 } else {

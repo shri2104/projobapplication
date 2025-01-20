@@ -19,6 +19,9 @@ import com.bawp.freader.screens.login.SignupScreen
 import com.bawp.freader.screens.login.UserForm
 import com.example.projobliveapp.DataBase.ApiService
 import com.example.projobliveapp.DataBase.Job
+import com.example.projobliveapp.Screens.Home.NotificationScreen
+import com.example.projobliveapp.Screens.Jobs.JobApplicationScreen
+import com.example.projobliveapp.Screens.Jobs.JobApplicationScreenPreview
 import com.example.projobliveapp.Screens.Jobs.JobDetailScreen
 import com.example.projobliveapp.Screens.Jobs.JobList
 import com.example.projobliveapp.Screens.Login.SplashScreen
@@ -148,5 +151,18 @@ fun Navigation(apiService: ApiService){
                 navController =navController
             )
         }
+        composable("Applicationscreen") {
+            JobApplicationScreenPreview(
+                navController = navController
+            )
+        }
+        composable("notificationscreen/{email}") { backStackEntry ->
+            val userEmail = backStackEntry.arguments?.getString("email") ?: ""
+            NotificationScreen(
+                navController = navController,
+                userEmail = userEmail
+            )
+        }
     }
 }
+

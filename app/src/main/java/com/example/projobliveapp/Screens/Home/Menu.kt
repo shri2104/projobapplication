@@ -59,7 +59,7 @@ fun MainJobScreenContent(
                     }
                 },
                 actions = {
-                    IconButton(onClick = onMenuClick) {
+                    IconButton(onClick = {navController.navigate("notificationscreen/$userEmail")}) {
                         Icon(Icons.Default.Notifications, contentDescription = "Notification Icon")
                     }
                 }

@@ -1,5 +1,6 @@
 package com.example.projobliveapp.DataBase
 
+import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -7,10 +8,11 @@ import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.HTTP
+import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.Part
 import retrofit2.http.Path
 
-// Data classes
 data class JobApplication(
     val firstName: String,
     val lastName: String,
@@ -45,7 +47,7 @@ data class Job(
 )
 data class SaveJob(
     val email: String,
-    val jobIds: List<String> // Updated to a list of strings
+    val jobIds: List<String>
 )
 data class SavedJobResponse(val email: String, val jobIds: List<List<String>>)
 data class JobApiResponse(val success: Boolean, val jobs: List<Job>)
@@ -84,6 +86,14 @@ interface ApiService {
 
     @POST("getJobsByIds")
     suspend fun getJobsByIds(@Body jobIds: List<String>): List<Job>
+
+    @Multipart
+    @POST("uploadResume")
+    suspend fun uploadResume(
+        @Part email: MultipartBody.Part, // Do not include "email" here in the annotation
+        @Part resume: MultipartBody.Part // Do not include "resume" here in the annotation
+    ): Response<ApiResponse>
+
 }
 
 fun createApiService(): ApiService {

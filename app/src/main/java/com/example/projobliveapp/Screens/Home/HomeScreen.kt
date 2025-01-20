@@ -27,6 +27,7 @@ import androidx.navigation.NavHostController
 import com.example.projobliveapp.R
 
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.unit.sp
 import com.example.projobliveapp.DataBase.ApiService
 import java.time.LocalTime
 
@@ -44,6 +45,7 @@ fun UserGreetingScreen(email: String, apiService: ApiService) {
         in 12..17 -> "Good afternoon"
         else -> "Good evening"
     }
+
     LaunchedEffect(email) {
         if (email.isNotBlank()) {
             loading = true
@@ -59,7 +61,6 @@ fun UserGreetingScreen(email: String, apiService: ApiService) {
             error = "Please enter a valid email"
         }
     }
-
     Surface(modifier = Modifier.fillMaxWidth()) {
         when {
             loading -> {
@@ -173,7 +174,6 @@ fun HowItWorksSection() {
                 icon = Icons.Default.List
             )
         )
-
         steps.forEach { step ->
             Row(
                 modifier = Modifier
@@ -217,7 +217,9 @@ fun ActiveJobsInCitiesSection() {
         Text(
             text = "Active Jobs in Cities",
             style = MaterialTheme.typography.headlineSmall,
-            modifier = Modifier.padding(bottom = 8.dp)
+            fontWeight=FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 8.dp),
+            fontSize = 20.sp
         )
 
         val cities = listOf(
@@ -382,9 +384,11 @@ fun TrendingJobsSection() {
             .padding(16.dp)
     ) {
         Text(
-            text = "Trending Jobs",
+            text = "Trending on ProJob",
             style = MaterialTheme.typography.headlineSmall,
-            modifier = Modifier.padding(bottom = 8.dp)
+            fontWeight=FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 8.dp),
+            fontSize = 20.sp
         )
 
         LazyRow(
@@ -423,7 +427,9 @@ fun TrustedByCompaniesSection() {
         Text(
             text = "Trusted by Companies",
             style = MaterialTheme.typography.headlineSmall,
-            modifier = Modifier.padding(bottom = 8.dp)
+            fontWeight=FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 8.dp),
+            fontSize = 20.sp
         )
         LazyRow(
             modifier = Modifier.fillMaxWidth()
@@ -456,7 +462,9 @@ fun BrowseByCategorySection() {
         Text(
             text = "Browse by Category",
             style = MaterialTheme.typography.headlineSmall,
-            modifier = Modifier.padding(bottom = 8.dp)
+            fontWeight=FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 8.dp),
+            fontSize = 20.sp
         )
         LazyRow(
             modifier = Modifier.fillMaxWidth(),
@@ -472,6 +480,7 @@ fun BrowseByCategorySection() {
         }
     }
 }
+
 @Composable
 fun CategoryCard(category: String, onClick: () -> Unit) {
     Card(
@@ -495,6 +504,7 @@ fun CategoryCard(category: String, onClick: () -> Unit) {
         }
     }
 }
+
 @Composable
 fun RecentlyViewedJobsSection() {
     Column(
@@ -505,7 +515,9 @@ fun RecentlyViewedJobsSection() {
         Text(
             text = "Recently Viewed Jobs",
             style = MaterialTheme.typography.headlineSmall,
-            modifier = Modifier.padding(bottom = 8.dp)
+            fontWeight=FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 8.dp),
+            fontSize = 20.sp
         )
 
         LazyRow(

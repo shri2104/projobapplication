@@ -269,7 +269,7 @@ fun JobDetailScreen(
                 }
             }
             FloatingActionButton(
-                onClick = {  },
+                onClick = { navController.navigate("Applicationscreen") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
