@@ -50,7 +50,6 @@ fun formatDateTime(isoDate: String): String {
     // Parse the ISO 8601 date string to Instant
     val instant = Instant.parse(isoDate)
 
-    // Convert Instant to LocalDateTime in UTC
     val dateTime = org.threeten.bp.LocalDateTime.ofInstant(instant, org.threeten.bp.ZoneOffset.UTC)
 
     // Define the desired output format

@@ -129,6 +129,7 @@ fun MainJobScreenContent(
         }
     }
 }
+
 @Composable
 fun JobAppMenuContent(
     onCloseMenu: () -> Unit,
@@ -215,11 +216,12 @@ fun JobAppMenuContent(
             }
             item {
                 MenuItem(icon = Icons.Default.Email, label = "Applications") {
+                    navController.navigate("showApplications/$userEmail")
                 }
             }
             item {
                 MenuItem(icon = Icons.Default.WorkOutline, label = "Jobs") {
-                    navController.navigate("Jobs/$userEmail")
+                    navController.navigate("AvailableJobs/$userEmail")
                 }
             }
             item {

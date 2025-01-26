@@ -26,7 +26,8 @@ enum class Screen{
     AvailableJobs,
     Savedjobs,
     myresume,
-    MenuScreen;
+    MenuScreen,
+    EmployerSignUP;
     companion object{
         fun fromRoute(route: String?):Screen
                 =when(route?.substringBefore('/')){
@@ -54,6 +55,7 @@ enum class Screen{
             AvailableJobs.name->AvailableJobs
             Savedjobs.name->Savedjobs
             myresume.name->myresume
+            EmployerSignUP.name->EmployerSignUP
             null->HomeScreen
             else -> throw IllegalArgumentException("Route $route is not recognized")
         }

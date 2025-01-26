@@ -62,7 +62,7 @@ class LoginScreenViewModel() : ViewModel() {
                     } else {
                         Log.d("FB", "Registration Failed: ${task.exception?.message}")
                     }
-                    _loading.value = false
+                    _loading.value=false
                 }
         }
     }
@@ -80,7 +80,6 @@ class LoginScreenViewModel() : ViewModel() {
             profession = "Android Developer",
             id = null
         ).toMap()
-
         firestore.collection("users")
             .document(userId)
             .set(user)

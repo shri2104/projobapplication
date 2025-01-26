@@ -90,10 +90,9 @@ interface ApiService {
     @Multipart
     @POST("uploadResume")
     suspend fun uploadResume(
-        @Part email: MultipartBody.Part, // Do not include "email" here in the annotation
-        @Part resume: MultipartBody.Part // Do not include "resume" here in the annotation
+        @Part email: MultipartBody.Part,
+        @Part resume: MultipartBody.Part
     ): Response<ApiResponse>
-
 }
 
 fun createApiService(): ApiService {

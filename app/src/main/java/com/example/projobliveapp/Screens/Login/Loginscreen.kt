@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -19,8 +18,8 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.projobliveapp.Component.EmailInput
 import com.example.projobliveapp.Component.PasswordInput
@@ -39,6 +38,7 @@ fun LoginScreen(
     navController: NavController,
     viewModel: LoginScreenViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
+    val userType = rememberSaveable { mutableStateOf("Candidate") }
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -46,12 +46,34 @@ fun LoginScreen(
             modifier = Modifier.padding(16.dp)
         ) {
             logo()
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(8.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Text(
+                    text = "Candidate",
+                    fontWeight = if (userType.value == "Candidate") FontWeight.Bold else FontWeight.Normal,
+                    modifier = Modifier.clickable { userType.value = "Candidate" },
+                    color = if (userType.value == "Candidate") MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground
+                )
+                Text(
+                    text = "Employer",
+                    fontWeight = if (userType.value == "Employer") FontWeight.Bold else FontWeight.Normal,
+                    modifier = Modifier.clickable { userType.value = "Employer" },
+                    color = if (userType.value == "Employer") MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground
+                )
+            }
             UserForm(
                 loading = false,
                 isCreateAccount = false
             ) { email, password ->
                 viewModel.signInWithEmailAndPassword(email, password) {
-                    navController.navigate("homeScreen/$email")
+                    // Conditional navigation based on userType
+                    if (userType.value == "Candidate") {
+                        navController.navigate("homeScreen/$email")
+                    } else {
+                        navController.navigate("Employersignup/$email")
+                    }
                 }
             }
             Spacer(modifier = Modifier.height(20.dp))
@@ -67,7 +89,11 @@ fun LoginScreen(
                     text = "Sign up",
                     modifier = Modifier
                         .clickable {
-                            navController.navigate(Screen.Signupscreen.name)
+                            if (userType.value == "Candidate") {
+                                navController.navigate("${Screen.Signupscreen.name}/Candidate")
+                            } else {
+                                navController.navigate("${Screen.EmployerSignUP.name}/Employer")
+                            }
                         }
                         .padding(start = 5.dp),
                     fontWeight = FontWeight.Bold,
@@ -89,16 +115,14 @@ fun LoginScreen(
     }
 }
 
-
-
 @ExperimentalComposeUiApi
 @Composable
 fun SignupScreen(
     navController: NavController,
     viewModel: LoginScreenViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
-    apiService: ApiService
+    apiService: ApiService,
+    userType: String // Pass the userType from LoginScreen
 ) {
-    // State to manage the form to display
     var showUserForm by remember { mutableStateOf(false) }
 
     Surface(modifier = Modifier.fillMaxSize()) {
@@ -107,29 +131,34 @@ fun SignupScreen(
             verticalArrangement = Arrangement.Center,
             modifier = Modifier.padding(16.dp)
         ) {
-
-
             if (!showUserForm) {
                 JobApplicationForm(navController = navController, apiService = apiService) {
                     showUserForm = true
                 }
             } else {
+                logo()
                 UserForm(
                     loading = false,
                     isCreateAccount = true
                 ) { email, password ->
                     viewModel.createUserWithEmailAndPassword(email, password) {
-                        navController.navigate("homeScreen/$email")
+                        if (userType == "Candidate") {
+                            navController.navigate("homeScreen/$email")
+                        } else {
+                            navController.navigate("EmployerHomeScreen/$email") // Specific employer navigation
+                        }
                     }
                 }
             }
-
             Spacer(modifier = Modifier.height(30.dp))
-
             if (showUserForm) {
                 Button(
                     onClick = {
-                        navController.navigate(Screen.LoginScreen.name)  // Navigate back to LoginScreen
+                        if (userType == "Candidate") {
+                            navController.navigate(Screen.Signupscreen.name) // Candidate Login Screen
+                        } else {
+                            navController.navigate(Screen.EmployerSignUP.name) // Employer Login Screen
+                        }
                     },
                     modifier = Modifier.padding(horizontal = 12.dp),
                     colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary)
@@ -140,7 +169,6 @@ fun SignupScreen(
         }
     }
 }
-
 
 
 @Composable
@@ -156,7 +184,6 @@ fun UserForm(
     val keyboardController = LocalSoftwareKeyboardController.current
     val valid = remember(email.value, password.value) {
         email.value.trim().isNotEmpty() && password.value.trim().isNotEmpty()
-
     }
     val modifier = Modifier
         .height(250.dp)
