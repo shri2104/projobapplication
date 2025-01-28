@@ -60,9 +60,7 @@ fun OtpScreen(navController: NavController){
         )
         Spacer(modifier = Modifier.size(10.dp))
         Text(text = "you will get an otp via sms", color = tColor)
-
         Spacer(modifier = Modifier.size(50.dp))
-
         BasicTextField(
             value = otp,
             onValueChange = {it ->

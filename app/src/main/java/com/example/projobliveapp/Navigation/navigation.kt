@@ -15,6 +15,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.bawp.freader.screens.login.LoginScreen
+import com.bawp.freader.screens.login.Signup
 import com.bawp.freader.screens.login.SignupScreen
 import com.bawp.freader.screens.login.UserForm
 import com.example.projobliveapp.DataBase.ApiService
@@ -32,11 +33,9 @@ import com.example.projobliveapp.Screens.Menu.HelpAndSupportPage
 import com.example.projobliveapp.Screens.Menu.More.MorePage
 import com.example.projobliveapp.Screens.PhoneAuth.OtpScreen
 import com.example.projobliveapp.Screens.PhoneAuth.PHHomeScreen
-
 import com.example.projobliveapp.Screens.frontscreen.LoginSelectionScreen
 import com.example.projobliveapp.Screens.profile.ProfilePage
 import com.example.projobliveapp.Screens.profile.ProfileSection
-
 import com.example.projobliveapp.Screens.profile.ScrollableProfileScreen
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -54,16 +53,20 @@ fun Navigation(apiService: ApiService){
         }
         composable("${Screen.EmployerSignUP.name}/{userType}") { backStackEntry ->
             val userType = backStackEntry.arguments?.getString("userType") ?: "Candidate"
-            EmployerDetailsScreen(navController = navController)
+            EmployerDetailsScreen(
+                navController = navController,
+                apiService = apiService,
+                userType = userType
+            )
         }
         composable("homeScreen/{email}"){ backStackEntry ->
             val userEmail = backStackEntry.arguments?.getString("email") ?: ""
             JobAppSlidingMenuScreen(navController = navController, userEmail = userEmail,apiservice=apiService)
         }
-        composable("Employersignup/{email}"){ backStackEntry ->
-            val userEmail = backStackEntry.arguments?.getString("email") ?: ""
-            EmployerDashboardScreen()
-        }
+//        composable("Employersignup/{email}"){ backStackEntry ->
+//            val userEmail = backStackEntry.arguments?.getString("email") ?: ""
+//            EmployerDashboardScreen()
+//        }
         composable(Screen.FrontScreen.name){
             LoginSelectionScreen(navController=navController)
         }
@@ -72,12 +75,14 @@ fun Navigation(apiService: ApiService){
             ScrollableProfileScreen(navController = navController, userEmail = email)
         }
         composable(Screen.PHHomeScreen.name){
-            PHHomeScreen(navController=navController)
+            PHHomeScreen(
+                navController = navController,
+                onVerified = TODO()
+            )
         }
         composable(Screen.OtpScreen.name){
             OtpScreen(navController=navController)
         }
-
         composable(Screen.ContactUsScreen.name){
             ContactUsPage(navController=navController)
         }
@@ -95,6 +100,10 @@ fun Navigation(apiService: ApiService){
         }
         composable(Screen.Userform.name){
             UserForm()
+        }
+        composable("${Screen.SignUp.name}/{userType}") { backStackEntry ->
+            val userType = backStackEntry.arguments?.getString("userType") ?: "Employer"
+            Signup(navController = navController, userType = userType)
         }
         composable("${Screen.Signupscreen.name}/{userType}") { backStackEntry ->
             val userType = backStackEntry.arguments?.getString("userType") ?: "Candidate"

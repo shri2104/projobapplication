@@ -23,6 +23,7 @@ enum class Screen{
     AboutScreen,
     Userform,
     Signupscreen,
+    SignUp,
     AvailableJobs,
     Savedjobs,
     myresume,
@@ -56,6 +57,7 @@ enum class Screen{
             Savedjobs.name->Savedjobs
             myresume.name->myresume
             EmployerSignUP.name->EmployerSignUP
+            SignUp.name->SignUp
             null->HomeScreen
             else -> throw IllegalArgumentException("Route $route is not recognized")
         }

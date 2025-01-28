@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 
 @Composable
-fun PHHomeScreen(navController: NavController){
+fun PHHomeScreen(navController: NavController, onVerified: () -> Unit){
     val context = LocalContext.current
     var phoneNum by remember { mutableStateOf("") }
     val bgColor = Color(0xFFECFADC)
@@ -76,10 +76,7 @@ fun PHHomeScreen(navController: NavController){
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             textStyle = TextStyle(color = tColor)
         )
-
         Spacer(modifier = Modifier.size(30.dp))
-
-        // Button to trigger OTP or next action
         Button(
             onClick = {
                 onLoginClicked(context,navController,phoneNum){

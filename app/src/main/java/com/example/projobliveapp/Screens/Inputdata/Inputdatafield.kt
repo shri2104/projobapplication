@@ -25,6 +25,7 @@ import kotlinx.coroutines.withContext
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.sp
@@ -45,12 +46,14 @@ fun JobApplicationForm(navController: NavController, apiService: ApiService, onN
     val workExperience = remember { mutableStateOf("") }
     val jobCity = remember { mutableStateOf("") }
     val roleLooking = remember { mutableStateOf("") }
+
     val isFormValid = firstName.value.isNotBlank() &&
             lastName.value.isNotBlank() &&
             email.value.isNotBlank() &&
-            phoneNumber.value.isNotBlank() &&
+            phoneNumber.value.length == 10 &&
             location.value.isNotBlank() &&
-            skills.value.isNotBlank()
+            skills.value.isNotBlank() &&
+            email.value.contains("@")
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -96,22 +99,24 @@ fun JobApplicationForm(navController: NavController, apiService: ApiService, onN
                 value = about.value,
                 onValueChange = { about.value = it },
                 label = { Text("About You") },
+                placeholder = { Text("Write about yourself here...") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(min = 120.dp)
                     .padding(vertical = 8.dp),
-                placeholder = { Text("Write about yourself here...") },
-                maxLines = 5, // Limits the lines
+                maxLines = 5, // Restrict to 5 lines
                 singleLine = false,
                 colors = TextFieldDefaults.colors(
-                    focusedIndicatorColor = MaterialTheme.colorScheme.primary,
-                    unfocusedIndicatorColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                    focusedLabelColor = MaterialTheme.colorScheme.primary,
-                    cursorColor = MaterialTheme.colorScheme.primary
+                    focusedContainerColor = Color.Transparent, // Transparent background when focused
+                    unfocusedContainerColor = Color.Transparent, // Transparent background when unfocused
+                    disabledContainerColor = Color.Transparent, // Transparent background when disabled
+                    focusedIndicatorColor = MaterialTheme.colorScheme.primary, // Primary color when focused
+                    unfocusedIndicatorColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f), // Subtle border when unfocused
+                    focusedLabelColor = MaterialTheme.colorScheme.primary, // Label color when focused
+                    unfocusedLabelColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f), // Label color when unfocused
+                    cursorColor = MaterialTheme.colorScheme.primary // Cursor color
                 )
             )
-
-
             Spacer(modifier = Modifier.height(16.dp))
             Row(
                 modifier = Modifier
@@ -127,7 +132,7 @@ fun JobApplicationForm(navController: NavController, apiService: ApiService, onN
                         text = "Already Registered? Log In",
                         style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
                         color = MaterialTheme.colorScheme.primary,
-                        fontSize = 20.sp,
+                        fontSize = 15.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -148,9 +153,8 @@ fun JobApplicationForm(navController: NavController, apiService: ApiService, onN
                     workExperience = workExperience.value,
                     jobCity = jobCity.value,
                     roleLooking = roleLooking.value,
-                    resume = "" // Optional, can be added later
+                    resume = ""
                 )
-
                 coroutineScope.launch(Dispatchers.IO) {
                     try {
                         val response = apiService.storeUserData(userData)
@@ -197,18 +201,11 @@ fun InputField(
     OutlinedTextField(
         value = valueState.value,
         onValueChange = { valueState.value = it },
-        label = { Text("$label ${if (isRequired) "*" else ""}") },
-        singleLine = true,
-        leadingIcon = { Icon(imageVector = icon, contentDescription = "$label Icon") },
-        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = keyboardType, imeAction = ImeAction.Next),
+        label = { Text(text = "$label ${if (isRequired) "*" else ""}") },
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp),
-        colors = TextFieldDefaults.colors(
-            focusedIndicatorColor = MaterialTheme.colorScheme.primary,
-            unfocusedIndicatorColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-            focusedLabelColor = MaterialTheme.colorScheme.primary,
-            cursorColor = MaterialTheme.colorScheme.primary
-        )
+        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = keyboardType, imeAction = ImeAction.Next)
     )
 }
+

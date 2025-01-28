@@ -50,7 +50,7 @@ fun onLoginClicked(
     onCodeSend: () -> Unit
 ) {
 
-    auth.setLanguageCode("en") // Set language for authentication
+    auth.setLanguageCode("en")
 
     val callback = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
         override fun onVerificationCompleted(p0: PhoneAuthCredential) {
