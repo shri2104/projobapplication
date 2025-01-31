@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 
 @Composable
-fun PHHomeScreen(navController: NavController, onVerified: () -> Unit){
+fun PHHomeScreen(navController: NavController){
     val context = LocalContext.current
     var phoneNum by remember { mutableStateOf("") }
     val bgColor = Color(0xFFECFADC)

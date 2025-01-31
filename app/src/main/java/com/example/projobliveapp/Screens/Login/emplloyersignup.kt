@@ -12,34 +12,82 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.ui.ExperimentalComposeUiApi
 import com.bawp.freader.screens.login.Signup
 import com.example.projobliveapp.DataBase.ApiService
 import com.example.projobliveapp.Navigation.Screen
 import com.example.projobliveapp.R
 import com.example.projobliveapp.Screens.Inputdata.JobApplicationForm
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun EmployerDetailsScreen(
     navController: NavController,
     apiService: ApiService,
     userType: String
 ) {
+    var showUserForm by remember { mutableStateOf(false) }
+
+    Surface(modifier = Modifier.fillMaxSize()) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.padding(16.dp)
+        ) {
+            if (!showUserForm) {
+                // Show the Employer Details Form
+                EmployerDetailsForm(navController = navController) {
+                    showUserForm = true
+                }
+            } else {
+                // Show Logo and Signup
+                logo()
+                Signup(userType, navController)
+            }
+            Spacer(modifier = Modifier.height(30.dp))
+            if (showUserForm) {
+                // Log in Button
+                Button(
+                    onClick = {
+                        if (userType == "Employer") {
+                            navController.navigate(Screen.Signupscreen.name)
+                        } else {
+                            navController.navigate(Screen.EmployerSignUP.name)
+                        }
+                    },
+                    modifier = Modifier.padding(horizontal = 12.dp),
+                    colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary)
+                ) {
+                    Text(text = "Already have an account? Log in")
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun EmployerDetailsForm(
+    navController: NavController,
+    onNext: () -> Unit
+) {
     var companyName by remember { mutableStateOf(TextFieldValue()) }
     var companyAddress by remember { mutableStateOf(TextFieldValue()) }
     var registrationNumber by remember { mutableStateOf(TextFieldValue()) }
     var additionalDetails by remember { mutableStateOf(TextFieldValue()) }
-    var showUserFor by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = "Employer Details") },
+                title = { Text(text = "Enter Details", style = MaterialTheme.typography.titleLarge) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Back"
+                        )
                     }
-                }
+                },
             )
         }
     ) { paddingValues ->
@@ -57,6 +105,7 @@ fun EmployerDetailsScreen(
             )
 
             Spacer(modifier = Modifier.height(24.dp))
+
             OutlinedTextField(
                 value = companyName,
                 onValueChange = { companyName = it },
@@ -93,37 +142,11 @@ fun EmployerDetailsScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Submit Button
             Button(
-                onClick = {
-                    showUserFor = true
-                },
+                onClick = { onNext() },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(text = "Next")
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            if (showUserFor) {
-                // Call Signup composable
-                Signup(userType = userType, navController = navController)
-
-                Spacer(modifier = Modifier.height(30.dp))
-
-                Button(
-                    onClick = {
-                        if (userType == "Employer") {
-                            navController.navigate(Screen.Signupscreen.name)
-                        } else {
-                            navController.navigate(Screen.EmployerSignUP.name)
-                        }
-                    },
-                    modifier = Modifier.padding(horizontal = 12.dp),
-                    colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary)
-                ) {
-                    Text(text = "Already have an account? Log in")
-                }
             }
         }
     }

@@ -54,7 +54,7 @@ fun LoginScreen(
                     if (userType.value == "Candidate") {
                         navController.navigate("homeScreen/$email")
                     } else {
-                        navController.navigate("Employersignup/$email")
+                        navController.navigate("EmployerHomeScreen/$email")
                     }
                 }
             }
@@ -173,7 +173,6 @@ fun Signup(
     navController: NavController,
     viewModel: LoginScreenViewModel = viewModel()
 ) {
-
         UserForm(
             loading = false,
             isCreateAccount = true
@@ -235,7 +234,7 @@ fun UserForm(
             }
         )
         SubmitButton(
-            textId = if (isCreateAccount) "Create Account and Verify" else "Login",
+            textId = if (isCreateAccount) "Create Account" else "Login",
             loading = loading,
             validInputs = valid
         ) {

@@ -2,7 +2,9 @@ package com.example.projobliveapp.Navigation
 
 
 import AboutScreen
+
 import JobAppSlidingMenuScreen
+import JobPostingScreen
 import ProJobSafetyTipsScreen
 import SavedJobs
 import android.os.Build
@@ -20,7 +22,9 @@ import com.bawp.freader.screens.login.SignupScreen
 import com.bawp.freader.screens.login.UserForm
 import com.example.projobliveapp.DataBase.ApiService
 import com.example.projobliveapp.DataBase.Job
-import com.example.projobliveapp.Screens.Employer.EmployerDashboardScreen
+import com.example.projobliveapp.Screens.Employer.JobpostScreen
+import com.example.projobliveapp.Screens.Employer.PreviewScreen
+
 import com.example.projobliveapp.Screens.Home.NotificationScreen
 import com.example.projobliveapp.Screens.Jobs.JobApplicationScreenPreview
 import com.example.projobliveapp.Screens.Jobs.JobDetailScreen
@@ -48,6 +52,12 @@ fun Navigation(apiService: ApiService){
         composable(Screen.SplashScreen.name){
             SplashScreen(navController=navController)
         }
+        composable("jobpost"){
+            JobpostScreen(navController=navController)
+        }
+        composable("jobpostpreview"){
+            PreviewScreen()
+        }
         composable(Screen.LoginScreen.name){
             LoginScreen(navController=navController)
         }
@@ -63,10 +73,12 @@ fun Navigation(apiService: ApiService){
             val userEmail = backStackEntry.arguments?.getString("email") ?: ""
             JobAppSlidingMenuScreen(navController = navController, userEmail = userEmail,apiservice=apiService)
         }
-//        composable("Employersignup/{email}"){ backStackEntry ->
-//            val userEmail = backStackEntry.arguments?.getString("email") ?: ""
-//            EmployerDashboardScreen()
-//        }
+        composable("EmployerHomeScreen/{email}"){ backStackEntry ->
+            val userEmail = backStackEntry.arguments?.getString("email") ?: ""
+            JobPostingScreen(
+                navController = navController
+            )
+        }
         composable(Screen.FrontScreen.name){
             LoginSelectionScreen(navController=navController)
         }
@@ -77,7 +89,6 @@ fun Navigation(apiService: ApiService){
         composable(Screen.PHHomeScreen.name){
             PHHomeScreen(
                 navController = navController,
-                onVerified = TODO()
             )
         }
         composable(Screen.OtpScreen.name){

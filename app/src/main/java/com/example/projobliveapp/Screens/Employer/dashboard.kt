@@ -1,128 +1,157 @@
-package com.example.projobliveapp.Screens.Employer
 import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.tooling.preview.PreviewParameter
-import androidx.navigation.NavHostController
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.compose.foundation.Image
-
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
-
-import androidx.compose.material3.*
-
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import androidx.compose.ui.res.painterResource
-import androidx.compose.foundation.Image
-
+import com.example.projobliveapp.R
+import com.example.projobliveapp.Screens.Employer.CustomButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EmployerDashboardScreen() {
-    val jobList = listOf(
-        Job(id = "1", title = "Software Developer", status = "Open", postedDate = "2025-01-08"),
-        Job(id = "2", title = "Data Scientist", status = "Closed", postedDate = "2025-01-05"),
-        Job(id = "3", title = "UX Designer", status = "Open", postedDate = "2025-01-03")
-    )
-
+fun JobPostingScreen(navController: NavController) {
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Employer Dashboard") },
+            CenterAlignedTopAppBar(
+                title = {
+                    Box(modifier = Modifier.fillMaxWidth()) {
+                        Image(
+                            painter = painterResource(id = R.drawable.projob_logo1_12fc55031a756ac453bf),
+                            contentDescription = "App Logo",
+                            modifier = Modifier.size(96.dp),
+                            contentScale = ContentScale.Fit
+                        )
+                    }
+                },
+                navigationIcon = {
+                    IconButton(onClick = {}) {
+                        Icon(Icons.Default.Menu, contentDescription = "Menu Icon")
+                    }
+                },
                 actions = {
-                    IconButton(onClick = { /* Navigate to Profile */ }) {
-                        Icon(Icons.Default.Person, contentDescription = "Profile")
+                    IconButton(onClick = {}) {
+                        Icon(Icons.Default.Notifications, contentDescription = "Notification Icon")
                     }
                 }
             )
         },
-        content = { paddingValues ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .padding(16.dp)
+        bottomBar = {
+            BottomAppBar(
+                modifier = Modifier.fillMaxWidth(),
             ) {
-                Button(
-                    onClick = { /* Navigate to Post Job Screen */ },
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
+                IconButton(
+                    onClick = { },
+                    modifier = Modifier.weight(1f)
                 ) {
-                    Text("Post New Job")
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(Icons.Default.Home, contentDescription = "Home")
+                        Text(text = "Home", style = MaterialTheme.typography.titleSmall)
+                    }
                 }
-                Button(
-                    onClick = {  },
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
+                IconButton(
+                    onClick = { },
+                    modifier = Modifier.weight(1f)
                 ) {
-                    Text("Manage Existing Jobs")
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(Icons.Default.Groups, contentDescription = "Internships")
+                        Text(text = "Internships", style = MaterialTheme.typography.titleSmall)
+                    }
                 }
-                Spacer(modifier = Modifier.height(16.dp))
-                Text("Job Listings", style = MaterialTheme.typography.headlineSmall)
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize()
+                IconButton(
+                    onClick = { },
+                    modifier = Modifier.weight(1f)
                 ) {
-                    items(jobList) { job ->
-                        JobItem(job = job)
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(Icons.Default.Work, contentDescription = "Jobs")
+                        Text(text = "Jobs", style = MaterialTheme.typography.titleSmall)
+                    }
+                }
+                IconButton(
+                    onClick = { },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(Icons.Default.Message, contentDescription = "Messages")
+                        Text(text = "Messages", style = MaterialTheme.typography.titleSmall)
                     }
                 }
             }
         }
-    )
-}
-
-@Composable
-fun JobItem(job: Job) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 8.dp)
-            .clickable(onClick = { }),
-
-    ) {
+    ) { paddingValues ->
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text(text = job.title, style = MaterialTheme.typography.headlineSmall)
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = "Status: ${job.status}")
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = "Posted on: ${job.postedDate}")
+            Text(
+                text = "Direct Job Posting",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = "Post your opening and start receiving the applications. Be featured in top search results.",
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            // Bullet points section
+            Text(text = "Benefits of posting a job:")
+            BulletPointText(text = "Reach a large pool of candidates.")
+            BulletPointText(text = "Save time and resources with automated processes.")
+            BulletPointText(text = "Get featured in top search results to attract more attention.")
+            BulletPointText(text = "Easy to manage and track applications.")
+            BulletPointText(text = "Access to detailed analytics for better decision-making.")
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Button(
+                    onClick = { navController.navigate("jobpost") },
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(0.dp),
+                    colors = ButtonDefaults.buttonColors(Color.Blue)
+                ) {
+                    Text("Post a Job")
+                }
+
+                Button(
+                    onClick = { },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE6F7FF)), // Very light blue
+                    shape = RoundedCornerShape(4.dp),
+                    contentPadding = PaddingValues(8.dp),
+                    modifier = Modifier.weight(1f) // Ensures equal width
+                ) {
+                    Text(
+                        text = "Posted Jobs",
+                        color = Color.Blue,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+
         }
     }
 }
 
-data class Job(
-    val id: String,
-    val title: String,
-    val status: String,
-    val postedDate: String
-)
+@Composable
+fun BulletPointText(text: String) {
+    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Text(text = "•", fontWeight = FontWeight.Bold)
+        Spacer(modifier = Modifier.width(4.dp))
+        Text(text = text, style = MaterialTheme.typography.bodyMedium)
+    }
+}

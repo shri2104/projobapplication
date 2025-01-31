@@ -71,5 +71,6 @@ dependencies {
     implementation (libs.androidx.material3.v110)
     implementation (libs.threetenabp)
     implementation (libs.threetenabp.v131)
+        implementation (libs.material3)
 
 }

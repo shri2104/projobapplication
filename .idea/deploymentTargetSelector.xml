@@ -13,19 +13,19 @@
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="SlidingMenuPreview">
+      <SelectionState runConfigName="DefaultPreview">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="SlidingMenuScreenPreview">
+      <SelectionState runConfigName="JobDetailsScreenPreview">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="JobAppSlidingMenuScreenPreview">
+      <SelectionState runConfigName="HelpAndSupportPagePreview">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="JobApplicationFormPreview">
+      <SelectionState runConfigName="JobPostScreenPreview">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="PreviewJobApplicationScreen">
+      <SelectionState runConfigName="PreviewJobDetailsForm">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>
