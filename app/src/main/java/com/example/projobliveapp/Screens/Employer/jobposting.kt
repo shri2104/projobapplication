@@ -207,7 +207,6 @@ fun JobpostScreen(navController: NavHostController) {
                     )
                 }
             }
-
             item {
                 Text(
                     text = "Country*",

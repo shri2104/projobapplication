@@ -45,10 +45,12 @@ data class Job(
     val createdAt: String,
     val updatedAt: String,
 )
+
 data class SaveJob(
     val email: String,
     val jobIds: List<String>
 )
+
 data class SavedJobResponse(val email: String, val jobIds: List<List<String>>)
 data class JobApiResponse(val success: Boolean, val jobs: List<Job>)
 data class ApiResponse(val success: Boolean, val id: String?)
