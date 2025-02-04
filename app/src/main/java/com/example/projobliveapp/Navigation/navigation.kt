@@ -26,6 +26,7 @@ import com.example.projobliveapp.DataBase.ApiService
 import com.example.projobliveapp.DataBase.Job
 import com.example.projobliveapp.DataBase.JobPost
 import com.example.projobliveapp.Screens.Employer.JobDetailsScreen
+import com.example.projobliveapp.Screens.Employer.JobPostedScreen
 import com.example.projobliveapp.Screens.Employer.JobpostScreen
 
 
@@ -197,6 +198,11 @@ fun Navigation(apiService: ApiService){
         }
         composable("Applicationscreen") {
             JobApplicationScreenPreview(
+                navController = navController
+            )
+        }
+        composable("Jobposted") {
+            JobPostedScreen(
                 navController = navController
             )
         }

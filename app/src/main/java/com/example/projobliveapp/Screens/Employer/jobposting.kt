@@ -24,6 +24,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Business
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocationOn
@@ -909,7 +910,7 @@ fun JobDetailsScreen(jobPost: JobPost, apiService: ApiService, navController: Na
                         withContext(Dispatchers.Main) {
                             if (response.isSuccessful) {
                                 Toast.makeText(context, "Job posted successfully!", Toast.LENGTH_SHORT).show()
-                                navController.popBackStack()
+                                navController.navigate("Jobposted")
                             } else {
                                 Toast.makeText(context, "Error: ${response.message()}", Toast.LENGTH_SHORT).show()
                             }
@@ -998,12 +999,14 @@ fun JobDetailsCard(
                 .fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+
             Text(
                 text = jobTitle,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black
             )
+
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     imageVector = Icons.Default.Business,
@@ -1030,6 +1033,7 @@ fun JobDetailsCard(
 }
 
 
+
 @Composable
 fun JobDetailItem(title: String, value: String, subtitle: String? = null) {
     Column(
@@ -1044,3 +1048,90 @@ fun JobDetailItem(title: String, value: String, subtitle: String? = null) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun JobPostedScreen(navController: NavHostController) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(text = "Posted", fontWeight = FontWeight.Bold, color = Color.White) },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF283593))
+            )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            Spacer(Modifier.height(16.dp))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Divider(
+                    modifier = Modifier
+                        .fillMaxWidth(0.8f)
+                        .align(Alignment.Center),
+                    color = Color.Gray,
+                    thickness = 2.dp
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    StepIndicator(false)
+                    StepIndicator(false)
+                    StepIndicator(true)
+                }
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.CheckCircle,
+                    contentDescription = "Success",
+                    tint = Color(0xFF4CAF50),
+                    modifier = Modifier.size(80.dp)
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "Your job has been posted successfully!",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "Candidates will be able to view and apply for the job soon.",
+                    fontSize = 16.sp,
+                    textAlign = TextAlign.Center,
+                    color = Color.Gray
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+                Button(
+                    onClick = { navController.popBackStack() },
+                    modifier = Modifier.fillMaxWidth(0.7f),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF283593))
+                ) {
+                    Text(text = "Go Back", color = Color.White, fontWeight = FontWeight.Bold)
+                }
+            }
+        }
+    }
+}
