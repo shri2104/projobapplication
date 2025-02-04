@@ -64,7 +64,6 @@ fun JobList(apiService: ApiService, navController: NavHostController, userEmail:
     val context = LocalContext.current
     var expanded by remember { mutableStateOf(false) }
 
-    // Fetching job data
     LaunchedEffect(true) {
         try {
             val response = apiService.getAllJobs()
@@ -72,7 +71,8 @@ fun JobList(apiService: ApiService, navController: NavHostController, userEmail:
                 jobList.clear()
                 jobList.addAll(response)
             }
-        } catch (e: Exception) {
+        }
+        catch (e: Exception) {
             Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }

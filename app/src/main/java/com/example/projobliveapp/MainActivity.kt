@@ -20,7 +20,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ProJobLiveAppTheme {
-                  Navigation(apiService = apiService)
+                Navigation(apiService = apiService)
             }
         }
     }

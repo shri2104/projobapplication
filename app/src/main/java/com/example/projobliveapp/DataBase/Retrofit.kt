@@ -12,6 +12,7 @@ import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
 import retrofit2.http.Path
+import java.time.LocalDateTime
 
 data class JobApplication(
     val firstName: String,
@@ -26,6 +27,25 @@ data class JobApplication(
     val jobCity: String?,
     val roleLooking: String?
 )
+data class JobPost(
+    val jobTitle: String,
+    val country: String,
+    val contractType: String,
+    val workingHours: String,
+    val minExperience: Int,
+    val maxExperience: Int,
+    val keySkills: String,
+    val minSalary: Int,
+    val maxSalary: Int,
+    val jobDescription: String,
+    val jobLocation: String,
+    val applicationMethod: String,
+    val contactEmail: String,
+    val externalLink: String,
+    val phoneNumber: String,
+    val relocationSupport: Boolean
+)
+
 
 data class Job(
     val _id: String,
@@ -65,6 +85,7 @@ interface ApiService {
     @POST("storeData")
     suspend fun storeUserData(@Body jobData: JobApplication): Response<ApiResponse>
 
+
     @GET("getJobs")
     suspend fun getAllJobs(): List<Job>
 
@@ -88,6 +109,9 @@ interface ApiService {
 
     @POST("getJobsByIds")
     suspend fun getJobsByIds(@Body jobIds: List<String>): List<Job>
+
+    @POST("JobPost")
+    suspend fun storeJob(@Body jobData: JobPost): Response<ApiResponse>
 
     @Multipart
     @POST("uploadResume")

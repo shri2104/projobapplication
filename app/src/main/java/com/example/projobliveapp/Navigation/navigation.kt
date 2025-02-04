@@ -13,17 +13,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.bawp.freader.screens.login.LoginScreen
 import com.bawp.freader.screens.login.Signup
 import com.bawp.freader.screens.login.SignupScreen
 import com.bawp.freader.screens.login.UserForm
 import com.example.projobliveapp.DataBase.ApiService
 import com.example.projobliveapp.DataBase.Job
+import com.example.projobliveapp.DataBase.JobPost
+import com.example.projobliveapp.Screens.Employer.JobDetailsScreen
 import com.example.projobliveapp.Screens.Employer.JobpostScreen
-import com.example.projobliveapp.Screens.Employer.PreviewScreen
+
 
 import com.example.projobliveapp.Screens.Home.NotificationScreen
 import com.example.projobliveapp.Screens.Jobs.JobApplicationScreenPreview
@@ -41,6 +45,7 @@ import com.example.projobliveapp.Screens.frontscreen.LoginSelectionScreen
 import com.example.projobliveapp.Screens.profile.ProfilePage
 import com.example.projobliveapp.Screens.profile.ProfileSection
 import com.example.projobliveapp.Screens.profile.ScrollableProfileScreen
+import com.google.gson.Gson
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalComposeUiApi::class)
@@ -52,11 +57,11 @@ fun Navigation(apiService: ApiService){
         composable(Screen.SplashScreen.name){
             SplashScreen(navController=navController)
         }
-        composable("jobpost"){
-            JobpostScreen(navController=navController)
-        }
-        composable("jobpostpreview"){
-            PreviewScreen()
+        composable("jobpost") {
+            JobpostScreen(
+                navController = navController,
+                apiService = apiService,
+            )
         }
         composable(Screen.LoginScreen.name){
             LoginScreen(navController=navController)
@@ -168,6 +173,13 @@ fun Navigation(apiService: ApiService){
                 updatedAt = updatedAt,
                 userEmail = userEmail
             )
+        }
+        composable("jobDetailsScreen/{jobPost}",
+            arguments = listOf(navArgument("jobPost") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val jobPostJson = backStackEntry.arguments?.getString("jobPost")
+            val jobPost = Gson().fromJson(jobPostJson, JobPost::class.java)
+            JobDetailsScreen(jobPost,apiService,navController)
         }
         composable("SavedJobs/{email}") { backStackEntry ->
             val userEmail = backStackEntry.arguments?.getString("email") ?: ""

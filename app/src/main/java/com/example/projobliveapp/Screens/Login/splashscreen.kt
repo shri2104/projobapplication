@@ -51,13 +51,7 @@ fun SplashScreen(navController: NavHostController) {
             )
         )
         delay(2000L)
-        val userEmail = FirebaseAuth.getInstance().currentUser?.email
-
-        if (userEmail.isNullOrEmpty()) {
-            navController.navigate(Screen.FrontScreen.name)
-        } else {
-            navController.navigate("homeScreen/$userEmail")
-        }
+        navController.navigate("jobpost")
     }
 
     Box(

@@ -1,8 +1,9 @@
 package com.example.projobliveapp.Screens.Employer
 
+import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 
@@ -16,35 +17,60 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Message
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Work
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
 
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavHostController
-import com.example.projobliveapp.Component.InputField
+import com.example.projobliveapp.DataBase.ApiService
+import com.example.projobliveapp.DataBase.JobPost
 import com.example.projobliveapp.R
+import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun JobpostScreen(navController: NavHostController) {
-    var jobLocation by remember { mutableStateOf("") }
+fun JobpostScreen(navController: NavHostController, apiService: ApiService) {
+    var jobtitle by remember { mutableStateOf("") }
+    val country = remember { mutableStateOf("United States") }
+    val selectedContractType = remember { mutableStateOf("Permanent") }
+    val selectedWorkingHours = remember { mutableStateOf("Full Time") }
+    var minexp by remember { mutableStateOf("") }
+    var maxexp by remember { mutableStateOf("") }
+    var Keyskills by remember { mutableStateOf("") }
     var minSalary by remember { mutableStateOf("") }
     var maxSalary by remember { mutableStateOf("") }
     var jobDescription by remember { mutableStateOf("") }
+    var jobLocation by remember { mutableStateOf("") }
+    val applicationMethod = remember { mutableStateOf("") }
+    val email = remember { mutableStateOf("") }
+    val externalLink = remember { mutableStateOf("") }
+    val phoneNumber = remember { mutableStateOf("") }
+    val selectedOption = remember { mutableStateOf("Yes") }
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
     Scaffold(
         topBar = {
             TopAppBar(
@@ -171,7 +197,27 @@ fun JobpostScreen(navController: NavHostController) {
                     color = Color.Black,
                     modifier = Modifier.padding(bottom = 4.dp)
                 )
-                InputField("UI/UX Designer")
+                Card(
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp)
+                ) {
+                    TextField(
+                        value = jobtitle,
+                        onValueChange = { jobtitle = it },
+                        placeholder = { Text(text = "UI/UX") },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = TextFieldDefaults.colors(
+                            unfocusedIndicatorColor = Color.Transparent,
+                            focusedIndicatorColor = Color.Transparent,
+                            cursorColor = Color.Blue,
+                            focusedContainerColor = Color.White,
+                            unfocusedContainerColor = Color.White
+                        )
+                    )
+                }
             }
 
             item {
@@ -214,7 +260,7 @@ fun JobpostScreen(navController: NavHostController) {
                     color = Color.Black,
                     modifier = Modifier.padding(bottom = 4.dp)
                 )
-                CountryDropdown()
+                CountryDropdown(selectedCountry = country)
             }
 
             item {
@@ -225,7 +271,7 @@ fun JobpostScreen(navController: NavHostController) {
                     color = Color.Black,
                     modifier = Modifier.padding(bottom = 4.dp)
                 )
-                ContractType()
+                ContractType(selectedContractType = selectedContractType)
             }
 
             item {
@@ -236,7 +282,7 @@ fun JobpostScreen(navController: NavHostController) {
                     color = Color.Black,
                     modifier = Modifier.padding(bottom = 4.dp)
                 )
-                WorkingHours()
+                WorkingHours(selectedWorkingHours = selectedWorkingHours)
             }
 
             item {
@@ -295,7 +341,62 @@ fun JobpostScreen(navController: NavHostController) {
                     }
                 }
             }
+            item {
+                Spacer(modifier = Modifier.height(14.dp))
+                Text(
+                    text = "Experience in Years",
+                    fontSize = 16.sp,
+                    color = Color.Black,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
 
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Card(
+                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        TextField(
+                            value = minexp,
+                            onValueChange = {minexp = it},
+                            placeholder = { Text(text = "Min") },
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = TextFieldDefaults.colors(
+                                unfocusedIndicatorColor = Color.Transparent,
+                                focusedIndicatorColor = Color.Transparent,
+                                cursorColor = Color.Blue,
+                                focusedContainerColor = Color.White,
+                                unfocusedContainerColor = Color.White
+                            )
+                        )
+                    }
+
+                    Card(
+                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        TextField(
+                            value = maxexp,
+                            onValueChange = {maxexp = it },
+                            placeholder = { Text(text = "Max") },
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = TextFieldDefaults.colors(
+                                unfocusedIndicatorColor = Color.Transparent,
+                                focusedIndicatorColor = Color.Transparent,
+                                cursorColor = Color.Blue,
+                                focusedContainerColor = Color.White,
+                                unfocusedContainerColor = Color.White
+                            )
+                        )
+                    }
+                }
+            }
             item {
                 Spacer(modifier = Modifier.height(14.dp))
                 Text(
@@ -331,19 +432,74 @@ fun JobpostScreen(navController: NavHostController) {
                     )
                 }
             }
-
             item {
-                Spacer(modifier = Modifier.height(14.dp))
-                ApplicationMethodSelection()
+                Text(
+                    text = "Key Skills*",
+                    fontSize = 16.sp,
+                    color = Color.Black,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+                Card(
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp)
+                ) {
+                    TextField(
+                        value = Keyskills,
+                        onValueChange = { Keyskills = it },
+                        placeholder = { Text(text = "placeholder") },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = TextFieldDefaults.colors(
+                            unfocusedIndicatorColor = Color.Transparent,
+                            focusedIndicatorColor = Color.Transparent,
+                            cursorColor = Color.Blue,
+                            focusedContainerColor = Color.White,
+                            unfocusedContainerColor = Color.White
+                        )
+                    )
+                }
             }
             item {
                 Spacer(modifier = Modifier.height(14.dp))
-                RadioButtonRow()
+                ApplicationMethodSelection(
+                    applicationMethod = applicationMethod,
+                    email = email,
+                    externalLink = externalLink,
+                    phoneNumber = phoneNumber
+                )
+            }
+            item {
+                Spacer(modifier = Modifier.height(14.dp))
+                RadioButtonRow(selectedOption = selectedOption)
             }
             item {
 
                 Button(
-                    onClick = { navController. navigate("jobpostpreview")},
+                    onClick = {
+                        val jobPost = JobPost(
+                            jobtitle,
+                            country.value,
+                            selectedContractType.value,
+                            selectedWorkingHours.value,
+                            minexp.toIntOrNull() ?: 0,
+                            maxexp.toIntOrNull() ?: 0,
+                            Keyskills,
+                            minSalary.toIntOrNull() ?: 0,
+                            maxSalary.toIntOrNull() ?: 0,
+                            jobDescription,
+                            jobLocation,
+                            applicationMethod.value,
+                            email.value,
+                            externalLink.value,
+                            phoneNumber.value,
+                            selectedOption.value == "Yes"
+                        )
+                        val jobPostJson = Uri.encode(Gson().toJson(jobPost))
+                        navController.navigate("jobDetailsScreen/$jobPostJson")
+
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
@@ -357,143 +513,11 @@ fun JobpostScreen(navController: NavHostController) {
         }
     }
 }
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun PreviewScreen() {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(text = "Preview", fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = { /* Handle back action */ }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back Button")
-                    }
-                }
-            )
-        },
-        bottomBar = {
-            BottomAppBar(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                IconButton(onClick = { /* Navigate to home */ }, modifier = Modifier.weight(1f)) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Default.Home, contentDescription = "Home")
-                        Text(text = "Home", style = MaterialTheme.typography.titleSmall)
-                    }
-                }
-                IconButton(onClick = { /* Navigate to internships */ }, modifier = Modifier.weight(1f)) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Default.Groups, contentDescription = "Internships")
-                        Text(text = "Internships", style = MaterialTheme.typography.titleSmall)
-                    }
-                }
-                IconButton(onClick = { /* Navigate to jobs */ }, modifier = Modifier.weight(1f)) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Default.Work, contentDescription = "Jobs")
-                        Text(text = "Jobs", style = MaterialTheme.typography.titleSmall)
-                    }
-                }
-                IconButton(onClick = { /* Navigate to messages */ }, modifier = Modifier.weight(1f)) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Default.Message, contentDescription = "Messages")
-                        Text(text = "Messages", style = MaterialTheme.typography.titleSmall)
-                    }
-                }
-            }
-        }
-    ) { innerPadding ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(innerPadding)
-                .padding(16.dp)
-        ) {
-            item {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Divider(
-                            modifier = Modifier
-                                .fillMaxWidth(0.8f)
-                                .align(Alignment.Center),
-                            color = Color.Gray,
-                            thickness = 2.dp
-                        )
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceEvenly
-                        ) {
-                            StepIndicator(true)
-                            StepIndicator(true)
-                            StepIndicator(false)
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .border(2.dp, Color.Gray, shape = RoundedCornerShape(8.dp)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "Your job is ready to post",
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(16.dp),
-                            textAlign = TextAlign.Center,
-                            color = Color.Black
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Button(
-                        onClick = {  },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE6F7FF)), // Very light blue
-                        shape = RoundedCornerShape(4.dp),
-                        contentPadding = PaddingValues(8.dp),
-                        modifier = Modifier
-                            .width(80.dp)
-                            .height(40.dp)
-                    ) {
-                        Text(
-                            text = "Post",
-                            color = Color.Blue,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-            }
-            item { Spacer(modifier = Modifier.height(16.dp)) }
-            item {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.Start
-                ) {
-                    Text(text = "Job Title: UI/UX Designer", fontWeight = FontWeight.Bold)
-                    Text(text = "Location: Town or Region")
-                    Text(text = "Country: India")
-                    Text(text = "Contract Type: Full-time")
-                    Text(text = "Working Hours: 9 AM - 5 PM")
-                    Text(text = "Salary: Min - Max")
-                    Text(text = "Job Description: Enter job details here...")
-                }
-            }
-        }
-    }
-}
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CountryDropdown() {
+fun CountryDropdown(selectedCountry: MutableState<String>) {
     var expanded by remember { mutableStateOf(false) }
-    var selectedCountry by remember { mutableStateOf("United States") }
     val countries = listOf("United States", "India", "Canada", "United Kingdom", "Australia")
 
     ExposedDropdownMenuBox(
@@ -506,7 +530,7 @@ fun CountryDropdown() {
             modifier = Modifier.fillMaxWidth()
         ) {
             TextField(
-                value = selectedCountry,
+                value = selectedCountry.value,
                 onValueChange = {},
                 readOnly = true,
                 modifier = Modifier
@@ -537,7 +561,7 @@ fun CountryDropdown() {
                 DropdownMenuItem(
                     text = { Text(country) },
                     onClick = {
-                        selectedCountry = country
+                        selectedCountry.value = country
                         expanded = false
                     }
                 )
@@ -548,10 +572,12 @@ fun CountryDropdown() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ContractType() {
+fun ContractType(selectedContractType: MutableState<String>) {
     var expanded by remember { mutableStateOf(false) }
-    var selectedCountry by remember { mutableStateOf("Permanent") }
-    val countries = listOf("Permanent", "Fixed-Term Contract", "Internship/Apprenticeship", "Freelance/Contract-Based", "Remote")
+    val contractTypes = listOf(
+        "Permanent", "Fixed-Term Contract", "Internship/Apprenticeship",
+        "Freelance/Contract-Based", "Remote"
+    )
 
     ExposedDropdownMenuBox(
         expanded = expanded,
@@ -563,7 +589,7 @@ fun ContractType() {
             modifier = Modifier.fillMaxWidth()
         ) {
             TextField(
-                value = selectedCountry,
+                value = selectedContractType.value,
                 onValueChange = {},
                 readOnly = true,
                 modifier = Modifier
@@ -590,11 +616,11 @@ fun ContractType() {
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
-            countries.forEach { country ->
+            contractTypes.forEach { type ->
                 DropdownMenuItem(
-                    text = { Text(country) },
+                    text = { Text(type) },
                     onClick = {
-                        selectedCountry = country
+                        selectedContractType.value = type
                         expanded = false
                     }
                 )
@@ -605,10 +631,9 @@ fun ContractType() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WorkingHours() {
+fun WorkingHours(selectedWorkingHours: MutableState<String>) {
     var expanded by remember { mutableStateOf(false) }
-    var selectedCountry by remember { mutableStateOf("Full Time") }
-    val countries = listOf("Full Time", "Part Time")
+    val workingHoursList = listOf("Full Time", "Part Time")
 
     ExposedDropdownMenuBox(
         expanded = expanded,
@@ -620,7 +645,7 @@ fun WorkingHours() {
             modifier = Modifier.fillMaxWidth()
         ) {
             TextField(
-                value = selectedCountry,
+                value = selectedWorkingHours.value,
                 onValueChange = {},
                 readOnly = true,
                 modifier = Modifier
@@ -647,11 +672,11 @@ fun WorkingHours() {
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
-            countries.forEach { country ->
+            workingHoursList.forEach { hours ->
                 DropdownMenuItem(
-                    text = { Text(country) },
+                    text = { Text(hours) },
                     onClick = {
-                        selectedCountry = country
+                        selectedWorkingHours.value = hours
                         expanded = false
                     }
                 )
@@ -659,34 +684,35 @@ fun WorkingHours() {
         }
     }
 }
-@Composable
-fun ApplicationMethodSelection() {
-    var applicationMethod by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var externalLink by remember { mutableStateOf("") }
-    var phoneNumber by remember { mutableStateOf("") }
 
+@Composable
+fun ApplicationMethodSelection(
+    applicationMethod: MutableState<String>,
+    email: MutableState<String>,
+    externalLink: MutableState<String>,
+    phoneNumber: MutableState<String>
+) {
     Column {
         Text("How to Accept Applications", fontSize = 18.sp, color = Color.Black)
 
         Row(verticalAlignment = Alignment.CenterVertically) {
             RadioButton(
-                selected = applicationMethod == "Email",
-                onClick = { applicationMethod = "Email" }
+                selected = applicationMethod.value == "Email",
+                onClick = { applicationMethod.value = "Email" }
             )
             Text("Email")
             Spacer(modifier = Modifier.width(8.dp))
 
             RadioButton(
-                selected = applicationMethod == "External Link",
-                onClick = { applicationMethod = "External Link" }
+                selected = applicationMethod.value == "External Link",
+                onClick = { applicationMethod.value = "External Link" }
             )
             Text("External Link")
             Spacer(modifier = Modifier.width(8.dp))
 
             RadioButton(
-                selected = applicationMethod == "Phone Number",
-                onClick = { applicationMethod = "Phone Number" }
+                selected = applicationMethod.value == "Phone Number",
+                onClick = { applicationMethod.value = "Phone Number" }
             )
             Text("Phone Number")
         }
@@ -700,8 +726,8 @@ fun ApplicationMethodSelection() {
                 .padding(bottom = 8.dp)
         ) {
             TextField(
-                value = email,
-                onValueChange = { email = it },
+                value = email.value,
+                onValueChange = { email.value = it },
                 placeholder = { Text(text = "Your Email Address") },
                 modifier = Modifier.fillMaxWidth(),
                 colors = TextFieldDefaults.colors(
@@ -713,7 +739,8 @@ fun ApplicationMethodSelection() {
                 )
             )
         }
-        when (applicationMethod) {
+
+        when (applicationMethod.value) {
             "External Link" -> {
                 Card(
                     elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
@@ -723,8 +750,8 @@ fun ApplicationMethodSelection() {
                         .padding(bottom = 8.dp)
                 ) {
                     TextField(
-                        value = externalLink,
-                        onValueChange = { externalLink = it },
+                        value = externalLink.value,
+                        onValueChange = { externalLink.value = it },
                         placeholder = { Text(text = "Enter External Link") },
                         modifier = Modifier.fillMaxWidth(),
                         colors = TextFieldDefaults.colors(
@@ -746,8 +773,8 @@ fun ApplicationMethodSelection() {
                         .padding(bottom = 8.dp)
                 ) {
                     TextField(
-                        value = phoneNumber,
-                        onValueChange = { phoneNumber = it },
+                        value = phoneNumber.value,
+                        onValueChange = { phoneNumber.value = it },
                         placeholder = { Text(text = "Enter Phone Number") },
                         modifier = Modifier.fillMaxWidth(),
                         keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Phone),
@@ -766,8 +793,7 @@ fun ApplicationMethodSelection() {
 }
 
 @Composable
-fun RadioButtonRow() {
-    var selectedOption by remember { mutableStateOf("Yes") }
+fun RadioButtonRow(selectedOption: MutableState<String>) {
     val options = listOf("Yes", "No", "Optional")
 
     Column(modifier = Modifier.padding(16.dp)) {
@@ -781,11 +807,11 @@ fun RadioButtonRow() {
             options.forEach { option ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.clickable { selectedOption = option }
+                    modifier = Modifier.clickable { selectedOption.value = option }
                 ) {
                     RadioButton(
-                        selected = (selectedOption == option),
-                        onClick = { selectedOption = option }
+                        selected = (selectedOption.value == option),
+                        onClick = { selectedOption.value = option }
                     )
                     Text(text = option, modifier = Modifier.padding(start = 4.dp))
                 }
@@ -793,6 +819,7 @@ fun RadioButtonRow() {
         }
     }
 }
+
 
 @Composable
 fun StepIndicator(isFilled: Boolean) {
@@ -822,9 +849,198 @@ fun CustomButton(text:String) {
     }
 }
 
-
-@Preview(showBackground = true)
 @Composable
-fun PreviewJobDetailsForm() {
+fun JobDetailsScreen(jobPost: JobPost, apiService: ApiService, navController: NavHostController) {
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    var isPosting by remember { mutableStateOf(false) }
+    Spacer(Modifier.height(16.dp))
+    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+        HeaderSection()
+        Spacer(Modifier.height(16.dp))
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Divider(
+                modifier = Modifier
+                    .fillMaxWidth(0.8f)
+                    .align(Alignment.Center),
+                color = Color.Gray,
+                thickness = 2.dp
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                StepIndicator(false)
+                StepIndicator(true)
+                StepIndicator(false)
+            }
+        }
+        Spacer(Modifier.height(16.dp))
+        Text(
+            text = "Your job posting is ready!",
+            fontWeight = FontWeight.Bold,
+            fontSize = 18.sp,
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = TextAlign.Center
+        )
+        JobDetailsCard(
+            jobTitle = jobPost.jobTitle,
+            companyName = "Microsoft",
+            country = jobPost.country,
+            contractType = jobPost.contractType,
+            minSalary = jobPost.minSalary,
+            maxSalary = jobPost.maxSalary,
+            jobLocation = jobPost.jobLocation,
+            workingHours=  jobPost.workingHours
+        )
 
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(
+            onClick = {
+                coroutineScope.launch(Dispatchers.IO) {
+                    isPosting = true
+                    try {
+                        val response = apiService.storeJob(jobPost)
+                        withContext(Dispatchers.Main) {
+                            if (response.isSuccessful) {
+                                Toast.makeText(context, "Job posted successfully!", Toast.LENGTH_SHORT).show()
+                                navController.popBackStack()
+                            } else {
+                                Toast.makeText(context, "Error: ${response.message()}", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    } catch (e: Exception) {
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                        }
+                    } finally {
+                        isPosting = false
+                    }
+                }
+            },modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            shape = RoundedCornerShape(8.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF90CAF9)),
+            enabled = !isPosting
+        ) {
+
+            if (isPosting) {
+                CircularProgressIndicator(color = Color.White, modifier = Modifier.size(20.dp))
+            } else {
+                Text("Post Job",color = Color.White, fontWeight = FontWeight.Bold)
+            }
+        }
+    }
 }
+
+
+
+@Composable
+fun HeaderSection() {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        IconButton(onClick = {  }) {
+            Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.Gray)
+        }
+        Text(
+            text = "Preview",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFF283593)
+        )
+        IconButton(onClick = { /* More action */ }) {
+            Icon(Icons.Default.MoreVert, contentDescription = "More", tint = Color.Gray)
+        }
+    }
+}
+
+@Composable
+fun JobDetailsCard(
+    jobTitle: String,
+    companyName: String,
+    country: String,
+    contractType: String,
+    minSalary: Int,
+    maxSalary: Int,
+    jobLocation: String,
+    workingHours: String
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+            .drawBehind {
+                val stroke = Stroke(
+                    width = 4f,
+                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
+                )
+                drawRoundRect(
+                    color = Color.Gray,
+                    style = stroke,
+                    cornerRadius = CornerRadius(10.dp.toPx())
+                )
+            },
+        shape = RoundedCornerShape(10.dp),
+        colors = CardDefaults.cardColors(Color.White),
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = jobTitle,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
+            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Default.Business,
+                    contentDescription = "Company",
+                    tint = Color.Gray,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = companyName,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color.DarkGray
+                )
+            }
+            Divider(color = Color.Gray, thickness = 1.dp)
+            JobDetailItem("Job Location", jobLocation)
+            JobDetailItem("Country", country)
+            JobDetailItem("Salary", "$minSalary - $maxSalary k/Month")
+            JobDetailItem("Contract Type", contractType)
+            JobDetailItem("Working Hours", workingHours)
+        }
+    }
+}
+
+
+@Composable
+fun JobDetailItem(title: String, value: String, subtitle: String? = null) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Text(text = title, color = Color.Gray, fontSize = 14.sp)
+        Text(text = value, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+        if (subtitle != null) {
+            Text(text = subtitle, color = Color.Gray, fontSize = 14.sp)
+        }
+    }
+}
+
