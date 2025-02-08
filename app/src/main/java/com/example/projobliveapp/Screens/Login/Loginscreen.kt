@@ -29,7 +29,6 @@ import com.example.projobliveapp.R
 import com.example.projobliveapp.Screens.Inputdata.JobApplicationForm
 import com.example.projobliveapp.Screens.Login.LoginScreenViewModel
 import com.example.projobliveapp.Screens.Login.logo
-import com.example.projobliveapp.Screens.PhoneAuth.PHHomeScreen
 
 @ExperimentalComposeUiApi
 @Composable
@@ -84,7 +83,6 @@ fun UserTypeSelector(userType: MutableState<String>) {
         )
     }
 }
-
 @Composable
 fun SignUpPrompt(userType: MutableState<String>, navController: NavController) {
     Spacer(modifier = Modifier.height(20.dp))
@@ -100,7 +98,8 @@ fun SignUpPrompt(userType: MutableState<String>, navController: NavController) {
                 .clickable {
                     if (userType.value == "Candidate") {
                         navController.navigate("${Screen.Signupscreen.name}/Candidate")
-                    } else {
+                    }
+                    else {
                         navController.navigate("${Screen.EmployerSignUP.name}/Employer")
                     }
                 }
@@ -118,8 +117,8 @@ fun PhoneLoginButton(navController: NavController) {
         onClick = {
             navController.navigate(Screen.PHHomeScreen.name)
         },
-        modifier = Modifier.padding(horizontal = 12.dp),
-        colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary)
+        modifier =Modifier.padding(horizontal = 12.dp),
+        colors =ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary)
     ) {
         Text(text = "Login with Phone Number")
     }
@@ -185,7 +184,6 @@ fun Signup(
                 }
             }
         }
-
 }
 
 @Composable
@@ -211,8 +209,8 @@ fun UserForm(
     ) {
         if (isCreateAccount) {
             Text(
-                text = stringResource(id = R.string.create_acct),
-                modifier = Modifier.padding(4.dp)
+                text =stringResource(id = R.string.create_acct),
+                modifier =Modifier.padding(4.dp)
             )
         }
         EmailInput(

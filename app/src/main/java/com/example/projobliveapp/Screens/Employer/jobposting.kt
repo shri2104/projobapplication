@@ -889,6 +889,7 @@ fun JobDetailsScreen(jobPost: JobPost, apiService: ApiService, navController: Na
             modifier = Modifier.fillMaxWidth(),
             textAlign = TextAlign.Center
         )
+
         JobDetailsCard(
             jobTitle = jobPost.jobTitle,
             companyName = "Microsoft",
@@ -930,7 +931,6 @@ fun JobDetailsScreen(jobPost: JobPost, apiService: ApiService, navController: Na
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF90CAF9)),
             enabled = !isPosting
         ) {
-
             if (isPosting) {
                 CircularProgressIndicator(color = Color.White, modifier = Modifier.size(20.dp))
             } else {
@@ -939,8 +939,6 @@ fun JobDetailsScreen(jobPost: JobPost, apiService: ApiService, navController: Na
         }
     }
 }
-
-
 
 @Composable
 fun HeaderSection() {
@@ -999,7 +997,6 @@ fun JobDetailsCard(
                 .fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-
             Text(
                 text = jobTitle,
                 fontSize = 18.sp,
@@ -1031,8 +1028,6 @@ fun JobDetailsCard(
         }
     }
 }
-
-
 
 @Composable
 fun JobDetailItem(title: String, value: String, subtitle: String? = null) {

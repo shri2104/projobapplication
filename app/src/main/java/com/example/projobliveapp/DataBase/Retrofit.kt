@@ -14,6 +14,47 @@ import retrofit2.http.Part
 import retrofit2.http.Path
 import java.time.LocalDateTime
 
+data class PersonalData(
+    val Firstname: String,
+    val Lastname: String,
+    val dateOfBirth: String,
+    val gender: String,
+    val nationality: String,
+    val maritalStatus: String,
+    val languagesKnown: List<String>,
+)
+data class EducationDetails(
+    val degree: String,
+    val fieldOfStudy: String,
+    val universityName: String,
+    val yearOfPassing: Int,
+    val percentageOrCGPA: String,
+    val certificationName: String?,
+    val issuingAuthority: String?,
+    val yearOfCompletion: Int?
+)
+
+data class ExperienceDetails(
+    val jobTitle: String,
+    val companyName: String,
+    val experience: String,
+    val startDate: String,
+    val endDate: String,
+    val jobLocation: String,
+    val responsibilities: String,
+    val achievements: String
+)
+data class ContactInfo(
+    var email: String = "",
+    var phoneNumber: String = "",
+    var alternatePhoneNumber: String = "",
+    var currentAddress: String = "",
+    var permanentAddress: String = "",
+    var linkedInProfile: String = "",
+    var portfolioWebsite: String = ""
+)
+
+
 data class JobApplication(
     val firstName: String,
     val lastName: String,
@@ -27,6 +68,7 @@ data class JobApplication(
     val jobCity: String?,
     val roleLooking: String?
 )
+
 data class JobPost(
     val jobTitle: String,
     val country: String,
