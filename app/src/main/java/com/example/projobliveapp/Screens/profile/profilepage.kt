@@ -78,7 +78,7 @@ fun ProfilePage(
                             painter = painterResource(id = R.drawable.projob_logo1_12fc55031a756ac453bf),
                             contentDescription = "Job Logo",
                             modifier = Modifier
-                                .size(80.dp)
+                                .size(90.dp)
                                 .padding(end = 8.dp)
                         )
                     }
@@ -217,20 +217,14 @@ fun ProfilePage(
     }
 }
 
-
 @Composable
 fun ProfileImage(profileImageUrl: String?) {
-    if (!profileImageUrl.isNullOrEmpty()) {
-        Image(
-            painter = rememberImagePainter(data = profileImageUrl),
-            contentDescription = "Profile Image",
-            modifier = Modifier
-                .size(100.dp)
-                .clip(CircleShape)
-        )
-    } else {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier.size(100.dp)
+    ) {
         Icon(
-            imageVector = Icons.Default.AccountCircle,
+            imageVector = Icons.Default.Person,
             contentDescription = "Default Profile Icon",
             modifier = Modifier
                 .size(100.dp)
@@ -239,6 +233,9 @@ fun ProfileImage(profileImageUrl: String?) {
         )
     }
 }
+
+
+
 
 @Composable
 fun ProfileCard(navController: NavController,userEmail: String?) {

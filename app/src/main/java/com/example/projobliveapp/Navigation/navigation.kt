@@ -164,6 +164,7 @@ fun Navigation(apiService: ApiService){
                 )
             }
         }
+
         composable("candidatecontactinfo/{email}") { backStackEntry ->
             val email = backStackEntry.arguments?.getString("email")
             if (email != null) {

@@ -987,9 +987,9 @@ fun ContactDetailsScreen(userId: String, apiService: ApiService, onNext: () -> U
                 }
             }
 
-            item { InputField(label = "Email Address*", value = email, onValueChange = { if (android.util.Patterns.EMAIL_ADDRESS.matcher(it).matches()) email = it }, placeholder = "e.g.john.doe@example.com") }
-            item { InputField(label = "Phone Number*", value = phoneNumber, onValueChange = { if (it.length in 10..15) phoneNumber = it }, placeholder = "e.g. +91-9876543210") }
-            item { InputField(label = "Alternate Phone Number (Optional)", value = alternatePhoneNumber, onValueChange = { if (it.length in 10..15 && it != phoneNumber) alternatePhoneNumber = it }, placeholder = "e.g. +91-9123456789") }
+            item { InputField(label = "Email Address*", value = email, onValueChange = { email = it }, placeholder = "e.g. john.doe@example.com") }
+            item { InputField(label = "Phone Number*", value = phoneNumber, onValueChange = { phoneNumber = it }, placeholder = "e.g. +91-9876543210") }
+            item { InputField(label = "Alternate Phone Number (Optional)", value = alternatePhoneNumber, onValueChange = { alternatePhoneNumber = it }, placeholder = "e.g. +91-9123456789") }
             item { InputField(label = "Current Address*", value = currentAddress, onValueChange = { currentAddress = it }, placeholder = "e.g. Flat No. 101, XYZ Apartment, New Delhi") }
             item { InputField(label = "Permanent Address (Optional)", value = permanentAddress, onValueChange = { permanentAddress = it }, placeholder = "e.g. Hometown address") }
             item { InputField(label = "LinkedIn Profile (Optional)", value = linkedInProfile, onValueChange = { linkedInProfile = it }, placeholder = "e.g. linkedin.com/in/johndoe") }
