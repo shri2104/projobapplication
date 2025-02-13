@@ -51,7 +51,7 @@ fun SplashScreen(navController: NavHostController) {
             )
         )
         delay(2000L)
-        navController.navigate("jobpost")
+        navController.navigate(Screen.LoginScreen.name)
     }
 
     Box(

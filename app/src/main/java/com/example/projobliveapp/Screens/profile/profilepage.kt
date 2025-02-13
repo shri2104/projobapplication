@@ -282,39 +282,6 @@ fun ProfileDetailWithElevation(value: String, icon: ImageVector, onEditClick: ()
     }
 }
 @Composable
-fun ProfileDetailWithoutLabel(value: String, icon: ImageVector, onEditClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp)
-            .background(MaterialTheme.colorScheme.surface, shape = MaterialTheme.shapes.medium)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(24.dp)
-        )
-        Spacer(modifier = Modifier.width(16.dp))
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurface),
-            modifier = Modifier.weight(1f)
-        )
-        IconButton(onClick = onEditClick) {
-            Icon(
-                imageVector = Icons.Default.Edit,
-                contentDescription = "Edit",
-                tint = MaterialTheme.colorScheme.primary
-            )
-        }
-    }
-}
-
-
-@Composable
 fun ProfileDropdownMenu() {
     var expanded by remember { mutableStateOf(false) }
 

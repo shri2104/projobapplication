@@ -23,21 +23,15 @@ import com.bawp.freader.screens.login.Signup
 import com.bawp.freader.screens.login.SignupScreen
 import com.bawp.freader.screens.login.UserForm
 import com.example.projobliveapp.DataBase.ApiService
-import com.example.projobliveapp.DataBase.EducationDetails
-import com.example.projobliveapp.DataBase.ExperienceDetails
 import com.example.projobliveapp.DataBase.Job
 import com.example.projobliveapp.DataBase.JobPost
-import com.example.projobliveapp.DataBase.PersonalData
 import com.example.projobliveapp.Screens.Employer.JobDetailsScreen
 import com.example.projobliveapp.Screens.Employer.JobPostedScreen
 import com.example.projobliveapp.Screens.Employer.JobpostScreen
 
 
 import com.example.projobliveapp.Screens.Home.NotificationScreen
-import com.example.projobliveapp.Screens.Inputdata.ContactDetailsScreen
-import com.example.projobliveapp.Screens.Inputdata.EducationDetailsScreen
-import com.example.projobliveapp.Screens.Inputdata.ExperienceDetailsScreen
-import com.example.projobliveapp.Screens.Inputdata.PersonalDetailsScreen
+import com.example.projobliveapp.Screens.Inputdata.JobApplicationForm
 import com.example.projobliveapp.Screens.Jobs.JobApplicationScreenPreview
 import com.example.projobliveapp.Screens.Jobs.JobDetailScreen
 import com.example.projobliveapp.Screens.Jobs.JobList
@@ -61,6 +55,7 @@ import com.google.gson.Gson
 fun Navigation(apiService: ApiService){
     val savedJobs = remember { mutableStateListOf<Job>() }
     val navController= rememberNavController()
+
     NavHost(navController=navController,startDestination = Screen.SplashScreen.name){
         composable(Screen.SplashScreen.name){
             SplashScreen(navController=navController)
@@ -125,10 +120,10 @@ fun Navigation(apiService: ApiService){
         composable(Screen.Userform.name){
             UserForm()
         }
-        composable("${Screen.SignUp.name}/{userType}") { backStackEntry ->
-            val userType = backStackEntry.arguments?.getString("userType") ?: "Employer"
-            Signup(navController = navController, userType = userType)
-        }
+//        composable("${Screen.SignUp.name}/{userType}") { backStackEntry ->
+//            val userType = backStackEntry.arguments?.getString("userType") ?: "Employer"
+//            Signup(navController = navController, userType = userType)
+//        }
         composable("${Screen.Signupscreen.name}/{userType}") { backStackEntry ->
             val userType = backStackEntry.arguments?.getString("userType") ?: "Candidate"
             SignupScreen(navController = navController, apiService = apiService, userType = userType)
@@ -228,48 +223,12 @@ fun Navigation(apiService: ApiService){
             val jobPost = Gson().fromJson(jobPostJson, JobPost::class.java)
             JobDetailsScreen(jobPost,apiService,navController)
         }
-        composable("educationDetails/{PersonalData}",
-            arguments = listOf(navArgument("PersonalData") { type = NavType.StringType })
-        ) { backStackEntry ->
-            val personaldataJson = backStackEntry.arguments?.getString("jobPost")
-            val personaldata = Gson().fromJson(personaldataJson, PersonalData::class.java)
-            EducationDetailsScreen(personaldata,apiService,navController)
-        }
-        composable(
-            "experienceDetails/{EducationData}/{PersonalData}",
-            arguments = listOf(
-                navArgument("PersonalData") { type = NavType.StringType },
-                navArgument("EducationData") { type = NavType.StringType }
-            )
-        ) { backStackEntry ->
-            val personaldataJson = backStackEntry.arguments?.getString("PersonalData")
-            val educationdataJson = backStackEntry.arguments?.getString("EducationData")
-            val personaldata = Gson().fromJson(personaldataJson, PersonalData::class.java)
-            val educationdata = Gson().fromJson(educationdataJson, EducationDetails::class.java)
-            ExperienceDetailsScreen(personaldata, educationdata, apiService, navController)
-        }
-        composable(
-            "experienceDetails/{experienceDataJson}/{EducationData}/{PersonalData}",
-            arguments = listOf(
-                navArgument("experienceDataJson") { type = NavType.StringType },
-                navArgument("EducationData") { type = NavType.StringType },
-                navArgument("PersonalData") { type = NavType.StringType }
-            )
-        ) { backStackEntry ->
-            val experienceDataJson = backStackEntry.arguments?.getString("experienceDataJson")
-            val educationdataJson = backStackEntry.arguments?.getString("EducationData")
-            val personaldataJson = backStackEntry.arguments?.getString("PersonalData")
 
-            val experienceData = Gson().fromJson(experienceDataJson, ExperienceDetails::class.java)
-            val educationdata = Gson().fromJson(educationdataJson, EducationDetails::class.java)
-            val personaldata = Gson().fromJson(personaldataJson, PersonalData::class.java)
 
-            ContactDetailsScreen(experienceData, educationdata, personaldata, apiService, navController)
-        }
 
-        composable("personalDetails") {
-            PersonalDetailsScreen(navController)
-        }
+//        composable("JobApplicationscreen") {
+//            JobApplicationForm(navController,apiService)
+//        }
 
     }
 }

@@ -18,6 +18,7 @@ import com.example.projobliveapp.DataBase.ApiService
 import com.example.projobliveapp.Navigation.Screen
 import com.example.projobliveapp.R
 import com.example.projobliveapp.Screens.Inputdata.JobApplicationForm
+import java.util.UUID
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -27,7 +28,7 @@ fun EmployerDetailsScreen(
     userType: String
 ) {
     var showUserForm by remember { mutableStateOf(false) }
-
+    val userId = remember { UUID.randomUUID().toString() }
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -35,14 +36,12 @@ fun EmployerDetailsScreen(
             modifier = Modifier.padding(16.dp)
         ) {
             if (!showUserForm) {
-                // Show the Employer Details Form
                 EmployerDetailsForm(navController = navController) {
                     showUserForm = true
                 }
             } else {
-                // Show Logo and Signup
                 logo()
-                Signup(userType, navController)
+                Signup(userType, userId, navController, apiService)
             }
             Spacer(modifier = Modifier.height(30.dp))
             if (showUserForm) {

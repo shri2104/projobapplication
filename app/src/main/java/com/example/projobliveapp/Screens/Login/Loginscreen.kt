@@ -24,11 +24,15 @@ import androidx.navigation.NavController
 import com.example.projobliveapp.Component.EmailInput
 import com.example.projobliveapp.Component.PasswordInput
 import com.example.projobliveapp.DataBase.ApiService
+import com.example.projobliveapp.DataBase.emailuserid
 import com.example.projobliveapp.Navigation.Screen
 import com.example.projobliveapp.R
 import com.example.projobliveapp.Screens.Inputdata.JobApplicationForm
 import com.example.projobliveapp.Screens.Login.LoginScreenViewModel
 import com.example.projobliveapp.Screens.Login.logo
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.util.UUID
 
 @ExperimentalComposeUiApi
 @Composable
@@ -132,6 +136,8 @@ fun SignupScreen(
     userType: String
 ) {
     var showUserForm by remember { mutableStateOf(false) }
+    val userId = remember { UUID.randomUUID().toString() } // Move this outside to persist across recompositions
+
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -139,12 +145,12 @@ fun SignupScreen(
             modifier = Modifier.padding(16.dp)
         ) {
             if (!showUserForm) {
-                JobApplicationForm(navController = navController, apiService = apiService) {
+                JobApplicationForm(navController = navController, apiService = apiService, userId) {
                     showUserForm = true
                 }
             } else {
                 logo()
-                Signup(userType, navController)
+                Signup(userType, userId, navController, apiService)
             }
             Spacer(modifier = Modifier.height(30.dp))
             if (showUserForm) {
@@ -169,22 +175,38 @@ fun SignupScreen(
 @Composable
 fun Signup(
     userType: String,
+    userId: String, // Added userId parameter
     navController: NavController,
+    apiService: ApiService,
     viewModel: LoginScreenViewModel = viewModel()
 ) {
-        UserForm(
-            loading = false,
-            isCreateAccount = true
-        ) { email, password ->
-            viewModel.createUserWithEmailAndPassword(email, password) {
-                if (userType == "Candidate") {
-                    navController.navigate("homeScreen/$email")
-                } else {
-                    navController.navigate("EmployerHomeScreen/$email")
+    val coroutineScope = rememberCoroutineScope() // CoroutineScope for launching API calls
+
+    UserForm(
+        loading = false,
+        isCreateAccount = true
+    ) { email, password ->
+        viewModel.createUserWithEmailAndPassword(email, password) {
+            val userData = emailuserid(
+                email = email,
+                userId = userId
+            )
+            coroutineScope.launch(Dispatchers.IO) {
+                try {
+                    val response = apiService.Storeuserid(userData)
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 }
             }
+            if (userType == "Candidate") {
+                navController.navigate("homeScreen/$email")
+            } else {
+                navController.navigate("EmployerHomeScreen/$email")
+            }
         }
+    }
 }
+
 
 @Composable
 fun UserForm(

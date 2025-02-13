@@ -135,7 +135,6 @@ fun JobpostScreen(navController: NavHostController, apiService: ApiService) {
                         Text(text = "Messages", style = MaterialTheme.typography.titleSmall)
                     }
                 }
-
             }
         }
     ) { innerPadding ->

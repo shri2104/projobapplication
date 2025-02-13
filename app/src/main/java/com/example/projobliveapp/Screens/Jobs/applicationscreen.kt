@@ -197,7 +197,6 @@ fun ResumeScreenContent() {
             Button(
                 onClick = {
                     coroutineScope.launch {
-                        // Simulate the upload
                         Toast.makeText(context, "Resume Uploaded", Toast.LENGTH_SHORT).show()
                         hasResume.value = true
                     }

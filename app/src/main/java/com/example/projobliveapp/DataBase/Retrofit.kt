@@ -15,6 +15,7 @@ import retrofit2.http.Path
 import java.time.LocalDateTime
 
 data class PersonalData(
+    val userId: String,
     val Firstname: String,
     val Lastname: String,
     val dateOfBirth: String,
@@ -23,7 +24,9 @@ data class PersonalData(
     val maritalStatus: String,
     val languagesKnown: List<String>,
 )
+
 data class EducationDetails(
+    val userId: String,
     val degree: String,
     val fieldOfStudy: String,
     val universityName: String,
@@ -35,6 +38,7 @@ data class EducationDetails(
 )
 
 data class ExperienceDetails(
+    val userId: String, // Added userId
     val jobTitle: String,
     val companyName: String,
     val experience: String,
@@ -44,7 +48,9 @@ data class ExperienceDetails(
     val responsibilities: String,
     val achievements: String
 )
+
 data class ContactInfo(
+    val userId: String, // Added userId
     var email: String = "",
     var phoneNumber: String = "",
     var alternatePhoneNumber: String = "",
@@ -53,6 +59,7 @@ data class ContactInfo(
     var linkedInProfile: String = "",
     var portfolioWebsite: String = ""
 )
+
 
 
 data class JobApplication(
@@ -113,20 +120,45 @@ data class SaveJob(
     val jobIds: List<String>
 )
 
+data class emailuserid(
+    val email:String,
+    val userId: String?
+)
+
+
 data class SavedJobResponse(val email: String, val jobIds: List<List<String>>)
 data class JobApiResponse(val success: Boolean, val jobs: List<Job>)
 data class ApiResponse(val success: Boolean, val id: String?)
 
 interface ApiService {
+    @POST("Candidatepersonaldata")
+    suspend fun Candidatepersonaldata(@Body personalData: PersonalData): Response<ApiResponse>
+
+    @GET("getCandidatepersonaldata/{userId}")
+    suspend fun getCandidatepersonaldata(@Path("userId") userId: String): PersonalData
+
+    @POST("Candidateeducationladata")
+    suspend fun Candidateeducationladata(@Body jobData: EducationDetails): Response<ApiResponse>
+    @POST("Candidateexperienceladata")
+    suspend fun Candidateexperienceladata(@Body jobData: ExperienceDetails): Response<ApiResponse>
+    @POST("Candidatecontactladata")
+    suspend fun Candidatecontactladata(@Body jobData: ContactInfo): Response<ApiResponse>
+
+
     @GET("getAllData")
     suspend fun getJobData(): List<JobApplication>
 
     @GET("getData/{email}")
     suspend fun getProfileDataByEmail(@Path("email") email: String): JobApplication
 
+    @POST("Userid")
+    suspend fun Storeuserid(@Body emailuserid: emailuserid): Response<ApiResponse>
+
+    @GET("GetUserid/{email}")
+    suspend fun getuserid(@Path("email") email: String): emailuserid
+
     @POST("storeData")
     suspend fun storeUserData(@Body jobData: JobApplication): Response<ApiResponse>
-
 
     @GET("getJobs")
     suspend fun getAllJobs(): List<Job>

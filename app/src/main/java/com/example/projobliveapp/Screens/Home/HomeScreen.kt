@@ -39,19 +39,20 @@ fun UserGreetingScreen(email: String, apiService: ApiService) {
     var loading by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
 
-    val currentTime = LocalTime.now()
-    val greeting = when (currentTime.hour) {
-        in 5..11 -> "Good morning"
-        in 12..17 -> "Good afternoon"
-        else -> "Good evening"
-    }
-
     LaunchedEffect(email) {
         if (email.isNotBlank()) {
             loading = true
+            error = null
             try {
-                val userData = apiService.getProfileDataByEmail(email)
-                userName = userData.firstName
+                val userIdResponse = apiService.getuserid(email)
+                val userId = userIdResponse.userId
+
+                if (!userId.isNullOrBlank()) {
+                    val userData = apiService.getCandidatepersonaldata(userId)
+                    userName = userData.Firstname
+                } else {
+                    error = "User ID not found"
+                }
             } catch (e: Exception) {
                 error = "Failed to fetch user data: ${e.message}"
             } finally {
@@ -61,6 +62,7 @@ fun UserGreetingScreen(email: String, apiService: ApiService) {
             error = "Please enter a valid email"
         }
     }
+
     Surface(modifier = Modifier.fillMaxWidth()) {
         when {
             loading -> {
@@ -83,7 +85,9 @@ fun UserGreetingScreen(email: String, apiService: ApiService) {
                 Column(
                     horizontalAlignment = Alignment.Start,
                     verticalArrangement = Arrangement.Center,
-                    modifier = Modifier.fillMaxSize().padding(16.dp)
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp)
                 ) {
                     Text(
                         text = "Hi, $userName! 👋",
@@ -100,6 +104,8 @@ fun UserGreetingScreen(email: String, apiService: ApiService) {
         }
     }
 }
+
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
