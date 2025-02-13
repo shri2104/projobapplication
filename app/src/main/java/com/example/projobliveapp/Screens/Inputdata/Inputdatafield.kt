@@ -595,16 +595,12 @@ fun EducationDetailsScreen(
     var degree by remember { mutableStateOf("") }
     var fieldOfStudy by remember { mutableStateOf("") }
     var university by remember { mutableStateOf("") }
-    var yearOfPassing by remember { mutableStateOf("") }  // String input, will convert to Int
+    var yearOfPassing by remember { mutableStateOf("") }  // String input
     var percentageCgpa by remember { mutableStateOf("") }
     var certificationName by remember { mutableStateOf("") }
     var issuingAuthority by remember { mutableStateOf("") }
-    var yearOfCompletion by remember { mutableStateOf("") }  // String input, will convert to Int
+    var yearOfCompletion by remember { mutableStateOf("") }  // String input
     val coroutineScope = rememberCoroutineScope()
-    // Function to convert string to int safely
-    fun parseYear(value: String): Int? {
-        return value.toIntOrNull()
-    }
 
     Scaffold(
         topBar = {
@@ -698,33 +694,29 @@ fun EducationDetailsScreen(
             item {
                 Button(
                     onClick = {
-                        val yearOfPassingInt = parseYear(yearOfPassing)
-                        val yearOfCompletionInt = parseYear(yearOfCompletion)
-                        if (yearOfPassingInt != null && yearOfCompletionInt != null) {
+                        if (yearOfPassing.isNotEmpty() && yearOfCompletion.isNotEmpty()) {
                             val Educationdata = EducationDetails(
-                                userId=userId,
+                                userId = userId,
                                 degree = degree,
                                 fieldOfStudy = fieldOfStudy,
                                 universityName = university,
-                                yearOfPassing = yearOfPassingInt,
+                                yearOfPassing = yearOfPassing,
                                 percentageOrCGPA = percentageCgpa,
                                 certificationName = certificationName,
                                 issuingAuthority = issuingAuthority,
-                                yearOfCompletion = yearOfCompletionInt
+                                yearOfCompletion = yearOfCompletion
                             )
                             coroutineScope.launch(Dispatchers.IO) {
                                 try {
                                     apiService.Candidateeducationladata(Educationdata)
-                                }
-                                catch (e: Exception) {
+                                } catch (e: Exception) {
+                                    // Handle error
                                 }
                             }
                             onNext()
                         } else {
                             Toast.makeText(context, "Please enter valid years.", Toast.LENGTH_SHORT).show()
                         }
-                        onNext()
-
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -737,6 +729,7 @@ fun EducationDetailsScreen(
         }
     }
 }
+
 
 
 @Composable

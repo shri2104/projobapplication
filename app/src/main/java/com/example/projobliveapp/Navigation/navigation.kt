@@ -19,7 +19,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.bawp.freader.screens.login.LoginScreen
-import com.bawp.freader.screens.login.Signup
 import com.bawp.freader.screens.login.SignupScreen
 import com.bawp.freader.screens.login.UserForm
 import com.example.projobliveapp.DataBase.ApiService
@@ -31,7 +30,6 @@ import com.example.projobliveapp.Screens.Employer.JobpostScreen
 
 
 import com.example.projobliveapp.Screens.Home.NotificationScreen
-import com.example.projobliveapp.Screens.Inputdata.JobApplicationForm
 import com.example.projobliveapp.Screens.Jobs.JobApplicationScreenPreview
 import com.example.projobliveapp.Screens.Jobs.JobDetailScreen
 import com.example.projobliveapp.Screens.Jobs.JobList
@@ -44,6 +42,10 @@ import com.example.projobliveapp.Screens.Menu.More.MorePage
 import com.example.projobliveapp.Screens.PhoneAuth.OtpScreen
 import com.example.projobliveapp.Screens.PhoneAuth.PHHomeScreen
 import com.example.projobliveapp.Screens.frontscreen.LoginSelectionScreen
+import com.example.projobliveapp.Screens.profile.ContactInfoScreen
+import com.example.projobliveapp.Screens.profile.EducationDetailsScreen
+import com.example.projobliveapp.Screens.profile.ExperienceDetailsScreen
+import com.example.projobliveapp.Screens.profile.PersonalInformationScreen
 import com.example.projobliveapp.Screens.profile.ProfilePage
 import com.example.projobliveapp.Screens.profile.ProfileSection
 import com.example.projobliveapp.Screens.profile.ScrollableProfileScreen
@@ -131,6 +133,46 @@ fun Navigation(apiService: ApiService){
         composable("profilePage/{email}") { backStackEntry ->
             val email = backStackEntry.arguments?.getString("email")
             ProfilePage(navController = navController, userEmail = email,apiService = apiService)
+        }
+        composable("candidatepersonalinfo/{email}") { backStackEntry ->
+            val email = backStackEntry.arguments?.getString("email")
+            if (email != null) {
+                PersonalInformationScreen(
+                    navController = navController,
+                    userEmail =email,
+                    apiService = apiService,
+                )
+            }
+        }
+        composable("candidateeducationinfo/{email}") { backStackEntry ->
+            val email = backStackEntry.arguments?.getString("email")
+            if (email != null) {
+                EducationDetailsScreen(
+                    navController = navController,
+                    userEmail =email,
+                    apiService = apiService,
+                )
+            }
+        }
+        composable("candidateexperienceinfo/{email}") { backStackEntry ->
+            val email = backStackEntry.arguments?.getString("email")
+            if (email != null) {
+                ExperienceDetailsScreen(
+                    navController = navController,
+                    userEmail =email,
+                    apiService = apiService,
+                )
+            }
+        }
+        composable("candidatecontactinfo/{email}") { backStackEntry ->
+            val email = backStackEntry.arguments?.getString("email")
+            if (email != null) {
+                ContactInfoScreen(
+                    navController = navController,
+                    userEmail =email,
+                    apiService = apiService,
+                )
+            }
         }
         composable("AvailableJobs/{email}") { backStackEntry ->
             val userEmail = backStackEntry.arguments?.getString("email") ?: ""

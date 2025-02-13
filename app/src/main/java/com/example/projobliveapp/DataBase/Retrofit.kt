@@ -30,11 +30,11 @@ data class EducationDetails(
     val degree: String,
     val fieldOfStudy: String,
     val universityName: String,
-    val yearOfPassing: Int,
+    val yearOfPassing: String,
     val percentageOrCGPA: String,
     val certificationName: String?,
     val issuingAuthority: String?,
-    val yearOfCompletion: Int?
+    val yearOfCompletion: String?
 )
 
 data class ExperienceDetails(
@@ -133,16 +133,23 @@ data class ApiResponse(val success: Boolean, val id: String?)
 interface ApiService {
     @POST("Candidatepersonaldata")
     suspend fun Candidatepersonaldata(@Body personalData: PersonalData): Response<ApiResponse>
-
     @GET("getCandidatepersonaldata/{userId}")
     suspend fun getCandidatepersonaldata(@Path("userId") userId: String): PersonalData
 
     @POST("Candidateeducationladata")
     suspend fun Candidateeducationladata(@Body jobData: EducationDetails): Response<ApiResponse>
+    @GET("getCandidateeducationladata/{userId}")
+    suspend fun getCandidateeducationladata(@Path("userId") userId: String): EducationDetails
+
     @POST("Candidateexperienceladata")
     suspend fun Candidateexperienceladata(@Body jobData: ExperienceDetails): Response<ApiResponse>
+    @GET("getCandidateexperienceladata/{userId}")
+    suspend fun getCandidateexperienceladata(@Path("userId") userId: String): ExperienceDetails
+
     @POST("Candidatecontactladata")
     suspend fun Candidatecontactladata(@Body jobData: ContactInfo): Response<ApiResponse>
+    @GET("getCandidatecontactladata/{userId}")
+    suspend fun getCandidatecontactladata(@Path("userId") userId: String): ContactInfo
 
 
     @GET("getAllData")

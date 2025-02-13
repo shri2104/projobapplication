@@ -26,6 +26,7 @@ import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.example.projobliveapp.DataBase.ApiService
 import com.example.projobliveapp.DataBase.JobApplication
+import com.example.projobliveapp.DataBase.PersonalData
 import com.example.projobliveapp.R
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -35,19 +36,31 @@ fun ProfilePage(
     userEmail: String?,
     apiService: ApiService
 ) {
-    var jobData by remember { mutableStateOf<JobApplication?>(null) }
+    var personalData by remember { mutableStateOf<PersonalData?>(null) }
     var isLoading by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
     val context = LocalContext.current
     val screenBackgroundColor = MaterialTheme.colorScheme.background // Set screen background to surface variant color
 
     LaunchedEffect(userEmail) {
         if (!userEmail.isNullOrEmpty()) {
             isLoading = true
+            errorMessage = null
             try {
-                jobData = apiService.getProfileDataByEmail(userEmail)
+                // Step 1: Fetch userId
+                val userIdResponse = apiService.getuserid(userEmail)
+                val userId = userIdResponse.userId
+
+                if (!userId.isNullOrBlank()) {
+                    // Step 2: Fetch personal data using userId
+                    personalData = apiService.getCandidatepersonaldata(userId)
+                } else {
+                    errorMessage = "User ID not found"
+                }
             } catch (e: Exception) {
-                Log.e("API Error", "Error fetching job application: ${e.message}", e)
-                Toast.makeText(context, "Error fetching job application: ${e.message}", Toast.LENGTH_SHORT).show()
+                Log.e("API Error", "Error fetching personal data: ${e.message}", e)
+                errorMessage = "Error fetching personal data: ${e.message}"
+                Toast.makeText(context, "Error fetching personal data: ${e.message}", Toast.LENGTH_SHORT).show()
             } finally {
                 isLoading = false
             }
@@ -72,7 +85,49 @@ fun ProfilePage(
                 },
                 actions = { ProfileDropdownMenu() }
             )
-        }
+        },
+                bottomBar = {
+            BottomAppBar(
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                IconButton(
+                    onClick = { navController.navigate("homeScreen/$userEmail")},
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(Icons.Default.Home, contentDescription = "Home",)
+                        Text(text = "Home", style = MaterialTheme.typography.titleSmall)
+                    }
+                }
+                IconButton(
+                    onClick = { },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(Icons.Default.Groups, contentDescription = "Internships")
+                        Text(text = "Internships", style = MaterialTheme.typography.titleSmall)
+                    }
+                }
+                IconButton(
+                    onClick = { navController.navigate("AvailableJobs/$userEmail")},
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(Icons.Default.Work, contentDescription = "Jobs")
+                        Text(text = "Jobs", style = MaterialTheme.typography.titleSmall)
+                    }
+                }
+                IconButton(
+                    onClick = { },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(Icons.Default.Message, contentDescription = "Messages")
+                        Text(text = "Messages", style = MaterialTheme.typography.titleSmall)
+                    }
+                }
+            }
+        },
     ) { padding ->
         Column(
             modifier = Modifier
@@ -82,7 +137,6 @@ fun ProfilePage(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (isLoading) {
-
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
@@ -90,70 +144,80 @@ fun ProfilePage(
                     CircularProgressIndicator()
                 }
             } else {
-                jobData?.let { job ->
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(top = 16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = "Profile",
-                            style = MaterialTheme.typography.bodyMedium.copy(color = Color.Gray),
-                            textAlign = TextAlign.Center
-                        )
-                        Box(
-                            contentAlignment = Alignment.BottomEnd
-                        ) {
-                            ProfileImage(profileImageUrl = job.resume)
-                            IconButton(
-                                onClick = { },
-                                modifier = Modifier
-                                    .size(30.dp)
-                                    .clip(CircleShape)
-                                    .background(MaterialTheme.colorScheme.surface)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Edit,
-                                    contentDescription = "Edit Profile Image",
-                                    tint = MaterialTheme.colorScheme.primary
-                                )
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        Text(
-                            text = "${job.firstName} ${job.lastName}",
-                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                            textAlign = TextAlign.Center
-                        )
-
-
-                        Spacer(modifier = Modifier.height(16.dp))
-                        LazyColumn(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(horizontal = 16.dp),
-                            verticalArrangement = Arrangement.spacedBy(16.dp),
-                        ) {
-                            item {
-                                ProfileCard(job)
-                            }
-                        }
-                    }
-                } ?: run {
+                errorMessage?.let {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Text(
-                            text = "No job application data available.",
+                            text = it,
                             style = MaterialTheme.typography.bodyLarge
                         )
+                    }
+                } ?: run {
+                    personalData?.let { data ->
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(top = 16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "Profile",
+                                style = MaterialTheme.typography.bodyMedium.copy(color = Color.Gray),
+                                textAlign = TextAlign.Center
+                            )
+                            Box(
+                                contentAlignment = Alignment.BottomEnd
+                            ) {
+                                ProfileImage(profileImageUrl = data.Lastname) // Assuming 'resume' is the profile image URL
+                                IconButton(
+                                    onClick = { },
+                                    modifier = Modifier
+                                        .size(30.dp)
+                                        .clip(CircleShape)
+                                        .background(MaterialTheme.colorScheme.surface)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Edit,
+                                        contentDescription = "Edit Profile Image",
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            Text(
+                                text = "${data.Firstname} ${data.Lastname}",
+                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                textAlign = TextAlign.Center
+                            )
+
+                            Spacer(modifier = Modifier.height(16.dp))
+                            LazyColumn(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(horizontal = 16.dp),
+                                verticalArrangement = Arrangement.spacedBy(16.dp),
+                            ) {
+                                item {
+                                    ProfileCard(navController,userEmail) // Display additional profile data if necessary
+                                }
+                            }
+                        }
+                    } ?: run {
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            Text(
+                                text = "No personal data available.",
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                        }
                     }
                 }
             }
         }
     }
 }
+
+
 @Composable
 fun ProfileImage(profileImageUrl: String?) {
     if (!profileImageUrl.isNullOrEmpty()) {
@@ -177,7 +241,7 @@ fun ProfileImage(profileImageUrl: String?) {
 }
 
 @Composable
-fun ProfileCard(job: JobApplication) {
+fun ProfileCard(navController: NavController,userEmail: String?) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -189,62 +253,30 @@ fun ProfileCard(job: JobApplication) {
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            ProfileDetailWithElevation(
-                value = job.firstName.takeIf { it.isNotBlank() } ?: "First Name",
-                icon = Icons.Default.Person,
-                onEditClick = { }
+            ProfileDetailw(
+                value = "Personal Information",
+                onEditClick = {navController.navigate("candidatepersonalinfo/$userEmail")}
             )
-            ProfileDetailWithElevation(
-                value = job.lastName.takeIf { it.isNotBlank() } ?: "Last Name",
-                icon = Icons.Default.Person,
-                onEditClick = { }
+            ProfileDetailw(
+                value = "Educational Information",
+                onEditClick = {navController.navigate("candidateeducationinfo/$userEmail") }
             )
-            ProfileDetailWithElevation(
-                value = job.email.takeIf { it.isNotBlank() } ?: "Email",
-                icon = Icons.Default.Email,
-                onEditClick = { }
+            ProfileDetailw(
+                value = "Experience Information",
+                onEditClick = { navController.navigate("candidateexperienceinfo/$userEmail")}
             )
-            ProfileDetailWithElevation(
-                value = job.phoneNumber.takeIf { it.isNotBlank() } ?: "Phone Number",
-                icon = Icons.Default.Phone,
-                onEditClick = { }
+            ProfileDetailw(
+                value = "Contact Information",
+                onEditClick = {navController.navigate("candidatecontactinfo/$userEmail") }
             )
-            ProfileDetailWithElevation(
-                value = job.location.takeIf { it.isNotBlank() } ?: "Location",
-                icon = Icons.Default.Place,
-                onEditClick = { }
-            )
-            ProfileDetailWithElevation(
-                value = job.skills.takeIf { it.isNotBlank() } ?: "Skills",
-                icon = Icons.Default.Build,
-                onEditClick = { }
-            )
-            ProfileDetailWithElevation(
-                value = job.about.takeIf { it?.isNotBlank() == true } ?: "About",
-                icon = Icons.Default.Info,
-                onEditClick = { }
-            )
-            ProfileDetailWithElevation(
-                value = job.workExperience.takeIf { it?.isNotBlank() == true } ?: "Work Experience",
-                icon = Icons.Default.Work,
-                onEditClick = { }
-            )
-            ProfileDetailWithElevation(
-                value = job.jobCity.takeIf { it?.isNotBlank() == true } ?: "Preferred Job City",
-                icon = Icons.Default.LocationCity,
-                onEditClick = { }
-            )
-            ProfileDetailWithElevation(
-                value = job.roleLooking.takeIf { it?.isNotBlank() == true } ?: "Role Looking For",
-                icon = Icons.Default.Search,
-                onEditClick = { }
-            )
+
         }
     }
 }
 
+
 @Composable
-fun ProfileDetailWithElevation(value: String, icon: ImageVector, onEditClick: () -> Unit) {
+fun ProfileDetailw(value: String, onEditClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -259,13 +291,6 @@ fun ProfileDetailWithElevation(value: String, icon: ImageVector, onEditClick: ()
                 .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(24.dp)
-            )
-            Spacer(modifier = Modifier.width(16.dp))
             Text(
                 text = value,
                 style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurface),
@@ -273,14 +298,15 @@ fun ProfileDetailWithElevation(value: String, icon: ImageVector, onEditClick: ()
             )
             IconButton(onClick = onEditClick) {
                 Icon(
-                    imageVector = Icons.Default.Create,
-                    contentDescription = "Edit",
+                    imageVector = Icons.Default.ArrowForward,
+                    contentDescription = "Forward",
                     tint = MaterialTheme.colorScheme.primary
                 )
             }
         }
     }
 }
+
 @Composable
 fun ProfileDropdownMenu() {
     var expanded by remember { mutableStateOf(false) }

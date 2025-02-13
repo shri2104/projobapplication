@@ -128,7 +128,7 @@ fun JobList(apiService: ApiService, navController: NavHostController, userEmail:
             navController = navController,
             userEmail = userEmail,
             apiService = apiService,
-            modifier = Modifier.padding(paddingValues) // Ensure the padding is applied
+            modifier = Modifier.padding(paddingValues)
         )
     }
 }
