@@ -592,15 +592,10 @@ fun EducationDetailsScreen(
     userId: String, apiService: ApiService, onNext: () -> Unit
 ) {
     val context = LocalContext.current
-    var degree by remember { mutableStateOf("") }
-    var fieldOfStudy by remember { mutableStateOf("") }
-    var university by remember { mutableStateOf("") }
-    var yearOfPassing by remember { mutableStateOf("") }  // String input
-    var percentageCgpa by remember { mutableStateOf("") }
-    var certificationName by remember { mutableStateOf("") }
-    var issuingAuthority by remember { mutableStateOf("") }
-    var yearOfCompletion by remember { mutableStateOf("") }  // String input
     val coroutineScope = rememberCoroutineScope()
+
+    var educationRecords by remember { mutableStateOf(listOf<EducationRecord>()) }
+    val educationLevels = listOf("Uneducated", "10th Pass", "12th Pass", "Diploma", "Degree", "Master’s")
 
     Scaffold(
         topBar = {
@@ -616,7 +611,7 @@ fun EducationDetailsScreen(
                     }
                 },
                 navigationIcon = {
-                    IconButton(onClick = { }) {
+                    IconButton(onClick = { /* Handle Back Navigation */ }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back Button")
                     }
                 },
@@ -646,90 +641,207 @@ fun EducationDetailsScreen(
                             .padding(bottom = 16.dp)
                     )
 
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Divider(
-                            modifier = Modifier
-                                .fillMaxWidth(0.8f)
-                                .align(Alignment.Center),
-                            color = Color.Gray,
-                            thickness = 2.dp
-                        )
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceEvenly
-                        ) {
-                            stepIndicator(false)
-                            stepIndicator(true)
-                            stepIndicator(false)
-                            stepIndicator(false)
-                        }
-                    }
-                }
-            }
+                    // Dynamic Education Record Inputs
+                    educationRecords.forEachIndexed { index, educationRecord ->
+                        EducationInputSection(
+                            educationRecord = educationRecord,
+                            educationLevels = educationLevels,
+                            onEducationLevelChange = { level ->
+                                educationRecords = educationRecords.toMutableList().apply {
+                                    this[index] = this[index].copy(level = level)
 
-            item { InputField(label = "Degree*", value = degree, onValueChange = { degree = it }, placeholder = "e.g. Bachelor of Technology") }
-            item { InputField(label = "Field of Study*", value = fieldOfStudy, onValueChange = { fieldOfStudy = it }, placeholder = "e.g. Computer Science") }
-            item { InputField(label = "University/Institution Name*", value = university, onValueChange = { university = it }, placeholder = "e.g. MIT") }
-            item { InputField(label = "Year of Passing*", value = yearOfPassing, onValueChange = { yearOfPassing = it }, placeholder = "e.g. 2025") }
-            item { InputField(label = "Percentage/CGPA*", value = percentageCgpa, onValueChange = { percentageCgpa = it }, placeholder = "e.g. 8.5 CGPA or 85%") }
-
-            item {
-                Text(
-                    text = "Certifications (Optional)",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black,
-                    modifier = Modifier.padding(top = 16.dp, bottom = 4.dp)
-                )
-            }
-            item { InputField(label = "Certification Name", value = certificationName, onValueChange = { certificationName = it }, placeholder = "e.g. AWS Certified Developer") }
-            item { InputField(label = "Issuing Authority", value = issuingAuthority, onValueChange = { issuingAuthority = it }, placeholder = "e.g. Amazon Web Services") }
-            item { InputField(label = "Year of Completion", value = yearOfCompletion, onValueChange = { yearOfCompletion = it }, placeholder = "e.g. 2023") }
-
-            item {
-                Button(
-                    onClick = {
-                        if (yearOfPassing.isNotEmpty() && yearOfCompletion.isNotEmpty()) {
-                            val Educationdata = EducationDetails(
-                                userId = userId,
-                                degree = degree,
-                                fieldOfStudy = fieldOfStudy,
-                                universityName = university,
-                                yearOfPassing = yearOfPassing,
-                                percentageOrCGPA = percentageCgpa,
-                                certificationName = certificationName,
-                                issuingAuthority = issuingAuthority,
-                                yearOfCompletion = yearOfCompletion
-                            )
-                            coroutineScope.launch(Dispatchers.IO) {
-                                try {
-                                    apiService.Candidateeducationladata(Educationdata)
-                                } catch (e: Exception) {
-                                    // Handle error
+                                    // Clear details if "Uneducated" is selected
+                                    if (level == "Uneducated") {
+                                        this[index] = this[index].copy(
+                                            degree = "",
+                                            fieldOfStudy = "",
+                                            university = "",
+                                            yearOfPassing = "",
+                                            percentageOrCGPA = ""
+                                        )
+                                    }
+                                }
+                            },
+                            onDegreeChange = { degree ->
+                                educationRecords = educationRecords.toMutableList().apply {
+                                    this[index] = this[index].copy(degree = degree)
+                                }
+                            },
+                            onFieldOfStudyChange = { fieldOfStudy ->
+                                educationRecords = educationRecords.toMutableList().apply {
+                                    this[index] = this[index].copy(fieldOfStudy = fieldOfStudy)
+                                }
+                            },
+                            onUniversityChange = { university ->
+                                educationRecords = educationRecords.toMutableList().apply {
+                                    this[index] = this[index].copy(university = university)
+                                }
+                            },
+                            onYearOfPassingChange = { year ->
+                                educationRecords = educationRecords.toMutableList().apply {
+                                    this[index] = this[index].copy(yearOfPassing = year)
+                                }
+                            },
+                            onPercentageOrCGPAChange = { cgpa ->
+                                educationRecords = educationRecords.toMutableList().apply {
+                                    this[index] = this[index].copy(percentageOrCGPA = cgpa)
                                 }
                             }
-                            onNext()
-                        } else {
-                            Toast.makeText(context, "Please enter valid years.", Toast.LENGTH_SHORT).show()
-                        }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    colors = ButtonDefaults.buttonColors(Color.Blue)
-                ) {
-                    Text(text = "Next", color = Color.White)
+                        )
+                    }
+
+                    // Button to Add More Education
+                    Button(
+                        onClick = {
+                            val newRecord = EducationRecord("", "", "", "", "", "")
+                            educationRecords = educationRecords + newRecord
+                        },
+                        modifier = Modifier.padding(top = 16.dp)
+                    ) {
+                        Text(text = "Add More Education")
+                    }
+
+                    // Submit Button
+                    Button(
+                        onClick = {
+                            // Validate and Submit the education details
+                            val isValid = educationRecords.all {
+                                it.level == "Uneducated" || (it.degree.isNotEmpty() &&
+                                        it.fieldOfStudy.isNotEmpty() &&
+                                        it.university.isNotEmpty() &&
+                                        it.yearOfPassing.isNotEmpty() &&
+                                        it.percentageOrCGPA.isNotEmpty())
+                            }
+
+                            if (isValid) {
+                                coroutineScope.launch(Dispatchers.IO) {
+                                    try {
+                                        educationRecords.forEach { record ->
+                                            if (record.level != "Uneducated") {
+                                                apiService.Candidateeducationladata(
+                                                    EducationDetails(
+                                                        userId = userId,
+                                                        degree = record.degree,
+                                                        fieldOfStudy = record.fieldOfStudy,
+                                                        universityName = record.university,
+                                                        yearOfPassing = record.yearOfPassing,
+                                                        percentageOrCGPA = record.percentageOrCGPA,
+                                                        certificationName = "",
+                                                        issuingAuthority = "",
+                                                        yearOfCompletion = ""
+                                                    )
+                                                )
+                                            }
+                                        }
+                                    } catch (e: Exception) {
+                                    }
+                                }
+                                onNext()
+                            } else {
+                                Toast.makeText(context, "Please fill all required fields.", Toast.LENGTH_SHORT).show()
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        colors = ButtonDefaults.buttonColors(Color.Blue)
+                    ) {
+                        Text(text = "Next", color = Color.White)
+                    }
                 }
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun EducationInputSection(
+    educationRecord: EducationRecord,
+    educationLevels: List<String>,
+    onEducationLevelChange: (String) -> Unit,
+    onDegreeChange: (String) -> Unit,
+    onFieldOfStudyChange: (String) -> Unit,
+    onUniversityChange: (String) -> Unit,
+    onYearOfPassingChange: (String) -> Unit,
+    onPercentageOrCGPAChange: (String) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+    var selectedEducationLevel by remember { mutableStateOf(educationRecord.level) }
+
+    Column(modifier = Modifier.padding(vertical = 8.dp)) {
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = { expanded = !expanded }
+        ) {
+            Card(
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                shape = RoundedCornerShape(8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                TextField(
+                    value = selectedEducationLevel,
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Education Level*") },
+                    modifier = Modifier
+                        .menuAnchor()
+                        .fillMaxWidth(),
+                    trailingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.ArrowDropDown,
+                            contentDescription = "Dropdown Arrow",
+                            modifier = Modifier.clickable { expanded = !expanded }
+                        )
+                    },
+                    colors = TextFieldDefaults.colors(
+                        unfocusedIndicatorColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        cursorColor = Color.Blue,
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White
+                    )
+                )
+            }
+
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                educationLevels.forEach { level ->
+                    DropdownMenuItem(
+                        text = { Text(level) },
+                        onClick = {
+                            selectedEducationLevel = level
+                            onEducationLevelChange(level)
+                            expanded = false
+                        }
+                    )
+                }
+            }
+        }
+
+        if (selectedEducationLevel != "Uneducated") {
+            InputField("Degree Name*", educationRecord.degree, onDegreeChange, "e.g. B.Sc., B.A., B.Tech.")
+            InputField("Field of Study*", educationRecord.fieldOfStudy, onFieldOfStudyChange, "e.g. Computer Science")
+            InputField("Institute/University Name*", educationRecord.university, onUniversityChange, "e.g. MIT")
+            InputField("Year of Passing*", educationRecord.yearOfPassing, onYearOfPassingChange, "e.g. 2025")
+            InputField("Percentage/CGPA*", educationRecord.percentageOrCGPA, onPercentageOrCGPAChange, "e.g. 85% or 9.2 CGPA")
+        }
+    }
+}
+
+
+
+
+data class EducationRecord(
+    val level: String,
+    val degree: String,
+    val fieldOfStudy: String,  // Add this if missing
+    val university: String,
+    val yearOfPassing: String,
+    val percentageOrCGPA: String  // Add this if missing
+)
 
 
 @Composable
@@ -905,8 +1017,7 @@ fun ExperienceDetailsScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ContactDetailsScreen(userId: String, apiService: ApiService, onNext: () -> Unit)
- {
+fun ContactDetailsScreen(userId: String, apiService: ApiService, onNext: () -> Unit) {
     var email by remember { mutableStateOf("") }
     var phoneNumber by remember { mutableStateOf("") }
     var alternatePhoneNumber by remember { mutableStateOf("") }
@@ -914,6 +1025,14 @@ fun ContactDetailsScreen(userId: String, apiService: ApiService, onNext: () -> U
     var permanentAddress by remember { mutableStateOf("") }
     var linkedInProfile by remember { mutableStateOf("") }
     var portfolioWebsite by remember { mutableStateOf("") }
+
+    // New address details fields
+    var detailedAddress by remember { mutableStateOf("") }
+    var roadName by remember { mutableStateOf("") }
+    var areaName by remember { mutableStateOf("") }
+    var city by remember { mutableStateOf("") }
+    var state by remember { mutableStateOf("") }
+    var pincode by remember { mutableStateOf("") }
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -987,11 +1106,20 @@ fun ContactDetailsScreen(userId: String, apiService: ApiService, onNext: () -> U
                 }
             }
 
+            // Contact details fields
             item { InputField(label = "Email Address*", value = email, onValueChange = { email = it }, placeholder = "e.g. john.doe@example.com") }
             item { InputField(label = "Phone Number*", value = phoneNumber, onValueChange = { phoneNumber = it }, placeholder = "e.g. +91-9876543210") }
             item { InputField(label = "Alternate Phone Number (Optional)", value = alternatePhoneNumber, onValueChange = { alternatePhoneNumber = it }, placeholder = "e.g. +91-9123456789") }
-            item { InputField(label = "Current Address*", value = currentAddress, onValueChange = { currentAddress = it }, placeholder = "e.g. Flat No. 101, XYZ Apartment, New Delhi") }
-            item { InputField(label = "Permanent Address (Optional)", value = permanentAddress, onValueChange = { permanentAddress = it }, placeholder = "e.g. Hometown address") }
+
+            // Address details fields
+            item { InputField(label = "Detailed Address*", value = detailedAddress, onValueChange = { detailedAddress = it }, placeholder = "e.g. Flat No. 101, XYZ Apartment") }
+            item { InputField(label = "Road Name*", value = roadName, onValueChange = { roadName = it }, placeholder = "e.g. MG Road") }
+            item { InputField(label = "Area Name*", value = areaName, onValueChange = { areaName = it }, placeholder = "e.g. Koramangala") }
+            item { InputField(label = "City*", value = city, onValueChange = { city = it }, placeholder = "e.g. Bangalore") }
+            item { DropdownField(label = "State*", value = state, onValueChange = { state = it }, options = listOf("Karnataka", "Maharashtra", "Delhi", "Tamil Nadu", "Others")) }
+            item { InputField(label = "Pincode*", value = pincode, onValueChange = { pincode = it }, placeholder = "e.g. 560001") }
+
+            // Optional links
             item { InputField(label = "LinkedIn Profile (Optional)", value = linkedInProfile, onValueChange = { linkedInProfile = it }, placeholder = "e.g. linkedin.com/in/johndoe") }
             item { InputField(label = "Portfolio/Website (Optional)", value = portfolioWebsite, onValueChange = { portfolioWebsite = it }, placeholder = "e.g. johndoeportfolio.com") }
 
@@ -1006,13 +1134,19 @@ fun ContactDetailsScreen(userId: String, apiService: ApiService, onNext: () -> U
                             currentAddress = currentAddress,
                             permanentAddress = permanentAddress,
                             linkedInProfile = linkedInProfile,
-                            portfolioWebsite = portfolioWebsite
+                            portfolioWebsite = portfolioWebsite,
+                            detailedAddress = detailedAddress,
+                            roadName = roadName,
+                            areaName = areaName,
+                            city = city,
+                            state = state,
+                            pincode = pincode
                         )
                         coroutineScope.launch(Dispatchers.IO) {
                             try {
                                 apiService.Candidatecontactladata(contactInfo)
                             } catch (e: Exception) {
-
+                                e.printStackTrace()
                             }
                         }
                         onNext()
@@ -1024,7 +1158,65 @@ fun ContactDetailsScreen(userId: String, apiService: ApiService, onNext: () -> U
                 ) {
                     Text(text = "Next", color = Color.White)
                 }
+            }
+        }
+    }
+}
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DropdownField(
+    label: String,
+    value: String,
+    onValueChange: (String) -> Unit,
+    options: List<String>
+) {
+    var expanded by remember { mutableStateOf(false) }
 
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded }
+    ) {
+        Card(
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+            shape = RoundedCornerShape(8.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            TextField(
+                value = value,
+                onValueChange = {},
+                readOnly = true,
+                modifier = Modifier
+                    .menuAnchor()
+                    .fillMaxWidth(),
+                trailingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.ArrowDropDown,
+                        contentDescription = "Dropdown Arrow",
+                        modifier = Modifier.clickable { expanded = !expanded }
+                    )
+                },
+                colors = TextFieldDefaults.colors(
+                    unfocusedIndicatorColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                    cursorColor = Color.Blue,
+                    focusedContainerColor = Color.White,
+                    unfocusedContainerColor = Color.White
+                )
+            )
+        }
+
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            options.forEach { option ->
+                DropdownMenuItem(
+                    text = { Text(option) },
+                    onClick = {
+                        onValueChange(option)
+                        expanded = false
+                    }
+                )
             }
         }
     }

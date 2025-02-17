@@ -57,8 +57,15 @@ data class ContactInfo(
     var currentAddress: String = "",
     var permanentAddress: String = "",
     var linkedInProfile: String = "",
-    var portfolioWebsite: String = ""
+    var portfolioWebsite: String = "",
+    var detailedAddress: String = "",
+    var roadName: String = "",
+    var areaName: String = "",
+    var city: String = "",
+    var state: String = "",
+    var pincode: String = ""
 )
+
 
 
 

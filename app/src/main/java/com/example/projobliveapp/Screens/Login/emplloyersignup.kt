@@ -48,7 +48,6 @@ fun EmployerDetailsScreen(
             }
             Spacer(modifier = Modifier.height(30.dp))
             if (showUserForm) {
-                // Log in Button
                 Button(
                     onClick = {
                         if (userType == "Employer") {
@@ -79,7 +78,7 @@ fun EmployerDetailsForm(
     var companyWebsite by remember { mutableStateOf(TextFieldValue()) }
     var industryType by remember { mutableStateOf("") }
     var companySize by remember { mutableStateOf("") }
-    var companyLogo by remember { mutableStateOf("") }  // URL or path for logo
+    var companyLogo by remember { mutableStateOf("") }
     var yearOfEstablishment by remember { mutableStateOf(TextFieldValue()) }
     var socialMediaLinks by remember { mutableStateOf(TextFieldValue()) }
     var contactNumber by remember { mutableStateOf(TextFieldValue()) }
@@ -92,9 +91,9 @@ fun EmployerDetailsForm(
             TopAppBar(
                 title = {
                     Image(
-                        painter = painterResource(id = R.drawable.projob_logo1_12fc55031a756ac453bf), // Replace with your logo resource
+                        painter = painterResource(id = R.drawable.projob_logo1_12fc55031a756ac453bf),
                         contentDescription = "App Logo",
-                        modifier = Modifier.size(90.dp) // Adjust the size of the logo as needed
+                        modifier = Modifier.size(90.dp)
                     )
                 },
                 navigationIcon = {
@@ -138,7 +137,6 @@ fun EmployerDetailsForm(
                     )
                 }
             }
-
             item {
                 Card(
                     elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
@@ -162,7 +160,6 @@ fun EmployerDetailsForm(
                     )
                 }
             }
-
             item {
                 Card(
                     elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
@@ -212,7 +209,6 @@ fun EmployerDetailsForm(
             }
 
             item {
-                // Industry Type Field
                 Card(
                     elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                     shape = RoundedCornerShape(8.dp),
@@ -237,7 +233,6 @@ fun EmployerDetailsForm(
             }
 
             item {
-                // Company Size Field
                 Card(
                     elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                     shape = RoundedCornerShape(8.dp),
@@ -260,9 +255,7 @@ fun EmployerDetailsForm(
                     )
                 }
             }
-
             item {
-                // Year of Establishment Field
                 Card(
                     elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                     shape = RoundedCornerShape(8.dp),
@@ -287,7 +280,6 @@ fun EmployerDetailsForm(
             }
 
             item {
-                // Social Media Links Field
                 Card(
                     elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                     shape = RoundedCornerShape(8.dp),
@@ -312,7 +304,6 @@ fun EmployerDetailsForm(
             }
 
             item {
-                // Contact Number Field
                 Card(
                     elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                     shape = RoundedCornerShape(8.dp),
@@ -337,7 +328,6 @@ fun EmployerDetailsForm(
             }
 
             item {
-                // Company Email Field
                 Card(
                     elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                     shape = RoundedCornerShape(8.dp),

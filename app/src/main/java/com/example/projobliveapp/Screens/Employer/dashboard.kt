@@ -68,6 +68,7 @@ fun JobPostingScreen(navController: NavController) {
                         Text(text = "Internships", style = MaterialTheme.typography.titleSmall)
                     }
                 }
+
                 IconButton(
                     onClick = { },
                     modifier = Modifier.weight(1f)
