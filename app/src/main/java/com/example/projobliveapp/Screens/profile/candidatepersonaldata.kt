@@ -415,7 +415,7 @@ fun ExperienceDetailsScreen(
                         onEditClick = { /* Handle Edit */ }
                     )
                     ProfileDetailWithElevation(
-                        value = experienceData?.experience ?: "No Experience",
+                        value = experienceData?.responsibilities ?: "No Experience",
                         icon = Icons.Default.CalendarToday,
                         onEditClick = { /* Handle Edit */ }
                     )

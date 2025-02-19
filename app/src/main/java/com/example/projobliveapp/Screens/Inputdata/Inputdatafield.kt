@@ -38,6 +38,7 @@ import com.example.projobliveapp.DataBase.PersonalData
 
 import com.example.projobliveapp.R
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Composable
 fun JobApplicationForm(
@@ -689,8 +690,6 @@ fun EducationDetailsScreen(
                             }
                         )
                     }
-
-                    // Button to Add More Education
                     Button(
                         onClick = {
                             val newRecord = EducationRecord("", "", "", "", "", "")
@@ -701,10 +700,8 @@ fun EducationDetailsScreen(
                         Text(text = "Add More Education")
                     }
 
-                    // Submit Button
                     Button(
                         onClick = {
-                            // Validate and Submit the education details
                             val isValid = educationRecords.all {
                                 it.level == "Uneducated" || (it.degree.isNotEmpty() &&
                                         it.fieldOfStudy.isNotEmpty() &&
@@ -831,18 +828,14 @@ fun EducationInputSection(
     }
 }
 
-
-
-
 data class EducationRecord(
     val level: String,
     val degree: String,
-    val fieldOfStudy: String,  // Add this if missing
+    val fieldOfStudy: String,
     val university: String,
     val yearOfPassing: String,
-    val percentageOrCGPA: String  // Add this if missing
+    val percentageOrCGPA: String  
 )
-
 
 @Composable
 fun InputField(label: String, value: String, onValueChange: (String) -> Unit, placeholder: String) {
@@ -878,17 +871,15 @@ fun InputField(label: String, value: String, onValueChange: (String) -> Unit, pl
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExperienceDetailsScreen(
-    userId: String, apiService: ApiService, onNext: () -> Unit
+    userId: String,
+    apiService: ApiService,
+    onNext: () -> Unit
 ) {
-    var jobTitle by remember { mutableStateOf("") }
-    var companyName by remember { mutableStateOf("") }
-    var startDate by remember { mutableStateOf("") }
-    var endDate by remember { mutableStateOf("") }
-    var jobLocation by remember { mutableStateOf("") }
-    var responsibilities by remember { mutableStateOf("") }
-    var achievements by remember { mutableStateOf("") }
-
+    val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+
+    var experienceRecords by remember { mutableStateOf(listOf(ExperienceRecord("", "", "", "", ""))) }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -903,12 +894,12 @@ fun ExperienceDetailsScreen(
                     }
                 },
                 navigationIcon = {
-                    IconButton(onClick = { }) {
+                    IconButton(onClick = { /* Handle Back Navigation */ }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back Button")
                     }
-                },
+                }
             )
-        },
+        }
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
@@ -956,64 +947,176 @@ fun ExperienceDetailsScreen(
                             stepIndicator(false)
                         }
                     }
-                }
-            }
 
-            item { InputField(label = "Job Title*", value = jobTitle, onValueChange = { jobTitle = it }, placeholder = "e.g. Software Engineer") }
-            item { InputField(label = "Company Name*", value = companyName, onValueChange = { companyName = it }, placeholder = "e.g. Google") }
-            item { InputField(label = "Start Date (Year)*", value = startDate, onValueChange = { startDate = it }, placeholder = "e.g. 2022") }
-            item { InputField(label = "End Date (Year)*", value = endDate, onValueChange = { endDate = it }, placeholder = "e.g. 2024") }
-            item { InputField(label = "Job Location*", value = jobLocation, onValueChange = { jobLocation = it }, placeholder = "e.g. New York, USA") }
-            item { InputField(label = "Responsibilities*", value = responsibilities, onValueChange = { responsibilities = it }, placeholder = "e.g. Developed Android applications") }
-
-
-            item {
-                Text(
-                    text = "Achievements (Optional)",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black,
-                    modifier = Modifier.padding(top = 16.dp, bottom = 4.dp)
-                )
-            }
-            item { InputField(label = "Achievements", value = achievements, onValueChange = { achievements = it }, placeholder = "e.g. Won Hackathon 2025") }
-
-
-            item {
-                Button(
-                    onClick = {
-                        val experiencedata = ExperienceDetails(
-                            userId = userId,
-                            jobTitle = jobTitle,
-                            companyName = companyName,
-                            experience = "$startDate - $endDate",
-                            startDate = startDate,
-                            endDate = endDate,
-                            jobLocation = jobLocation,
-                            responsibilities = responsibilities,
-                            achievements = achievements.ifEmpty { "N/A" }
+                    experienceRecords.forEachIndexed { index, experienceRecord ->
+                        ExperienceInputSection(
+                            experienceRecord = experienceRecord,
+                            onJobTitleChange = { jobTitle ->
+                                experienceRecords = experienceRecords.toMutableList().apply {
+                                    this[index] = this[index].copy(jobTitle = jobTitle)
+                                }
+                            },
+                            onCompanyNameChange = { companyName ->
+                                experienceRecords = experienceRecords.toMutableList().apply {
+                                    this[index] = this[index].copy(companyName = companyName)
+                                }
+                            },
+                            onStartDateChange = { startDate ->
+                                experienceRecords = experienceRecords.toMutableList().apply {
+                                    this[index] = this[index].copy(startDate = startDate)
+                                }
+                            },
+                            onEndDateChange = { endDate ->
+                                experienceRecords = experienceRecords.toMutableList().apply {
+                                    this[index] = this[index].copy(endDate = endDate)
+                                }
+                            },
+                            onResponsibilitiesChange = { responsibilities ->
+                                experienceRecords = experienceRecords.toMutableList().apply {
+                                    this[index] = this[index].copy(responsibilities = responsibilities)
+                                }
+                            },
+                            onPresentChecked = { isChecked ->
+                                experienceRecords = experienceRecords.toMutableList().apply {
+                                    this[index] = this[index].copy(endDate = if (isChecked) "Present" else "")
+                                }
+                            }
                         )
-                        coroutineScope.launch(Dispatchers.IO) {
-                            try {
-                                apiService.Candidateexperienceladata(experiencedata)
-                            }
-                            catch (e: Exception) {
-                            }
-                        }
-                        onNext()
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    colors = ButtonDefaults.buttonColors(Color.Blue)
-                ) {
-                    Text(text = "Next", color = Color.White)
-                }
+                    }
 
+                    if (experienceRecords.isNotEmpty()) {
+                        Button(
+                            onClick = {
+                                val newRecord = ExperienceRecord("", "", "", "", "")
+                                experienceRecords = experienceRecords + newRecord
+                            },
+                            modifier = Modifier.padding(top = 16.dp)
+                        ) {
+                            Text(text = "Add More Experience")
+                        }
+                    }
+
+                    Button(
+                        onClick = {
+                            val isValid = experienceRecords.all {
+                                it.jobTitle.isNotEmpty() &&
+                                        it.companyName.isNotEmpty() &&
+                                        it.startDate.isNotEmpty() &&
+                                        (it.endDate.isNotEmpty() || it.endDate == "Present")
+                            }
+
+                            if (isValid) {
+                                coroutineScope.launch(Dispatchers.IO) {
+                                    try {
+                                        experienceRecords.forEach { record ->
+                                            apiService.Candidateexperienceladata(
+                                                ExperienceDetails(
+                                                    userId = userId,
+                                                    jobTitle = record.jobTitle,
+                                                    companyName = record.companyName,
+                                                    startDate = record.startDate,
+                                                    endDate = record.endDate,
+                                                    responsibilities = record.responsibilities
+                                                )
+                                            )
+                                        }
+                                    } catch (e: Exception) {
+                                        withContext(Dispatchers.Main) {
+                                            Toast.makeText(context, "Failed to save data.", Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+                                }
+                                onNext()
+                            } else {
+                                Toast.makeText(context, "Please fill all required fields.", Toast.LENGTH_SHORT).show()
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        colors = ButtonDefaults.buttonColors(Color.Blue)
+                    ) {
+                        Text(text = "Next", color = Color.White)
+                    }
+                }
             }
         }
     }
 }
+@Composable
+fun ExperienceInputSection(
+    experienceRecord: ExperienceRecord,
+    onJobTitleChange: (String) -> Unit,
+    onCompanyNameChange: (String) -> Unit,
+    onStartDateChange: (String) -> Unit,
+    onEndDateChange: (String) -> Unit,
+    onResponsibilitiesChange: (String) -> Unit,
+    onPresentChecked: (Boolean) -> Unit
+) {
+    var isPresentChecked by remember { mutableStateOf(experienceRecord.endDate == "Present") }
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        InputField(
+            label = "Job Title",
+            value = experienceRecord.jobTitle,
+            onValueChange = onJobTitleChange,
+            placeholder = "Enter job title"
+        )
+        InputField(
+            label = "Company Name",
+            value = experienceRecord.companyName,
+            onValueChange = onCompanyNameChange,
+            placeholder = "Enter company name"
+        )
+        InputField(
+            label = "Start Date",
+            value = experienceRecord.startDate,
+            onValueChange = onStartDateChange,
+            placeholder = "Enter start date"
+        )
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(vertical = 8.dp)
+        ) {
+            Checkbox(
+                checked = isPresentChecked,
+                onCheckedChange = { checked ->
+                    isPresentChecked = checked
+                    onPresentChecked(checked)
+                }
+            )
+            Text(text = "Currently Working Here")
+        }
+
+        if (!isPresentChecked) {
+            InputField(
+                label = "End Date",
+                value = experienceRecord.endDate,
+                onValueChange = onEndDateChange,
+                placeholder = "Enter end date"
+            )
+        }
+
+        InputField(
+            label = "Responsibilities",
+            value = experienceRecord.responsibilities,
+            onValueChange = onResponsibilitiesChange,
+            placeholder = "Enter responsibilities"
+        )
+    }
+}
+
+
+data class ExperienceRecord(
+    val jobTitle: String,
+    val companyName: String,
+    val startDate: String,
+    val endDate: String,
+    val responsibilities: String
+)
+
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -1026,7 +1129,6 @@ fun ContactDetailsScreen(userId: String, apiService: ApiService, onNext: () -> U
     var linkedInProfile by remember { mutableStateOf("") }
     var portfolioWebsite by remember { mutableStateOf("") }
 
-    // New address details fields
     var detailedAddress by remember { mutableStateOf("") }
     var roadName by remember { mutableStateOf("") }
     var areaName by remember { mutableStateOf("") }
@@ -1106,17 +1208,37 @@ fun ContactDetailsScreen(userId: String, apiService: ApiService, onNext: () -> U
                 }
             }
 
-            // Contact details fields
             item { InputField(label = "Email Address*", value = email, onValueChange = { email = it }, placeholder = "e.g. john.doe@example.com") }
             item { InputField(label = "Phone Number*", value = phoneNumber, onValueChange = { phoneNumber = it }, placeholder = "e.g. +91-9876543210") }
             item { InputField(label = "Alternate Phone Number (Optional)", value = alternatePhoneNumber, onValueChange = { alternatePhoneNumber = it }, placeholder = "e.g. +91-9123456789") }
-
-            // Address details fields
             item { InputField(label = "Detailed Address*", value = detailedAddress, onValueChange = { detailedAddress = it }, placeholder = "e.g. Flat No. 101, XYZ Apartment") }
             item { InputField(label = "Road Name*", value = roadName, onValueChange = { roadName = it }, placeholder = "e.g. MG Road") }
             item { InputField(label = "Area Name*", value = areaName, onValueChange = { areaName = it }, placeholder = "e.g. Koramangala") }
             item { InputField(label = "City*", value = city, onValueChange = { city = it }, placeholder = "e.g. Bangalore") }
-            item { DropdownField(label = "State*", value = state, onValueChange = { state = it }, options = listOf("Karnataka", "Maharashtra", "Delhi", "Tamil Nadu", "Others")) }
+
+            item {
+                Column(modifier = Modifier.padding(bottom = 16.dp)) {
+                    Text(
+                        text = "State*",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.Black,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    DropdownField(
+                        label = "State*",
+                        value = state,
+                        onValueChange = { state = it },
+                        options = listOf(
+                            "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand",
+                            "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan",
+                            "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal", "Andaman and Nicobar Islands",
+                            "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu", "Lakshadweep", "Delhi", "Puducherry"
+                        )
+                    )
+                }
+            }
+
             item { InputField(label = "Pincode*", value = pincode, onValueChange = { pincode = it }, placeholder = "e.g. 560001") }
 
             // Optional links
@@ -1162,6 +1284,7 @@ fun ContactDetailsScreen(userId: String, apiService: ApiService, onNext: () -> U
         }
     }
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DropdownField(

@@ -41,12 +41,9 @@ data class ExperienceDetails(
     val userId: String, // Added userId
     val jobTitle: String,
     val companyName: String,
-    val experience: String,
     val startDate: String,
     val endDate: String,
-    val jobLocation: String,
     val responsibilities: String,
-    val achievements: String
 )
 
 data class ContactInfo(
