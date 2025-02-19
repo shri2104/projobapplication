@@ -22,12 +22,14 @@ import kotlinx.coroutines.launch
 
 import android.widget.Toast
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavController
 import com.example.projobliveapp.DataBase.ApiService
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -37,6 +39,7 @@ import com.example.projobliveapp.DataBase.ExperienceDetails
 import com.example.projobliveapp.DataBase.PersonalData
 
 import com.example.projobliveapp.R
+import com.example.projobliveapp.Screens.Menu.HelpAndSupportPage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -595,7 +598,7 @@ fun EducationDetailsScreen(
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
-    var educationRecords by remember { mutableStateOf(listOf<EducationRecord>()) }
+    var educationRecords by remember { mutableStateOf(listOf(EducationRecord("", "", "", "", "", ""))) }
     val educationLevels = listOf("Uneducated", "10th Pass", "12th Pass", "Diploma", "Degree", "Master’s")
 
     Scaffold(
@@ -642,7 +645,30 @@ fun EducationDetailsScreen(
                             .padding(bottom = 16.dp)
                     )
 
-                    // Dynamic Education Record Inputs
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Divider(
+                            modifier = Modifier
+                                .fillMaxWidth(0.8f)
+                                .align(Alignment.Center),
+                            color = Color.Gray,
+                            thickness = 2.dp
+                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ) {
+                            stepIndicator(false)
+                            stepIndicator(true)
+                            stepIndicator(false)
+                            stepIndicator(false)
+                        }
+                    }
+
                     educationRecords.forEachIndexed { index, educationRecord ->
                         EducationInputSection(
                             educationRecord = educationRecord,
@@ -651,7 +677,6 @@ fun EducationDetailsScreen(
                                 educationRecords = educationRecords.toMutableList().apply {
                                     this[index] = this[index].copy(level = level)
 
-                                    // Clear details if "Uneducated" is selected
                                     if (level == "Uneducated") {
                                         this[index] = this[index].copy(
                                             degree = "",
@@ -690,6 +715,7 @@ fun EducationDetailsScreen(
                             }
                         )
                     }
+
                     Button(
                         onClick = {
                             val newRecord = EducationRecord("", "", "", "", "", "")
@@ -750,6 +776,7 @@ fun EducationDetailsScreen(
         }
     }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -1116,6 +1143,218 @@ data class ExperienceRecord(
     val responsibilities: String
 )
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun Jobprefrence(userId: String, onNext: () -> Unit) {
+
+    var jobLocations by remember { mutableStateOf(listOf<String>()) }
+    var selectedLocation by remember { mutableStateOf("") }
+    var selectedSkills by remember { mutableStateOf(listOf<String>()) }
+    var customSkill by remember { mutableStateOf("") }
+    var skillsList by remember { mutableStateOf(listOf<String>()) }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.projob_logo1_12fc55031a756ac453bf),
+                            contentDescription = "App Logo",
+                            modifier = Modifier.size(96.dp),
+                            contentScale = ContentScale.Fit
+                        )
+                    }
+                },
+                navigationIcon = {
+                    IconButton(onClick = { }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back Button")
+                    }
+                },
+            )
+        },
+    ) { innerPadding ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.White)
+                .padding(innerPadding)
+                .padding(16.dp)
+        ) {
+            item {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "Job Preference",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Blue,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp)
+                    )
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Divider(
+                            modifier = Modifier
+                                .fillMaxWidth(0.8f)
+                                .align(Alignment.Center),
+                            color = Color.Gray,
+                            thickness = 2.dp
+                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ) {
+                            stepIndicator(true)
+                            stepIndicator(false)
+                            stepIndicator(false)
+                            stepIndicator(false)
+                        }
+                    }
+                }
+            }
+
+            item {
+                Text(
+                    text = "Preferred Job Location",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+
+                InputField(
+                    label = "Job Location",
+                    value = selectedLocation,
+                    onValueChange = { selectedLocation = it },
+                    placeholder = "Select a city"
+                )
+
+                Button(
+                    onClick = {
+                        if (selectedLocation.isNotEmpty() && !jobLocations.contains(selectedLocation)) {
+                            jobLocations = jobLocations + selectedLocation
+                            selectedLocation = ""
+                        }
+                    },
+                    modifier = Modifier.padding(top = 8.dp)
+                ) {
+                    Text("Add More Locations")
+                }
+
+                jobLocations.forEach { location ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(top = 4.dp)
+                    ) {
+                        Text(text = location, fontSize = 14.sp)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        IconButton(onClick = { jobLocations = jobLocations - location }) {
+                            Icon(Icons.Default.Close, contentDescription = "Remove Location")
+                        }
+                    }
+                }
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "Skills Set",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+                SkillSelector(selectedSkills = selectedSkills, onSkillSelected = {
+                    if (!selectedSkills.contains(it)) {
+                        selectedSkills = selectedSkills + it
+                    }
+                })
+
+                Spacer(modifier = Modifier.height(8.dp))
+                TextField(
+                    value = customSkill,
+                    onValueChange = { customSkill = it },
+                    label = { Text("Enter custom skill") },
+                    placeholder = { Text("Create Preview") },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = TextFieldDefaults.colors(
+                        unfocusedIndicatorColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        cursorColor = Color.Blue,
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White
+                    )
+                )
+                Button(
+                    onClick = {
+                        if (customSkill.isNotEmpty() && !selectedSkills.contains(customSkill)) {
+                            selectedSkills = selectedSkills + customSkill
+                            customSkill = ""
+                        }
+                    },
+                    modifier = Modifier.padding(top = 8.dp)
+                ) {
+                    Text("Add Custom Skill")
+                }
+
+                selectedSkills.forEach { skill ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(top = 4.dp)
+                    ) {
+                        Text(text = skill, fontSize = 14.sp)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        IconButton(onClick = { selectedSkills = selectedSkills - skill }) {
+                            Icon(Icons.Default.Close, contentDescription = "Remove Skill")
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SkillSelector(selectedSkills: List<String>, onSkillSelected: (String) -> Unit) {
+    var expanded by remember { mutableStateOf(false) }
+    val skills = listOf("React.js", "Node.js", "Android Development", "Marketing", "UI/UX Design", "Data Science", "Machine Learning")
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded }
+    ) {
+        Button(onClick = { expanded = true }) {
+            Text("Select Skills")
+        }
+
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            skills.forEach { skill ->
+                DropdownMenuItem(
+                    text = { Text(skill) },
+                    onClick = {
+                        onSkillSelected(skill)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -1343,4 +1582,13 @@ fun DropdownField(
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun JobPagePreview() {
+    Jobprefrence(
+        userId = "test_user",
+        onNext = {}
+    )
 }
