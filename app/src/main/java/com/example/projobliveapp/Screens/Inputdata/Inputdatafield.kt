@@ -1334,9 +1334,26 @@ fun SkillSelector(selectedSkills: List<String>, onSkillSelected: (String) -> Uni
         expanded = expanded,
         onExpandedChange = { expanded = !expanded }
     ) {
-        Button(onClick = { expanded = true }) {
-            Text("Select Skills")
-        }
+        TextField(
+            value = "Select Skills",
+            onValueChange = {},
+            readOnly = true,
+            modifier = Modifier.menuAnchor().fillMaxWidth(),
+            trailingIcon = {
+                Icon(
+                    imageVector = Icons.Default.ArrowDropDown,
+                    contentDescription = "Dropdown Arrow",
+                    modifier = Modifier.clickable { expanded = !expanded }
+                )
+            },
+            colors = TextFieldDefaults.colors(
+                unfocusedIndicatorColor = Color.Transparent,
+                focusedIndicatorColor = Color.Transparent,
+                cursorColor = Color.Blue,
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White
+            )
+        )
 
         ExposedDropdownMenu(
             expanded = expanded,
@@ -1347,13 +1364,13 @@ fun SkillSelector(selectedSkills: List<String>, onSkillSelected: (String) -> Uni
                     text = { Text(skill) },
                     onClick = {
                         onSkillSelected(skill)
-                        expanded = false
                     }
                 )
             }
         }
     }
 }
+
 
 
 
