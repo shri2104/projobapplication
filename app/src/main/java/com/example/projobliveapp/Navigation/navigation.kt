@@ -24,6 +24,7 @@ import com.bawp.freader.screens.login.UserForm
 import com.example.projobliveapp.DataBase.ApiService
 import com.example.projobliveapp.DataBase.Job
 import com.example.projobliveapp.DataBase.JobPost
+import com.example.projobliveapp.Screens.Employer.CompanyProfileScreen
 import com.example.projobliveapp.Screens.Employer.JobDetailsScreen
 import com.example.projobliveapp.Screens.Employer.JobPostedScreen
 import com.example.projobliveapp.Screens.Employer.JobpostScreen
@@ -60,7 +61,7 @@ fun Navigation(apiService: ApiService){
 
     NavHost(navController=navController,startDestination = Screen.SplashScreen.name){
         composable(Screen.SplashScreen.name){
-            SplashScreen(navController=navController)
+            SplashScreen(navController=navController,apiService)
         }
         composable("jobpost") {
             JobpostScreen(
@@ -69,7 +70,7 @@ fun Navigation(apiService: ApiService){
             )
         }
         composable(Screen.LoginScreen.name){
-            LoginScreen(navController=navController)
+            LoginScreen(navController=navController,apiService)
         }
         composable("${Screen.EmployerSignUP.name}/{userType}") { backStackEntry ->
             val userType = backStackEntry.arguments?.getString("userType") ?: "Candidate"
@@ -106,6 +107,9 @@ fun Navigation(apiService: ApiService){
         }
         composable(Screen.ContactUsScreen.name){
             ContactUsPage(navController=navController)
+        }
+        composable("CompanyProfileScreen"){
+            CompanyProfileScreen(navController=navController)
         }
         composable(Screen.MoreScreen.name){
             MorePage(navController=navController)
@@ -266,8 +270,6 @@ fun Navigation(apiService: ApiService){
             val jobPost = Gson().fromJson(jobPostJson, JobPost::class.java)
             JobDetailsScreen(jobPost,apiService,navController)
         }
-
-
 
 //        composable("JobApplicationscreen") {
 //            JobApplicationForm(navController,apiService)

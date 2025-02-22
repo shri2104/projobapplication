@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -22,6 +23,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -30,32 +32,54 @@ import androidx.compose.ui.res.painterResource
 
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.projobliveapp.DataBase.ApiService
 import com.example.projobliveapp.Navigation.Screen
 import com.example.projobliveapp.R
 import com.google.firebase.auth.FirebaseAuth
 
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
-fun SplashScreen(navController: NavHostController) {
+fun SplashScreen(navController: NavHostController, apiService: ApiService) {
     val scale = remember { Animatable(0f) }
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(key1 = true) {
         scale.animateTo(
             targetValue = 0.9f,
             animationSpec = tween(
                 durationMillis = 800,
-                easing = {
-                    OvershootInterpolator(8f).getInterpolation(it)
-                }
+                easing = { OvershootInterpolator(8f).getInterpolation(it) }
             )
         )
         delay(2000L)
-        navController.navigate(Screen.LoginScreen.name)
+
+        val userEmail = FirebaseAuth.getInstance().currentUser?.email
+        if (userEmail.isNullOrEmpty()) {
+            navController.navigate(Screen.LoginScreen.name)
+        } else {
+            coroutineScope.launch {
+                try {
+                    val response = apiService.getuserid(userEmail)
+                    if (response != null && response.email == userEmail) {
+                        if (response.UserType == "Candidate") {
+                            navController.navigate("homeScreen/$userEmail")
+                        } else {
+                            navController.navigate("EmployerHomeScreen/$userEmail")
+                        }
+                    } else {
+                        navController.navigate(Screen.LoginScreen.name)
+                    }
+                } catch (e: Exception) {
+                    navController.navigate(Screen.LoginScreen.name)
+                }
+            }
+        }
     }
 
     Box(
-        modifier = Modifier.fillMaxWidth().fillMaxHeight(),
+        modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         Surface(

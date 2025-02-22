@@ -46,6 +46,13 @@ data class ExperienceDetails(
     val responsibilities: String,
 )
 
+data class JobPreferenceData(
+    val userId: String,
+    val jobLocations: List<String>,
+    val selectedSkills: List<String>
+)
+
+
 data class ContactInfo(
     val userId: String, // Added userId
     var email: String = "",
@@ -126,8 +133,10 @@ data class SaveJob(
 
 data class emailuserid(
     val email:String,
-    val userId: String?
+    val userId: String?,
+    val UserType:String
 )
+
 data class CompanyDetails(
     val companyName: String,
     val companyAddress: String,
@@ -169,6 +178,8 @@ interface ApiService {
     @GET("getCandidatecontactladata/{userId}")
     suspend fun getCandidatecontactladata(@Path("userId") userId: String): ContactInfo
 
+    @POST("Candidatejobprefrencedata")
+    suspend fun Candidatejobprefrencedata(@Body jobData: JobPreferenceData): Response<ApiResponse>
 
     @GET("getAllData")
     suspend fun getJobData(): List<JobApplication>

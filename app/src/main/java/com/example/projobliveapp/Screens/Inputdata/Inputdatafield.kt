@@ -29,17 +29,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavController
 import com.example.projobliveapp.DataBase.ApiService
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.projobliveapp.DataBase.ContactInfo
 import com.example.projobliveapp.DataBase.EducationDetails
 import com.example.projobliveapp.DataBase.ExperienceDetails
+import com.example.projobliveapp.DataBase.JobPreferenceData
 import com.example.projobliveapp.DataBase.PersonalData
 
 import com.example.projobliveapp.R
-import com.example.projobliveapp.Screens.Menu.HelpAndSupportPage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -48,6 +47,7 @@ fun JobApplicationForm(
     navController: NavController,
     apiService: ApiService,
     userId: String,
+    userType: String,
     onComplete: () -> Unit
 ) {
     val navHostController = rememberNavController()
@@ -55,13 +55,16 @@ fun JobApplicationForm(
 
     NavHost(navController = navHostController, startDestination = "personalDetails") {
         composable("personalDetails") {
-            PersonalDetailsScreen(userId, apiService) { navHostController.navigate("educationDetails") }
+            PersonalDetailsScreen(userId, apiService,) { navHostController.navigate("educationDetails") }
         }
         composable("educationDetails") {
             EducationDetailsScreen(userId, apiService) { navHostController.navigate("experienceDetails") }
         }
         composable("experienceDetails") {
-            ExperienceDetailsScreen(userId, apiService) { navHostController.navigate("contactDetails") }
+            ExperienceDetailsScreen(userId, apiService) { navHostController.navigate("JobprefrenceDetails") }
+        }
+        composable("JobprefrenceDetails") {
+            Jobprefrence(userId, apiService) { navHostController.navigate("contactDetails") }
         }
         composable("contactDetails") {
             ContactDetailsScreen(userId, apiService) {
@@ -115,9 +118,7 @@ fun PersonalDetailsScreen(userId: String, apiService: ApiService, onNext: () -> 
                     }
                 },
                 navigationIcon = {
-                    IconButton(onClick = { }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back Button")
-                    }
+
                 },
 
                 )
@@ -165,6 +166,7 @@ fun PersonalDetailsScreen(userId: String, apiService: ApiService, onNext: () -> 
                             horizontalArrangement = Arrangement.SpaceEvenly
                         ) {
                             stepIndicator(true)
+                            stepIndicator(false)
                             stepIndicator(false)
                             stepIndicator(false)
                             stepIndicator(false)
@@ -318,14 +320,12 @@ fun PersonalDetailsScreen(userId: String, apiService: ApiService, onNext: () -> 
                         }
                     }
                     onNext()
-
                 }, modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
                     colors = ButtonDefaults.buttonColors(Color.Blue)) {
                     Text(text = "Next", color = Color.White)
                 }
-
             }
 
         }
@@ -615,9 +615,7 @@ fun EducationDetailsScreen(
                     }
                 },
                 navigationIcon = {
-                    IconButton(onClick = { /* Handle Back Navigation */ }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back Button")
-                    }
+
                 },
             )
         },
@@ -664,6 +662,7 @@ fun EducationDetailsScreen(
                         ) {
                             stepIndicator(false)
                             stepIndicator(true)
+                            stepIndicator(false)
                             stepIndicator(false)
                             stepIndicator(false)
                         }
@@ -921,9 +920,6 @@ fun ExperienceDetailsScreen(
                     }
                 },
                 navigationIcon = {
-                    IconButton(onClick = { /* Handle Back Navigation */ }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back Button")
-                    }
                 }
             )
         }
@@ -971,6 +967,7 @@ fun ExperienceDetailsScreen(
                             stepIndicator(false)
                             stepIndicator(false)
                             stepIndicator(true)
+                            stepIndicator(false)
                             stepIndicator(false)
                         }
                     }
@@ -1115,7 +1112,6 @@ fun ExperienceInputSection(
             )
             Text(text = "Currently Working Here")
         }
-
         if (!isPresentChecked) {
             InputField(
                 label = "End Date",
@@ -1145,8 +1141,8 @@ data class ExperienceRecord(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Jobprefrence(userId: String, onNext: () -> Unit) {
-
+fun Jobprefrence(userId: String,apiService:ApiService, onNext: () -> Unit) {
+    val coroutineScope = rememberCoroutineScope()
     var jobLocations by remember { mutableStateOf(listOf<String>()) }
     var selectedLocation by remember { mutableStateOf("") }
     var selectedSkills by remember { mutableStateOf(listOf<String>()) }
@@ -1169,9 +1165,7 @@ fun Jobprefrence(userId: String, onNext: () -> Unit) {
                     }
                 },
                 navigationIcon = {
-                    IconButton(onClick = { }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back Button")
-                    }
+
                 },
             )
         },
@@ -1219,6 +1213,7 @@ fun Jobprefrence(userId: String, onNext: () -> Unit) {
                             stepIndicator(true)
                             stepIndicator(false)
                             stepIndicator(false)
+                            stepIndicator(true)
                             stepIndicator(false)
                         }
                     }
@@ -1232,14 +1227,12 @@ fun Jobprefrence(userId: String, onNext: () -> Unit) {
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(bottom = 4.dp)
                 )
-
                 InputField(
                     label = "Job Location",
                     value = selectedLocation,
                     onValueChange = { selectedLocation = it },
                     placeholder = "Select a city"
                 )
-
                 Button(
                     onClick = {
                         if (selectedLocation.isNotEmpty() && !jobLocations.contains(selectedLocation)) {
@@ -1251,7 +1244,6 @@ fun Jobprefrence(userId: String, onNext: () -> Unit) {
                 ) {
                     Text("Add More Locations")
                 }
-
                 jobLocations.forEach { location ->
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -1318,6 +1310,28 @@ fun Jobprefrence(userId: String, onNext: () -> Unit) {
                             Icon(Icons.Default.Close, contentDescription = "Remove Skill")
                         }
                     }
+                }
+            }
+            item {
+                Button(onClick = {
+                    val jobPreferenceData = JobPreferenceData(
+                        userId = userId,
+                        jobLocations = jobLocations,
+                        selectedSkills = selectedSkills
+                    )
+                    coroutineScope.launch(Dispatchers.IO) {
+                        try {
+                            apiService.Candidatejobprefrencedata(jobPreferenceData)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    }
+                    onNext()
+                }, modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                    colors = ButtonDefaults.buttonColors(Color.Blue)) {
+                    Text(text = "Next", color = Color.White)
                 }
             }
         }
@@ -1458,12 +1472,12 @@ fun ContactDetailsScreen(userId: String, apiService: ApiService, onNext: () -> U
                             stepIndicator(false)
                             stepIndicator(false)
                             stepIndicator(false)
+                            stepIndicator(false)
                             stepIndicator(true)
                         }
                     }
                 }
             }
-
             item { InputField(label = "Email Address*", value = email, onValueChange = { email = it }, placeholder = "e.g. john.doe@example.com") }
             item { InputField(label = "Phone Number*", value = phoneNumber, onValueChange = { phoneNumber = it }, placeholder = "e.g. +91-9876543210") }
             item { InputField(label = "Alternate Phone Number (Optional)", value = alternatePhoneNumber, onValueChange = { alternatePhoneNumber = it }, placeholder = "e.g. +91-9123456789") }
@@ -1601,11 +1615,3 @@ fun DropdownField(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun JobPagePreview() {
-    Jobprefrence(
-        userId = "test_user",
-        onNext = {}
-    )
-}

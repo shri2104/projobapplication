@@ -44,7 +44,7 @@ fun EmployerDetailsScreen(
                 }
             } else {
                 logo()
-                Signup(userType, userId, navController, apiService)
+                Signup(userType, userId, navController, apiService,)
             }
             Spacer(modifier = Modifier.height(30.dp))
             if (showUserForm) {

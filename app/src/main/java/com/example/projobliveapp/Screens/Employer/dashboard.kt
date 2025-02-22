@@ -6,6 +6,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -15,12 +17,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.projobliveapp.Navigation.Screen
 import com.example.projobliveapp.R
 import com.example.projobliveapp.Screens.Employer.CustomButton
+import com.google.firebase.auth.FirebaseAuth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun JobPostingScreen(navController: NavController) {
+    val sheetState = rememberModalBottomSheetState()
+    val showBottomSheet = remember { mutableStateOf(false) }
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -35,7 +42,7 @@ fun JobPostingScreen(navController: NavController) {
                     }
                 },
                 navigationIcon = {
-                    IconButton(onClick = {}) {
+                    IconButton(onClick = { showBottomSheet.value = true }) {
                         Icon(Icons.Default.Menu, contentDescription = "Menu Icon")
                     }
                 },
@@ -64,11 +71,10 @@ fun JobPostingScreen(navController: NavController) {
                     modifier = Modifier.weight(1f)
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Default.Groups, contentDescription = "Internships")
-                        Text(text = "Internships", style = MaterialTheme.typography.titleSmall)
+                        Icon(Icons.Default.Assignment, contentDescription = "Internships")
+                        Text(text = "Applications", style = MaterialTheme.typography.titleSmall)
                     }
                 }
-
                 IconButton(
                     onClick = { },
                     modifier = Modifier.weight(1f)
@@ -143,10 +149,45 @@ fun JobPostingScreen(navController: NavController) {
                     )
                 }
             }
+        }
+    }
 
+    // Bottom Sheet Content
+    if (showBottomSheet.value) {
+        ModalBottomSheet(
+            onDismissRequest = { showBottomSheet.value = false },
+            sheetState = sheetState
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                IconButton(
+                    onClick = { showBottomSheet.value = false },
+                    modifier = Modifier.align(Alignment.End)
+                ) {
+                    Icon(Icons.Default.Close, contentDescription = "Close")
+                }
+
+                Text(text = "Profile", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Divider()
+
+                TextButton(onClick = {navController.navigate("CompanyProfileScreen")  }) {
+                    Text("View Profile", style = MaterialTheme.typography.bodyLarge)
+                }
+
+                TextButton(onClick = { FirebaseAuth.getInstance().signOut()
+                    navController.navigate(Screen.LoginScreen.name) }) {
+                    Text("Logout", style = MaterialTheme.typography.bodyLarge, color = Color.Red)
+                }
+            }
         }
     }
 }
+
 
 @Composable
 fun BulletPointText(text: String) {

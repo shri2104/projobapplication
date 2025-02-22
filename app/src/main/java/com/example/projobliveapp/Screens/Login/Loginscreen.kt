@@ -38,9 +38,12 @@ import java.util.UUID
 @Composable
 fun LoginScreen(
     navController: NavController,
+    apiService: ApiService,
     viewModel: LoginScreenViewModel = viewModel()
 ) {
     val userType = rememberSaveable { mutableStateOf("Candidate") }
+    val coroutineScope = rememberCoroutineScope()
+
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -53,11 +56,23 @@ fun LoginScreen(
                 loading = false,
                 isCreateAccount = false
             ) { email, password ->
-                viewModel.signInWithEmailAndPassword(email, password) {
-                    if (userType.value == "Candidate") {
-                        navController.navigate("homeScreen/$email")
-                    } else {
-                        navController.navigate("EmployerHomeScreen/$email")
+                coroutineScope.launch {
+                    try {
+                        val response = apiService.getuserid(email)
+                        if (response != null && response.email == email && response.UserType == userType.value) {
+                            viewModel.signInWithEmailAndPassword(email, password) {
+                                if (userType.value == "Candidate") {
+                                    navController.navigate("homeScreen/$email")
+                                } else {
+                                    navController.navigate("EmployerHomeScreen/$email")
+                                }
+                            }
+                        } else {
+//                            // Show error message (Mismatch or User not found)
+//                            viewModel.showError("Invalid login details")
+                        }
+                    } catch (e: Exception) {
+//                        viewModel.showError("Login failed: ${e.message}")
                     }
                 }
             }
@@ -87,6 +102,7 @@ fun UserTypeSelector(userType: MutableState<String>) {
         )
     }
 }
+
 @Composable
 fun SignUpPrompt(userType: MutableState<String>, navController: NavController) {
     Spacer(modifier = Modifier.height(20.dp))
@@ -136,8 +152,7 @@ fun SignupScreen(
     userType: String
 ) {
     var showUserForm by remember { mutableStateOf(false) }
-    val userId = remember { UUID.randomUUID().toString() } // Move this outside to persist across recompositions
-
+    val userId = remember { UUID.randomUUID().toString() }
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -145,7 +160,7 @@ fun SignupScreen(
             modifier = Modifier.padding(16.dp)
         ) {
             if (!showUserForm) {
-                JobApplicationForm(navController = navController, apiService = apiService, userId) {
+                JobApplicationForm(navController = navController, apiService = apiService, userId,userType) {
                     showUserForm = true
                 }
             } else {
@@ -175,13 +190,12 @@ fun SignupScreen(
 @Composable
 fun Signup(
     userType: String,
-    userId: String, // Added userId parameter
+    userId: String,
     navController: NavController,
     apiService: ApiService,
     viewModel: LoginScreenViewModel = viewModel()
 ) {
-    val coroutineScope = rememberCoroutineScope() // CoroutineScope for launching API calls
-
+    val coroutineScope = rememberCoroutineScope()
     UserForm(
         loading = false,
         isCreateAccount = true
@@ -189,7 +203,8 @@ fun Signup(
         viewModel.createUserWithEmailAndPassword(email, password) {
             val userData = emailuserid(
                 email = email,
-                userId = userId
+                userId = userId,
+                UserType = userType
             )
             coroutineScope.launch(Dispatchers.IO) {
                 try {
