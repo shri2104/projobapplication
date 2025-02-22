@@ -72,19 +72,25 @@ fun EmployerDetailsForm(
     navController: NavController,
     onNext: () -> Unit
 ) {
-    var companyName by remember { mutableStateOf(TextFieldValue()) }
-    var companyAddress by remember { mutableStateOf(TextFieldValue()) }
-    var registrationNumber by remember { mutableStateOf(TextFieldValue()) }
-    var companyWebsite by remember { mutableStateOf(TextFieldValue()) }
+    var companyName by remember { mutableStateOf("") }
+    var companyAddress by remember { mutableStateOf("") }
+    var registrationNumber by remember { mutableStateOf("") }
+    var companyWebsite by remember { mutableStateOf("") }
     var industryType by remember { mutableStateOf("") }
     var companySize by remember { mutableStateOf("") }
-    var companyLogo by remember { mutableStateOf("") }
-    var yearOfEstablishment by remember { mutableStateOf(TextFieldValue()) }
-    var socialMediaLinks by remember { mutableStateOf(TextFieldValue()) }
-    var contactNumber by remember { mutableStateOf(TextFieldValue()) }
-    var companyEmail by remember { mutableStateOf(TextFieldValue()) }
-    var contactPerson by remember { mutableStateOf(TextFieldValue()) }
-    var contactPersonTitle by remember { mutableStateOf(TextFieldValue()) }
+    var yearOfEstablishment by remember { mutableStateOf("") }
+    var socialMediaLinks by remember { mutableStateOf("") }
+    var contactNumber by remember { mutableStateOf("") }
+    var companyEmail by remember { mutableStateOf("") }
+    var contactPerson by remember { mutableStateOf("") }
+    var contactPersonTitle by remember { mutableStateOf("") }
+
+    // Compute if all fields are filled
+    val allFieldsFilled = listOf(
+        companyName, companyAddress, registrationNumber, companyWebsite, industryType,
+        companySize, yearOfEstablishment, socialMediaLinks, contactNumber,
+        companyEmail, contactPerson, contactPersonTitle
+    ).all { it.isNotBlank() }
 
     Scaffold(
         topBar = {
@@ -114,302 +120,29 @@ fun EmployerDetailsForm(
                 .padding(16.dp),
             contentPadding = PaddingValues(bottom = 16.dp)
         ) {
-            item {
-                Card(
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp)
-                ) {
-                    TextField(
-                        value = companyName,
-                        onValueChange = { companyName = it },
-                        placeholder = { Text(text = "Company Name") },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = TextFieldDefaults.colors(
-                            unfocusedIndicatorColor = Color.Transparent,
-                            focusedIndicatorColor = Color.Transparent,
-                            cursorColor = Color.Blue,
-                            focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White
-                        )
-                    )
-                }
-            }
-            item {
-                Card(
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp)
-                ) {
-                    TextField(
-                        value = companyAddress,
-                        onValueChange = { companyAddress = it },
-                        placeholder = { Text(text = "Company Address") },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = TextFieldDefaults.colors(
-                            unfocusedIndicatorColor = Color.Transparent,
-                            focusedIndicatorColor = Color.Transparent,
-                            cursorColor = Color.Blue,
-                            focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White
-                        )
-                    )
-                }
-            }
-            item {
-                Card(
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp)
-                ) {
-                    TextField(
-                        value = registrationNumber,
-                        onValueChange = { registrationNumber = it },
-                        placeholder = { Text(text = "Registration Number") },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = TextFieldDefaults.colors(
-                            unfocusedIndicatorColor = Color.Transparent,
-                            focusedIndicatorColor = Color.Transparent,
-                            cursorColor = Color.Blue,
-                            focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White
-                        )
-                    )
-                }
-            }
-
-            item {
-                Card(
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp)
-                ) {
-                    TextField(
-                        value = companyWebsite,
-                        onValueChange = { companyWebsite = it },
-                        placeholder = { Text(text = "Company Website") },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = TextFieldDefaults.colors(
-                            unfocusedIndicatorColor = Color.Transparent,
-                            focusedIndicatorColor = Color.Transparent,
-                            cursorColor = Color.Blue,
-                            focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White
-                        )
-                    )
-                }
-            }
-
-            item {
-                Card(
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp)
-                ) {
-                    TextField(
-                        value = industryType,
-                        onValueChange = { industryType = it },
-                        placeholder = { Text(text = "Industry Type") },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = TextFieldDefaults.colors(
-                            unfocusedIndicatorColor = Color.Transparent,
-                            focusedIndicatorColor = Color.Transparent,
-                            cursorColor = Color.Blue,
-                            focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White
-                        )
-                    )
-                }
-            }
-
-            item {
-                Card(
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp)
-                ) {
-                    TextField(
-                        value = companySize,
-                        onValueChange = { companySize = it },
-                        placeholder = { Text(text = "Company Size") },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = TextFieldDefaults.colors(
-                            unfocusedIndicatorColor = Color.Transparent,
-                            focusedIndicatorColor = Color.Transparent,
-                            cursorColor = Color.Blue,
-                            focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White
-                        )
-                    )
-                }
-            }
-            item {
-                Card(
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp)
-                ) {
-                    TextField(
-                        value = yearOfEstablishment,
-                        onValueChange = { yearOfEstablishment = it },
-                        placeholder = { Text(text = "Year of Establishment") },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = TextFieldDefaults.colors(
-                            unfocusedIndicatorColor = Color.Transparent,
-                            focusedIndicatorColor = Color.Transparent,
-                            cursorColor = Color.Blue,
-                            focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White
-                        )
-                    )
-                }
-            }
-
-            item {
-                Card(
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp)
-                ) {
-                    TextField(
-                        value = socialMediaLinks,
-                        onValueChange = { socialMediaLinks = it },
-                        placeholder = { Text(text = "Social Media Links") },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = TextFieldDefaults.colors(
-                            unfocusedIndicatorColor = Color.Transparent,
-                            focusedIndicatorColor = Color.Transparent,
-                            cursorColor = Color.Blue,
-                            focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White
-                        )
-                    )
-                }
-            }
-
-            item {
-                Card(
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp)
-                ) {
-                    TextField(
-                        value = contactNumber,
-                        onValueChange = { contactNumber = it },
-                        placeholder = { Text(text = "Contact Number") },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = TextFieldDefaults.colors(
-                            unfocusedIndicatorColor = Color.Transparent,
-                            focusedIndicatorColor = Color.Transparent,
-                            cursorColor = Color.Blue,
-                            focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White
-                        )
-                    )
-                }
-            }
-
-            item {
-                Card(
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp)
-                ) {
-                    TextField(
-                        value = companyEmail,
-                        onValueChange = { companyEmail = it },
-                        placeholder = { Text(text = "Company Email") },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = TextFieldDefaults.colors(
-                            unfocusedIndicatorColor = Color.Transparent,
-                            focusedIndicatorColor = Color.Transparent,
-                            cursorColor = Color.Blue,
-                            focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White
-                        )
-                    )
-                }
-            }
-
-            item {
-                // Contact Person Field
-                Card(
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp)
-                ) {
-                    TextField(
-                        value = contactPerson,
-                        onValueChange = { contactPerson = it },
-                        placeholder = { Text(text = "Contact Person") },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = TextFieldDefaults.colors(
-                            unfocusedIndicatorColor = Color.Transparent,
-                            focusedIndicatorColor = Color.Transparent,
-                            cursorColor = Color.Blue,
-                            focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White
-                        )
-                    )
-                }
-            }
-
-            item {
-                // Contact Person Title Field
-                Card(
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp)
-                ) {
-                    TextField(
-                        value = contactPersonTitle,
-                        onValueChange = { contactPersonTitle = it },
-                        placeholder = { Text(text = "Contact Person Title") },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = TextFieldDefaults.colors(
-                            unfocusedIndicatorColor = Color.Transparent,
-                            focusedIndicatorColor = Color.Transparent,
-                            cursorColor = Color.Blue,
-                            focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White
-                        )
-                    )
-                }
-            }
+            item { CustomTextField(companyName, { companyName = it }, "Company Name") }
+            item { CustomTextField(companyAddress, { companyAddress = it }, "Company Address") }
+            item { CustomTextField(registrationNumber, { registrationNumber = it }, "Registration Number") }
+            item { CustomTextField(companyWebsite, { companyWebsite = it }, "Company Website") }
+            item { CustomTextField(industryType, { industryType = it }, "Industry Type") }
+            item { CustomTextField(companySize, { companySize = it }, "Company Size") }
+            item { CustomTextField(yearOfEstablishment, { yearOfEstablishment = it }, "Year of Establishment") }
+            item { CustomTextField(socialMediaLinks, { socialMediaLinks = it }, "Social Media Links") }
+            item { CustomTextField(contactNumber, { contactNumber = it }, "Contact Number") }
+            item { CustomTextField(companyEmail, { companyEmail = it }, "Company Email") }
+            item { CustomTextField(contactPerson, { contactPerson = it }, "Contact Person") }
+            item { CustomTextField(contactPersonTitle, { contactPersonTitle = it }, "Contact Person Title") }
 
             item {
                 // Next Button
                 Button(
                     onClick = onNext,
+                    enabled = allFieldsFilled, // Button only enabled when all fields are filled
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 16.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Blue,
+                        containerColor = if (allFieldsFilled) Color.Blue else Color.Gray,
                         contentColor = Color.White
                     )
                 ) {
@@ -417,5 +150,34 @@ fun EmployerDetailsForm(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun CustomTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    placeholder: String
+) {
+    Card(
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        shape = RoundedCornerShape(8.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 16.dp)
+    ) {
+        TextField(
+            value = value,
+            onValueChange = onValueChange,
+            placeholder = { Text(text = placeholder) },
+            modifier = Modifier.fillMaxWidth(),
+            colors = TextFieldDefaults.colors(
+                unfocusedIndicatorColor = Color.Transparent,
+                focusedIndicatorColor = Color.Transparent,
+                cursorColor = Color.Blue,
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White
+            )
+        )
     }
 }
