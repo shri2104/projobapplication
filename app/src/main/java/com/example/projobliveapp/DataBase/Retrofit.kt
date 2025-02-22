@@ -138,6 +138,7 @@ data class emailuserid(
 )
 
 data class CompanyDetails(
+    val userId: String,
     val companyName: String,
     val companyAddress: String,
     val registrationNumber: String,
@@ -149,8 +150,10 @@ data class CompanyDetails(
     val contactNumber: String,
     val companyEmail: String,
     val contactPerson: String,
-    val contactPersonTitle: String
+    val contactPersonTitle: String,
+    val aboutCompany: String
 )
+
 
 
 data class SavedJobResponse(val email: String, val jobIds: List<List<String>>)
@@ -222,6 +225,12 @@ interface ApiService {
 
     @POST("JobPost")
     suspend fun storeJob(@Body jobPost: JobPost): Response<ApiResponse>
+
+    @POST("comapnyData")
+    suspend fun PostcomapnyData(@Body companyDetails: CompanyDetails): Response<ApiResponse>
+
+    @GET("getcomapnyData/{userId}")
+    suspend fun getcomapnyData(@Path("userId") userId: String): CompanyDetails
 
     @Multipart
     @POST("uploadResume")

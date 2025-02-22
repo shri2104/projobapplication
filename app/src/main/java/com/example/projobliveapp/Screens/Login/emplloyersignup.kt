@@ -9,7 +9,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.compose.material.icons.Icons
@@ -18,9 +17,11 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.graphics.Color
 import com.bawp.freader.screens.login.Signup
 import com.example.projobliveapp.DataBase.ApiService
+import com.example.projobliveapp.DataBase.CompanyDetails
 import com.example.projobliveapp.Navigation.Screen
 import com.example.projobliveapp.R
-import com.example.projobliveapp.Screens.Inputdata.JobApplicationForm
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.UUID
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
@@ -39,7 +40,7 @@ fun EmployerDetailsScreen(
             modifier = Modifier.padding(16.dp)
         ) {
             if (!showUserForm) {
-                EmployerDetailsForm(navController = navController) {
+                EmployerDetailsForm(navController = navController,apiService,userId) {
                     showUserForm = true
                 }
             } else {
@@ -70,8 +71,11 @@ fun EmployerDetailsScreen(
 @Composable
 fun EmployerDetailsForm(
     navController: NavController,
+    apiService: ApiService,
+    userId: String,
     onNext: () -> Unit
 ) {
+    val coroutineScope = rememberCoroutineScope()
     var companyName by remember { mutableStateOf("") }
     var companyAddress by remember { mutableStateOf("") }
     var registrationNumber by remember { mutableStateOf("") }
@@ -84,8 +88,7 @@ fun EmployerDetailsForm(
     var companyEmail by remember { mutableStateOf("") }
     var contactPerson by remember { mutableStateOf("") }
     var contactPersonTitle by remember { mutableStateOf("") }
-
-    // Compute if all fields are filled
+    var AboutCompany by remember { mutableStateOf("") }
     val allFieldsFilled = listOf(
         companyName, companyAddress, registrationNumber, companyWebsite, industryType,
         companySize, yearOfEstablishment, socialMediaLinks, contactNumber,
@@ -132,12 +135,38 @@ fun EmployerDetailsForm(
             item { CustomTextField(companyEmail, { companyEmail = it }, "Company Email") }
             item { CustomTextField(contactPerson, { contactPerson = it }, "Contact Person") }
             item { CustomTextField(contactPersonTitle, { contactPersonTitle = it }, "Contact Person Title") }
+            item { CustomTextField(AboutCompany, { AboutCompany = it }, "Aboutcompany") }
 
             item {
-                // Next Button
                 Button(
-                    onClick = onNext,
-                    enabled = allFieldsFilled, // Button only enabled when all fields are filled
+                    onClick = {
+                        val companyDetails = CompanyDetails(
+                            userId = userId,
+                            companyName = companyName,
+                            companyAddress = companyAddress,
+                            registrationNumber = registrationNumber,
+                            companyWebsite = companyWebsite,
+                            industryType = industryType,
+                            companySize = companySize,
+                            yearOfEstablishment = yearOfEstablishment,
+                            socialMediaLinks = if (socialMediaLinks.isNotBlank()) socialMediaLinks else null, // Handle nullable field
+                            contactNumber = contactNumber,
+                            companyEmail = companyEmail,
+                            contactPerson = contactPerson,
+                            contactPersonTitle = contactPersonTitle,
+                            aboutCompany=AboutCompany
+                        )
+
+                        coroutineScope.launch(Dispatchers.IO) {
+                            try {
+                                apiService.PostcomapnyData(companyDetails)
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
+                        }
+                        onNext()
+                    },
+                    enabled = allFieldsFilled,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 16.dp),
@@ -152,6 +181,7 @@ fun EmployerDetailsForm(
         }
     }
 }
+
 
 @Composable
 fun CustomTextField(

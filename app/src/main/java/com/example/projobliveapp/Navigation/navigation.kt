@@ -87,7 +87,7 @@ fun Navigation(apiService: ApiService){
         composable("EmployerHomeScreen/{email}"){ backStackEntry ->
             val userEmail = backStackEntry.arguments?.getString("email") ?: ""
             JobPostingScreen(
-                navController = navController
+                navController = navController,userEmail
             )
         }
         composable(Screen.FrontScreen.name){
@@ -108,8 +108,9 @@ fun Navigation(apiService: ApiService){
         composable(Screen.ContactUsScreen.name){
             ContactUsPage(navController=navController)
         }
-        composable("CompanyProfileScreen"){
-            CompanyProfileScreen(navController=navController)
+        composable("CompanyProfileScreen/{email}"){backStackEntry->
+            val email = backStackEntry.arguments?.getString("email")
+            CompanyProfileScreen(navController=navController,apiService,email)
         }
         composable(Screen.MoreScreen.name){
             MorePage(navController=navController)
@@ -126,10 +127,6 @@ fun Navigation(apiService: ApiService){
         composable(Screen.Userform.name){
             UserForm()
         }
-//        composable("${Screen.SignUp.name}/{userType}") { backStackEntry ->
-//            val userType = backStackEntry.arguments?.getString("userType") ?: "Employer"
-//            Signup(navController = navController, userType = userType)
-//        }
         composable("${Screen.Signupscreen.name}/{userType}") { backStackEntry ->
             val userType = backStackEntry.arguments?.getString("userType") ?: "Candidate"
             SignupScreen(navController = navController, apiService = apiService, userType = userType)

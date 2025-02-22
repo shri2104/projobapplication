@@ -1,4 +1,3 @@
-import android.os.Bundle
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,17 +13,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.projobliveapp.Navigation.Screen
 import com.example.projobliveapp.R
-import com.example.projobliveapp.Screens.Employer.CustomButton
 import com.google.firebase.auth.FirebaseAuth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun JobPostingScreen(navController: NavController) {
+fun JobPostingScreen(navController: NavController, userEmail: String) {
     val sheetState = rememberModalBottomSheetState()
     val showBottomSheet = remember { mutableStateOf(false) }
 
@@ -175,7 +172,7 @@ fun JobPostingScreen(navController: NavController) {
                 Text(text = "Profile", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 Divider()
 
-                TextButton(onClick = {navController.navigate("CompanyProfileScreen")  }) {
+                TextButton(onClick = {navController.navigate("CompanyProfileScreen/$userEmail")  }) {
                     Text("View Profile", style = MaterialTheme.typography.bodyLarge)
                 }
 
