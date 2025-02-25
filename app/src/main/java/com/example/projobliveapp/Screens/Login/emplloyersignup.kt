@@ -140,7 +140,7 @@ fun EmployerDetailsForm(
             item {
                 Button(
                     onClick = {
-                        val companyDetails = CompanyDetails(
+                        val companydetails = CompanyDetails(
                             userId = userId,
                             companyName = companyName,
                             companyAddress = companyAddress,
@@ -159,7 +159,7 @@ fun EmployerDetailsForm(
 
                         coroutineScope.launch(Dispatchers.IO) {
                             try {
-                                apiService.PostcomapnyData(companyDetails)
+                                apiService.PostcomapnyData(companydetails)
                             } catch (e: Exception) {
                                 e.printStackTrace()
                             }

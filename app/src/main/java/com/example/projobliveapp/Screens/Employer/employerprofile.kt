@@ -74,12 +74,7 @@ fun CompanyProfileScreen(navController: NavController, apiService: ApiService, e
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* Share profile */ }) {
-                        Icon(Icons.Default.Share, contentDescription = "Share")
-                    }
-                    IconButton(onClick = { /* Save to favorites */ }) {
-                        Icon(Icons.Default.FavoriteBorder, contentDescription = "Favorite")
-                    }
+
                 }
             )
         }
@@ -165,6 +160,7 @@ fun HighlightCard(title: String, value: String) {
         }
     }
 }
+
 // Contact Item Row
 @Composable
 fun ContactItem(icon: ImageVector, text: String) {
