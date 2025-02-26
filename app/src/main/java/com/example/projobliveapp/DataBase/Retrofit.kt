@@ -1,6 +1,8 @@
 package com.example.projobliveapp.DataBase
 
 import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -12,6 +14,7 @@ import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
 import retrofit2.http.Path
+import retrofit2.http.Streaming
 import java.time.LocalDateTime
 
 data class PersonalData(
@@ -154,6 +157,13 @@ data class CompanyDetails(
     val aboutCompany: String
 )
 
+data class Resume(
+    val success: Boolean,
+    val message: String,
+    val id: String? = null,
+    val filePath: String? = null
+)
+
 data class SavedJobResponse(val email: String, val jobIds: List<List<String>>)
 data class JobApiResponse(val success: Boolean, val jobs: List<Job>)
 data class ApiResponse(val success: Boolean, val id: String?)
@@ -233,11 +243,15 @@ interface ApiService {
     @Multipart
     @POST("uploadResume")
     suspend fun uploadResume(
-        @Part email: MultipartBody.Part,
-        @Part resume: MultipartBody.Part
-    ): Response<ApiResponse>
-}
+        @Part resume: MultipartBody.Part,
+        @Part("userId") userId: RequestBody
+    ): Response<Resume>
 
+    @GET("downloadResume/{userId}")
+    @Streaming
+    suspend fun downloadResume(@Path("userId") userId: String): Response<ResponseBody>
+
+}
 fun createApiService(): ApiService {
     val retrofit = Retrofit.Builder()
         .baseUrl("http://10.0.2.2:3000/")

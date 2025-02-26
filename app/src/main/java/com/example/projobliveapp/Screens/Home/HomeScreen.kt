@@ -453,6 +453,7 @@ fun TrustedByCompaniesSection() {
         }
     }
 }
+
 @Composable
 fun BrowseByCategorySection() {
     val categories = listOf(

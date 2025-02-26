@@ -2,6 +2,7 @@ package com.example.projobliveapp.Navigation
 
 
 import AboutScreen
+import DownloadScreen
 
 import JobAppSlidingMenuScreen
 import JobPostingScreen
@@ -257,6 +258,13 @@ fun Navigation(apiService: ApiService){
             val userEmail = backStackEntry.arguments?.getString("email") ?: ""
             ShowApplicationScreen(
                 navController = navController,
+                userEmail = userEmail
+            )
+        }
+        composable("showresume/{email}") { backStackEntry ->
+            val userEmail = backStackEntry.arguments?.getString("email") ?: ""
+            DownloadScreen(
+                apiService,
                 userEmail = userEmail
             )
         }

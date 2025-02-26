@@ -47,12 +47,10 @@ fun ProfilePage(
             isLoading = true
             errorMessage = null
             try {
-                // Step 1: Fetch userId
                 val userIdResponse = apiService.getuserid(userEmail)
                 val userId = userIdResponse.userId
 
                 if (!userId.isNullOrBlank()) {
-                    // Step 2: Fetch personal data using userId
                     personalData = apiService.getCandidatepersonaldata(userId)
                 } else {
                     errorMessage = "User ID not found"
