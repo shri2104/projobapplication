@@ -157,11 +157,19 @@ data class CompanyDetails(
     val aboutCompany: String
 )
 
+
 data class Resume(
     val success: Boolean,
     val message: String,
     val id: String? = null,
     val filePath: String? = null
+)
+
+data class ResumeUploadResponse(
+    val success: Boolean,
+    val message: String,
+    val filePath: String? = null,
+    val error: String? = null
 )
 
 data class SavedJobResponse(val email: String, val jobIds: List<List<String>>)
@@ -171,21 +179,25 @@ data class ApiResponse(val success: Boolean, val id: String?)
 interface ApiService {
     @POST("Candidatepersonaldata")
     suspend fun Candidatepersonaldata(@Body personalData: PersonalData): Response<ApiResponse>
+
     @GET("getCandidatepersonaldata/{userId}")
     suspend fun getCandidatepersonaldata(@Path("userId") userId: String): PersonalData
 
     @POST("Candidateeducationladata")
     suspend fun Candidateeducationladata(@Body jobData: EducationDetails): Response<ApiResponse>
+
     @GET("getCandidateeducationladata/{userId}")
     suspend fun getCandidateeducationladata(@Path("userId") userId: String): EducationDetails
 
     @POST("Candidateexperienceladata")
     suspend fun Candidateexperienceladata(@Body jobData: ExperienceDetails): Response<ApiResponse>
+
     @GET("getCandidateexperienceladata/{userId}")
     suspend fun getCandidateexperienceladata(@Path("userId") userId: String): ExperienceDetails
 
     @POST("Candidatecontactladata")
     suspend fun Candidatecontactladata(@Body jobData: ContactInfo): Response<ApiResponse>
+
     @GET("getCandidatecontactladata/{userId}")
     suspend fun getCandidatecontactladata(@Path("userId") userId: String): ContactInfo
 
@@ -251,7 +263,19 @@ interface ApiService {
     @Streaming
     suspend fun downloadResume(@Path("userId") userId: String): Response<ResponseBody>
 
+    @GET("checkResumeExists/{userId}")
+    suspend fun checkResumeExists(@Path("userId") userId: String): Response<Resume>
+
+    // **New Endpoint: Update Resume**
+    @Multipart
+    @POST("updateResume")
+    suspend fun updateResume(
+        @Part resume: MultipartBody.Part,
+        @Part("userId") userId: RequestBody
+    ): Response<ResumeUploadResponse>
+
 }
+
 fun createApiService(): ApiService {
     val retrofit = Retrofit.Builder()
         .baseUrl("http://10.0.2.2:3000/")

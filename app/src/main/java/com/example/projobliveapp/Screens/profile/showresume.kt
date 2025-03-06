@@ -39,7 +39,6 @@ suspend fun downloadResume(
             val fileName = "resume_$userId.pdf"
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                // ✅ Scoped Storage (Android 10+)
                 val contentValues = ContentValues().apply {
                     put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
                     put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf")

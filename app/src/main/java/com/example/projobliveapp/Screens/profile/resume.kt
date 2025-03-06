@@ -1,6 +1,7 @@
 package com.example.projobliveapp.Screens.profile
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
@@ -20,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.projobliveapp.DataBase.ApiService
 import com.example.projobliveapp.DataBase.PersonalData
+
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -37,6 +39,8 @@ fun ProfileSection(apiService: ApiService, userEmail: String, navController: Nav
     var resumeUri by remember { mutableStateOf<Uri?>(null) }
     var uploadInProgress by remember { mutableStateOf(false) }
     var uploadSuccess by remember { mutableStateOf<Boolean?>(null) }
+    var resumeExists by remember { mutableStateOf(false) }
+    var resumeUrl by remember { mutableStateOf<String?>(null) }
 
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -44,7 +48,6 @@ fun ProfileSection(apiService: ApiService, userEmail: String, navController: Nav
         resumeUri = uri
     }
 
-    // Fetch user ID from email
     LaunchedEffect(userEmail) {
         if (userEmail.isNotEmpty()) {
             isLoading = true
@@ -55,45 +58,45 @@ fun ProfileSection(apiService: ApiService, userEmail: String, navController: Nav
 
                 if (!userId.isNullOrBlank()) {
                     personalData = apiService.getCandidatepersonaldata(userId!!)
+
+                    val resumeResponse = apiService.checkResumeExists(userId!!)
+                    if (resumeResponse.isSuccessful) {
+                        resumeResponse.body()?.let { resume ->
+                            resumeExists = resume.success
+                            resumeUrl = resume.filePath
+                        }
+                    } else {
+                        resumeExists = false
+                    }
                 } else {
                     errorMessage = "User ID not found"
                 }
             } catch (e: Exception) {
-                Log.e("API Error", "Error fetching personal data: ${e.message}", e)
-                errorMessage = "Error fetching personal data: ${e.message}"
-                Toast.makeText(context, "Error fetching personal data: ${e.message}", Toast.LENGTH_SHORT).show()
+                Log.e("API Error", "Error fetching data: ${e.message}", e)
+                errorMessage = "Error fetching data: ${e.message}"
+                Toast.makeText(context, "Error fetching data: ${e.message}", Toast.LENGTH_SHORT).show()
             } finally {
                 isLoading = false
             }
         }
     }
 
-    // Function to get InputStream from URI
-    fun getInputStreamFromUri(context: Context, uri: Uri): InputStream? {
-        return try {
-            context.contentResolver.openInputStream(uri)
-        } catch (e: Exception) {
-            null
-        }
-    }
-
-    // Function to upload resume
     suspend fun uploadResume(context: Context) {
         if (resumeUri != null && userId != null) {
             uploadInProgress = true
             try {
                 val userIdRequestBody = userId!!.toRequestBody("text/plain".toMediaTypeOrNull())
-                val inputStream = getInputStreamFromUri(context, resumeUri!!)
+                val inputStream = context.contentResolver.openInputStream(resumeUri!!)
                 val requestBody = inputStream?.let {
                     RequestBody.create("application/pdf".toMediaTypeOrNull(), it.readBytes())
                 }
-
                 if (requestBody != null) {
                     val resumePart = MultipartBody.Part.createFormData("resume", "resume.pdf", requestBody)
                     val response = apiService.uploadResume(resumePart, userIdRequestBody)
 
                     if (response.isSuccessful) {
                         uploadSuccess = true
+                        resumeExists = true
                     } else {
                         Log.e("UploadResume", "Error: ${response.code()} - ${response.message()}")
                         uploadSuccess = false
@@ -103,6 +106,41 @@ fun ProfileSection(apiService: ApiService, userEmail: String, navController: Nav
                 }
             } catch (e: Exception) {
                 Log.e("UploadResume", "Exception: ${e.localizedMessage}")
+                uploadSuccess = false
+            } finally {
+                uploadInProgress = false
+            }
+        } else {
+            uploadSuccess = false
+        }
+    }
+    suspend fun updateResume(context: Context) {
+        if (resumeUri != null && userId != null) {
+            uploadInProgress = true
+            try {
+                val userIdRequestBody = userId!!.toRequestBody("text/plain".toMediaTypeOrNull())
+                val inputStream = context.contentResolver.openInputStream(resumeUri!!)
+                val requestBody = inputStream?.use {
+                    it.readBytes().toRequestBody("application/pdf".toMediaTypeOrNull())
+                }
+
+                if (requestBody != null) {
+                    val resumePart = MultipartBody.Part.createFormData("resume", "updated_resume.pdf", requestBody)
+                    val response = apiService.updateResume(resumePart, userIdRequestBody)
+
+                    if (response.isSuccessful) {
+                        uploadSuccess = true
+                        resumeExists = true
+                        Toast.makeText(context, "Resume updated successfully!", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Log.e("UpdateResume", "Error: ${response.code()} - ${response.message()}")
+                        uploadSuccess = false
+                    }
+                } else {
+                    uploadSuccess = false
+                }
+            } catch (e: Exception) {
+                Log.e("UpdateResume", "Exception: ${e.localizedMessage}")
                 uploadSuccess = false
             } finally {
                 uploadInProgress = false
@@ -140,11 +178,11 @@ fun ProfileSection(apiService: ApiService, userEmail: String, navController: Nav
                 horizontalAlignment = Alignment.Start,
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
+
                 when {
                     isLoading -> CircularProgressIndicator(color = Color(0xFF5CB85C))
                     errorMessage != null -> Text(errorMessage!!, color = Color.Red)
                     else -> {
-                        // Display user name
                         Text(
                             text = "Welcome, ${personalData?.Firstname ?: "User"}",
                             style = MaterialTheme.typography.headlineSmall,
@@ -152,36 +190,55 @@ fun ProfileSection(apiService: ApiService, userEmail: String, navController: Nav
                             color = Color(0xFF388E3C)
                         )
 
-                        // Upload instruction
-                        Text(
-                            text = "Upload your resume to enhance your profile. Employers can view it to learn more about you.",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color.Gray
-                        )
+                        if (resumeExists) {
+                            Text(
+                                text = "Your resume is already uploaded. You can download or update it below.",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color.Gray
+                            )
 
-                        // Resume upload button
-                        Button(
-                            onClick = { resumeLauncher.launch("application/pdf") },
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5CB85C)),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(text = "Select Resume", color = Color.White)
-                        }
-
-                        // Uploaded resume status
-                        Text(
-                            text = if (resumeUri != null) "Selected Resume: ${resumeUri?.lastPathSegment}" else "No Resume Selected",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color.Gray
-                        )
-
-                        if (resumeUri != null) {
                             Button(
-                                onClick = { scope.launch { uploadResume(context) } },
+                                onClick = { navController.navigate("showresume/$userEmail") },
                                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF388E3C)),
                                 modifier = Modifier.fillMaxWidth()
                             ) {
-                                Text(text = if (uploadInProgress) "Uploading..." else "Submit Resume", color = Color.White)
+                                Text(text = "Download Resume", color = Color.White)
+                            }
+
+                            Button(
+                                onClick = { resumeLauncher.launch("application/pdf") },
+                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5CB85C)),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(text = "Update Resume", color = Color.White)
+                            }
+
+                            if (resumeUri != null) {
+                                Button(
+                                    onClick = { scope.launch { updateResume(context) } },
+                                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF388E3C)),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text(text = if (uploadInProgress) "Updating..." else "Submit Updated Resume", color = Color.White)
+                                }
+                            }
+                        } else {
+                            if (resumeUri == null) {
+                                Button(
+                                    onClick = { resumeLauncher.launch("application/pdf") },
+                                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5CB85C)),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text(text = "Select Resume", color = Color.White)
+                                }
+                            } else {
+                                Button(
+                                    onClick = { scope.launch { uploadResume(context) } },
+                                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF388E3C)),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text(text = if (uploadInProgress) "Uploading..." else "Submit Resume", color = Color.White)
+                                }
                             }
                         }
 
@@ -192,21 +249,9 @@ fun ProfileSection(apiService: ApiService, userEmail: String, navController: Nav
                                 color = if (uploadSuccess == true) Color.Green else Color.Red
                             )
                         }
-
-                        // New Button to navigate to another screen
-                        Button(
-                            onClick = {
-                                navController.navigate("showresume/$userEmail")  // Replace with your destination screen route
-                            },
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF388E3C)),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(text = "Go to Other Screen", color = Color.White)
-                        }
                     }
                 }
             }
         }
     )
-
 }
