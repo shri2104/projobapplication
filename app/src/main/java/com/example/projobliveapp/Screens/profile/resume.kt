@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
@@ -197,20 +198,26 @@ fun ProfileSection(apiService: ApiService, userEmail: String, navController: Nav
                                 color = Color.Gray
                             )
 
-                            Button(
-                                onClick = { navController.navigate("showresume/$userEmail") },
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF388E3C)),
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(16.dp),
                                 modifier = Modifier.fillMaxWidth()
                             ) {
-                                Text(text = "Download Resume", color = Color.White)
-                            }
-
-                            Button(
-                                onClick = { resumeLauncher.launch("application/pdf") },
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5CB85C)),
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Text(text = "Update Resume", color = Color.White)
+                                Button(
+                                    onClick = { navController.navigate("showresume/$userEmail") },
+                                    modifier = Modifier.weight(1f),
+                                    shape = RoundedCornerShape(4.dp),
+                                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF388E3C))
+                                ) {
+                                    Text(text = "Download Resume", color = Color.White)
+                                }
+                                Button(
+                                    onClick = { resumeLauncher.launch("application/pdf") },
+                                    modifier = Modifier.weight(1f),
+                                    shape = RoundedCornerShape(4.dp),
+                                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5CB85C))
+                                ) {
+                                    Text(text = "Update Resume", color = Color.White)
+                                }
                             }
 
                             if (resumeUri != null) {
