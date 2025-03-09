@@ -79,7 +79,7 @@ fun MainJobScreenContent(
                     }
                 }
                 IconButton(
-                    onClick = { },
+                    onClick = { navController.navigate("AvailableInterns/$userEmail")},
                     modifier = Modifier.weight(1f)
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {

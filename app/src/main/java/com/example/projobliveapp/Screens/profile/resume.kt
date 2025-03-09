@@ -210,6 +210,7 @@ fun ProfileSection(apiService: ApiService, userEmail: String, navController: Nav
                                 ) {
                                     Text(text = "Download Resume", color = Color.White)
                                 }
+
                                 Button(
                                     onClick = { resumeLauncher.launch("application/pdf") },
                                     modifier = Modifier.weight(1f),

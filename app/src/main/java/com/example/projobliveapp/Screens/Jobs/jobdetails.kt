@@ -28,31 +28,37 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.projobliveapp.Component.formatDateTime
+import com.example.projobliveapp.DataBase.ApiService
+import com.example.projobliveapp.DataBase.JobPost
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun JobDetailScreen(
     navController: NavHostController,
-    jobTitle: String,
-    jobDescription: String,
-    jobLocation: String,
-    company: String,
-    minSalary: String,
-    maxSalary: String,
-    createdAt: String,
-    minExperience: String,
-    maxExperience: String,
-    keySkills: String,
-    createdBy: String,
-    createdByEmp: String,
-    shortlisted: String,
-    applications: String,
-    updatedAt: String,
+    jobid: String,
+    apiService: ApiService,
     userEmail: String
 ) {
     val scrollState = rememberLazyListState()
     val isTitleVisible = remember { mutableStateOf(false) }
     val isFavorite = remember { mutableStateOf(false) }
+    var isLoading by remember { mutableStateOf(true) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    var jobData by remember { mutableStateOf<JobPost?>(null) }
+
+    LaunchedEffect(jobid) {
+        if (jobid.isNotEmpty()) {
+            isLoading = true
+            errorMessage = null
+            try {
+                jobData = apiService.jobbyid(jobid)
+            } catch (e: Exception) {
+                errorMessage = "Error fetching job data: ${e.message}"
+            } finally {
+                isLoading = false
+            }
+        }
+    }
 
     LaunchedEffect(scrollState.firstVisibleItemIndex, scrollState.firstVisibleItemScrollOffset) {
         isTitleVisible.value =
@@ -63,9 +69,9 @@ fun JobDetailScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    if (isTitleVisible.value) {
+                    if (isTitleVisible.value && jobData != null) {
                         Text(
-                            text = jobTitle,
+                            text = jobData?.jobTitle ?: "",
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             fontWeight = FontWeight.Bold,
@@ -102,7 +108,7 @@ fun JobDetailScreen(
                     }
                 }
                 IconButton(
-                    onClick = { },
+                    onClick = {navController.navigate("AvailableInterns/$userEmail") },
                     modifier = Modifier.weight(1f)
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -134,152 +140,162 @@ fun JobDetailScreen(
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
-            LazyColumn(
-                state = scrollState,
-                contentPadding = innerPadding
-            ) {
-                item {
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(16.dp)),
-                        colors = CardDefaults.cardColors(Color.Transparent),
-                    ) {
-                        Text(
-                            text = jobTitle,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 28.sp,
-                            color = Color.Blue,
-                            modifier = Modifier.padding(16.dp)
-                        )
-
-                        Text(
-                            text = company,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Medium,
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
-                        )
-                        Column(
+            if (isLoading) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            } else if (errorMessage != null) {
+                Text(
+                    text = errorMessage ?: "Unknown Error",
+                    color = Color.Red,
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            } else if (jobData != null) {
+                LazyColumn(
+                    state = scrollState,
+                    contentPadding = innerPadding
+                ) {
+                    item {
+                        Card(
                             modifier = Modifier
-                                .padding(horizontal = 16.dp)
                                 .fillMaxWidth()
+                                .clip(RoundedCornerShape(16.dp)),
+                            colors = CardDefaults.cardColors(Color.Transparent),
                         ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.LocationOn,
-                                    contentDescription = "Location Icon",
-                                    modifier = Modifier.size(18.dp)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    text = jobLocation,
-                                    fontSize = 20.sp,
-                                    fontWeight = FontWeight.Medium,
-                                )
-                            }
+                            Text(
+                                text = jobData?.jobTitle ?: "",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 28.sp,
+                                color = Color.Blue,
+                                modifier = Modifier.padding(16.dp)
+                            )
 
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically
+                            Text(
+                                text = jobData?.Companyname ?: "",
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Medium,
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                            )
+                            Column(
+                                modifier = Modifier
+                                    .padding(horizontal = 16.dp)
+                                    .fillMaxWidth()
                             ) {
-                                Icon(
-                                    imageVector = Icons.Default.Money,
-                                    contentDescription = "Salary Icon",
-                                    modifier = Modifier.size(18.dp)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    text = "Rs $minSalary - $maxSalary p.a.",
-                                    fontSize = 20.sp,
-                                    fontWeight = FontWeight.Medium,
-                                )
-                            }
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.LocationOn,
+                                        contentDescription = "Location Icon",
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = jobData?.jobLocation ?: "",
+                                        fontSize = 20.sp,
+                                        fontWeight = FontWeight.Medium,
+                                    )
+                                }
 
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.AccessTimeFilled,
-                                    contentDescription = "Posted Time Icon",
-                                    modifier = Modifier.size(18.dp)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    text = "${formatDateTime(createdAt)}",
-                                    fontSize = 20.sp,
-                                    color = Color.Gray,
-                                )
                                 Spacer(modifier = Modifier.height(8.dp))
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Money,
+                                        contentDescription = "Salary Icon",
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = "Rs ${jobData?.minSalary} - ${jobData?.maxSalary} p.a.",
+                                        fontSize = 20.sp,
+                                        fontWeight = FontWeight.Medium,
+                                    )
+                                }
+
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.AccessTimeFilled,
+                                        contentDescription = "Posted Time Icon",
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = "Posted on: ${jobData?.createdAt}",
+                                        fontSize = 20.sp,
+                                        color = Color.Gray,
+                                    )
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                }
                             }
                         }
                     }
+
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(8.dp)
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(Color.White)
+                        )
+                    }
+
+                    item {
+                        Text(
+                            text = "Description",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 23.sp,
+                            modifier = Modifier.padding(16.dp)
+                        )
+                        Text(
+                            text = jobData?.jobDescription ?: "",
+                            fontSize = 20.sp,
+                            lineHeight = 24.sp,
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    }
+
+                    item {
+                        Text(
+                            text = "Key Skills: ${jobData?.jobDescription ?:""} ",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                        )
+                        Text(
+                            text = "Experience: ${jobData?.maxExperience} - ${jobData?.minExperience} years",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                        )
+                        Text(
+                            text = "Posted By: ${jobData?.Companyname ?:""}",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                        )
+                    }
+
+                    item {
+                        Spacer(modifier = Modifier.height(75.dp))
+                    }
+                }
+                FloatingActionButton(
+                    onClick = { navController.navigate("Applicationscreen/${jobid}/${userEmail}") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                        .align(Alignment.BottomEnd)
+                        .offset(y = (-125).dp),
+                    containerColor = Color(0xFF1E3A8A)
+                ) {
+                    Text(text = "Apply", color = Color.White)
                 }
 
-                item {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(8.dp)
-                            .clip(RoundedCornerShape(16.dp))
-                            .background(Color.White)
-                    )
-                }
-
-                item {
-                    Text(
-                        text = "Description",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 23.sp,
-                        modifier = Modifier.padding(16.dp)
-                    )
-                    Text(
-                        text = jobDescription,
-                        fontSize = 20.sp,
-                        lineHeight = 24.sp,
-                        modifier = Modifier.padding(16.dp)
-                    )
-                }
-
-                item {
-                    Text(
-                        text = "Key Skills: $keySkills",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                    )
-                    Text(
-                        text = "Experience: $minExperience - $maxExperience years",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                    )
-                    Text(
-                        text = "Posted By: $createdBy",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                    )
-                }
-
-                item {
-                    Spacer(modifier = Modifier.height(75.dp))
-                }
             }
-            FloatingActionButton(
-                onClick = { navController.navigate("Applicationscreen") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-                    .align(Alignment.BottomEnd)
-                    .offset(y = (-125).dp),
-                containerColor = Color(0xFF1E3A8A)
-            ) {
-                Text(text = "Apply", color = Color.White)
-            }
-
         }
     }
 }

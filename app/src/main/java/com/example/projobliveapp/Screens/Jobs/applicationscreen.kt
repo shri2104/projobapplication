@@ -1,16 +1,19 @@
 package com.example.projobliveapp.Screens.Jobs
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Groups
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Message
+import androidx.compose.material.icons.filled.Work
+import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -20,8 +23,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,29 +34,47 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
+import com.example.projobliveapp.DataBase.ApiService
+import com.example.projobliveapp.DataBase.JobPost
 import com.example.projobliveapp.Navigation.Screen
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun JobApplicationScreen(
-    navController: NavHostController,
-    jobTitle: String,
-    companyName: String,
-    location: String
-
+    jobid: String,
+    apiService: ApiService,
+    userEmail: String,
+    navController: NavHostController
 ) {
+    val context = LocalContext.current
+    var isLoading by remember { mutableStateOf(true) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    var jobData by remember { mutableStateOf<JobPost?>(null) }
+    var userId by remember { mutableStateOf<String?>(null) }
+    var resumeExists by remember { mutableStateOf(false) }
+    var resumeUrl by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(jobid) {
+        if (jobid.isNotEmpty()) {
+            isLoading = true
+            errorMessage = null
+            try {
+                jobData = apiService.jobbyid(jobid)
+            } catch (e: Exception) {
+                errorMessage = "Error fetching job data: ${e.message}"
+            } finally {
+                isLoading = false
+            }
+        }
+    }
+
     val totalSteps = 3
     val currentStep = remember { mutableStateOf(1) }
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -71,6 +92,48 @@ fun JobApplicationScreen(
                     }
                 }
             )
+        },
+        bottomBar = {
+            BottomAppBar(
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                IconButton(
+                    onClick = { navController.navigate("homeScreen/$userEmail") },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(Icons.Default.Home, contentDescription = "Home")
+                        Text(text = "Home", style = MaterialTheme.typography.titleSmall)
+                    }
+                }
+                IconButton(
+                    onClick = { },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(Icons.Default.Groups, contentDescription = "Internships")
+                        Text(text = "Internships", style = MaterialTheme.typography.titleSmall)
+                    }
+                }
+                IconButton(
+                    onClick = { },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(Icons.Default.Work, contentDescription = "Jobs")
+                        Text(text = "Jobs", style = MaterialTheme.typography.titleSmall)
+                    }
+                }
+                IconButton(
+                    onClick = { },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(Icons.Default.Message, contentDescription = "Messages")
+                        Text(text = "Messages", style = MaterialTheme.typography.titleSmall)
+                    }
+                }
+            }
         }
     ) { paddingValues ->
         Column(
@@ -82,18 +145,18 @@ fun JobApplicationScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = jobTitle,
+                text = jobData?.jobTitle ?: "",
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = "$companyName - $location",
+                text = "${jobData?.Companyname ?: ""} - ${jobData?.jobLocation ?: ""}",
                 style = MaterialTheme.typography.bodyLarge,
                 color = Color.Gray
             )
             TextButton(
                 onClick = {
-                    navController.navigate("jobDetailsScreen")
+                    navController.popBackStack()
                 }
             ) {
                 Text("See More Details", style = MaterialTheme.typography.bodySmall, color = Color.Blue)
@@ -105,9 +168,9 @@ fun JobApplicationScreen(
             )
 
             when (currentStep.value) {
-                1 -> ResumeScreenContent()
+                1 -> ResumeScreenContent(userEmail, apiService, navController)
                 2 -> CoverLetterScreenContent()
-                3 -> ReviewAndSubmitScreenContent()
+                3 -> ReviewAndSubmitScreenContent(userEmail,navController)
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -121,7 +184,7 @@ fun JobApplicationScreen(
             } else {
                 Button(
                     onClick = {
-                        navController.navigate("applicationSubmittedScreen")
+                        navController.navigate("homeScreen/$userEmail")
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -147,18 +210,52 @@ fun JobApplicationScreen(
 }
 
 @Composable
-fun ResumeScreenContent() {
+fun ResumeScreenContent(userEmail: String, apiService: ApiService, navController: NavHostController) {
     val hasResume = remember { mutableStateOf(false) }
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+    var isLoading by remember { mutableStateOf(true) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    var userId by remember { mutableStateOf<String?>(null) }
+    var resumeExists by remember { mutableStateOf(false) }
+    var resumeUrl by remember { mutableStateOf<String?>(null) }
 
+    LaunchedEffect(userEmail) {
+        if (userEmail.isNotEmpty()) {
+            isLoading = true
+            errorMessage = null
+            try {
+                val userIdResponse = apiService.getuserid(userEmail)
+                userId = userIdResponse.userId
+                if (!userId.isNullOrBlank()) {
+                    val resumeResponse = apiService.checkResumeExists(userId!!)
+                    if (resumeResponse.isSuccessful) {
+                        resumeResponse.body()?.let { resume ->
+                            resumeExists = resume.success
+                            resumeUrl = resume.filePath
+                        }
+                    } else {
+                        resumeExists = false
+                    }
+                } else {
+                    errorMessage = "User ID not found"
+                }
+            } catch (e: Exception) {
+                Log.e("API Error", "Error fetching data: ${e.message}", e)
+                errorMessage = "Error fetching data: ${e.message}"
+                Toast.makeText(context, "Error fetching data: ${e.message}", Toast.LENGTH_SHORT).show()
+            } finally {
+                isLoading = false
+            }
+        }
+    }
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        if (hasResume.value) {
+        if (resumeExists) {
             Text(
                 text = "Resume Found",
                 style = MaterialTheme.typography.headlineSmall,
@@ -174,7 +271,7 @@ fun ResumeScreenContent() {
             Spacer(modifier = Modifier.height(16.dp))
             Button(
                 onClick = {
-                    Toast.makeText(context, "Resume Update Clicked", Toast.LENGTH_SHORT).show()
+                    navController.navigate("profileSection/$userEmail")
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -196,10 +293,7 @@ fun ResumeScreenContent() {
             Spacer(modifier = Modifier.height(16.dp))
             Button(
                 onClick = {
-                    coroutineScope.launch {
-                        Toast.makeText(context, "Resume Uploaded", Toast.LENGTH_SHORT).show()
-                        hasResume.value = true
-                    }
+                    navController.navigate("profileSection/$userEmail")
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -253,7 +347,7 @@ fun CoverLetterScreenContent() {
 }
 
 @Composable
-fun ReviewAndSubmitScreenContent() {
+fun ReviewAndSubmitScreenContent(userEmail: String, navController: NavHostController) {
     Text("Review your application before submitting.", style = MaterialTheme.typography.bodyMedium)
     Spacer(modifier = Modifier.height(8.dp))
     Text("Resume: Uploaded", style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
@@ -261,11 +355,16 @@ fun ReviewAndSubmitScreenContent() {
 }
 
 @Composable
-fun JobApplicationScreenPreview(navController: NavHostController) {
+fun JobApplicationScreenPreview(
+    navController: NavHostController,
+    jobid: String,
+    apiService: ApiService,
+    userEmail: String
+) {
     JobApplicationScreen(
-        navController = navController,
-        jobTitle = "Junior Content Creator",
-        companyName = "Swiggy",
-        location = "New Delhi, India"
+        jobid,
+        apiService,
+        userEmail,
+        navController = navController
     )
 }

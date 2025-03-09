@@ -16,7 +16,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.input.KeyboardType
@@ -35,7 +34,6 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
-
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -49,11 +47,15 @@ import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.UUID
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun JobpostScreen(navController: NavHostController, apiService: ApiService) {
+fun JobpostScreen(navController: NavHostController, apiService: ApiService, employerid: String) {
     var jobtitle by remember { mutableStateOf("") }
     val country = remember { mutableStateOf("United States") }
     val selectedContractType = remember { mutableStateOf("Permanent") }
@@ -145,7 +147,6 @@ fun JobpostScreen(navController: NavHostController, apiService: ApiService) {
                 .padding(innerPadding)
                 .padding(16.dp)
         ) {
-
             item {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
@@ -161,7 +162,6 @@ fun JobpostScreen(navController: NavHostController, apiService: ApiService) {
                             .fillMaxWidth()
                             .padding(bottom = 16.dp)
                     )
-
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -349,7 +349,6 @@ fun JobpostScreen(navController: NavHostController, apiService: ApiService) {
                     color = Color.Black,
                     modifier = Modifier.padding(bottom = 4.dp)
                 )
-
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -475,30 +474,38 @@ fun JobpostScreen(navController: NavHostController, apiService: ApiService) {
                 RadioButtonRow(selectedOption = selectedOption)
             }
             item {
+                val jobid = remember { UUID.randomUUID().toString() }
+                val currentTime = remember { SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault()).format(
+                    Date()
+                ) }
 
                 Button(
                     onClick = {
                         val jobPost = JobPost(
-                            jobtitle,
-                            country.value,
-                            selectedContractType.value,
-                            selectedWorkingHours.value,
-                            minexp.toIntOrNull() ?: 0,
-                            maxexp.toIntOrNull() ?: 0,
-                            Keyskills,
-                            minSalary.toIntOrNull() ?: 0,
-                            maxSalary.toIntOrNull() ?: 0,
-                            jobDescription,
-                            jobLocation,
-                            applicationMethod.value,
-                            email.value,
-                            externalLink.value,
-                            phoneNumber.value,
-                            selectedOption.value == "Yes"
+                            jobid = jobid,
+                            Employerid = employerid,
+                            jobTitle = jobtitle,
+                            country = country.value,
+                            contractType = selectedContractType.value,
+                            workingHours = selectedWorkingHours.value,
+                            minExperience = (minexp.toIntOrNull() ?: 0).toString(),
+                            maxExperience = (maxexp.toIntOrNull() ?: 0).toString(),
+                            keySkills = Keyskills,
+                            minSalary = (minSalary.toIntOrNull() ?: 0).toString(),
+                            maxSalary = (maxSalary.toIntOrNull() ?: 0).toString(),
+                            jobDescription = jobDescription,
+                            jobLocation = jobLocation,
+                            applicationMethod = applicationMethod.value,
+                            contactEmail = email.value,
+                            externalLink = externalLink.value,
+                            phoneNumber = phoneNumber.value,
+                            relocationSupport = (selectedOption.value == "Yes").toString(),
+                            Companyname = "YourCompanyName", // Add the company name here
+                            createdAt = currentTime
                         )
+
                         val jobPostJson = Uri.encode(Gson().toJson(jobPost))
                         navController.navigate("jobDetailsScreen/$jobPostJson")
-
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -574,11 +581,7 @@ fun CountryDropdown(selectedCountry: MutableState<String>) {
 @Composable
 fun ContractType(selectedContractType: MutableState<String>) {
     var expanded by remember { mutableStateOf(false) }
-    val contractTypes = listOf(
-        "Permanent", "Fixed-Term Contract", "Internship/Apprenticeship",
-        "Freelance/Contract-Based", "Remote"
-    )
-
+    val contractTypes = listOf("Job", "Internship")
     ExposedDropdownMenuBox(
         expanded = expanded,
         onExpandedChange = { expanded = !expanded }
@@ -897,7 +900,7 @@ fun JobDetailsScreen(jobPost: JobPost, apiService: ApiService, navController: Na
             minSalary = jobPost.minSalary,
             maxSalary = jobPost.maxSalary,
             jobLocation = jobPost.jobLocation,
-            workingHours=  jobPost.workingHours
+            workingHours =  jobPost.workingHours
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -967,8 +970,8 @@ fun JobDetailsCard(
     companyName: String,
     country: String,
     contractType: String,
-    minSalary: Int,
-    maxSalary: Int,
+    minSalary: String,
+    maxSalary: String,
     jobLocation: String,
     workingHours: String
 ) {

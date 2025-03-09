@@ -32,6 +32,7 @@ import com.example.projobliveapp.Screens.Employer.JobpostScreen
 
 
 import com.example.projobliveapp.Screens.Home.NotificationScreen
+import com.example.projobliveapp.Screens.Jobs.InternshipList
 import com.example.projobliveapp.Screens.Jobs.JobApplicationScreenPreview
 import com.example.projobliveapp.Screens.Jobs.JobDetailScreen
 import com.example.projobliveapp.Screens.Jobs.JobList
@@ -64,10 +65,11 @@ fun Navigation(apiService: ApiService){
         composable(Screen.SplashScreen.name){
             SplashScreen(navController=navController,apiService)
         }
-        composable("jobpost") {
+        composable("jobpost{employerid}") {backStackEntry ->
+            val employerid = backStackEntry.arguments?.getString("email") ?: ""
             JobpostScreen(
                 navController = navController,
-                apiService = apiService,
+                apiService = apiService,employerid
             )
         }
         composable(Screen.LoginScreen.name){
@@ -88,7 +90,7 @@ fun Navigation(apiService: ApiService){
         composable("EmployerHomeScreen/{email}"){ backStackEntry ->
             val userEmail = backStackEntry.arguments?.getString("email") ?: ""
             JobPostingScreen(
-                navController = navController,userEmail
+                navController = navController,userEmail,apiService
             )
         }
         composable(Screen.FrontScreen.name){
@@ -181,48 +183,22 @@ fun Navigation(apiService: ApiService){
             val userEmail = backStackEntry.arguments?.getString("email") ?: ""
             JobList(navController = navController, apiService = apiService, userEmail = userEmail)
         }
-        composable(
-            route = "jobDetailScreen/{jobTitle}/{jobDescription}/{jobLocation}/{company}/{minSalary}/{maxSalary}/{createdAt}/{minExperience}/{maxExperience}/{keySkills}/{createdBy}/{createdByEmp}/{shortlisted}/{applications}/{updatedAt}/{email}"
-        ) { backStackEntry ->
-            val jobTitle = backStackEntry.arguments?.getString("jobTitle") ?: ""
-            val jobDescription = backStackEntry.arguments?.getString("jobDescription") ?: ""
-            val jobLocation = backStackEntry.arguments?.getString("jobLocation") ?: ""
-            val company = backStackEntry.arguments?.getString("company") ?: ""
-            val minSalary = backStackEntry.arguments?.getString("minSalary") ?: ""
-            val maxSalary = backStackEntry.arguments?.getString("maxSalary") ?: ""
-            val createdAt = backStackEntry.arguments?.getString("createdAt") ?: ""
-            val minExperience = backStackEntry.arguments?.getString("minExperience") ?: ""
-            val maxExperience = backStackEntry.arguments?.getString("maxExperience") ?: ""
-            val keySkills = backStackEntry.arguments?.getString("keySkills") ?: ""
-            val createdBy = backStackEntry.arguments?.getString("createdBy") ?: ""
-            val createdByEmp = backStackEntry.arguments?.getString("createdByEmp") ?: ""
-            val shortlisted = backStackEntry.arguments?.getString("shortlisted") ?: ""
-            val applications = backStackEntry.arguments?.getString("applications") ?: ""
-            val updatedAt = backStackEntry.arguments?.getString("updatedAt") ?: ""
+        composable("AvailableInterns/{email}") { backStackEntry ->
             val userEmail = backStackEntry.arguments?.getString("email") ?: ""
-
-
+            InternshipList(navController = navController, apiService = apiService, userEmail = userEmail)
+        }
+        composable(
+            route = "jobDetailScreen/{jobid}/{userEmail}"
+        ) { backStackEntry ->
+            val jobid = backStackEntry.arguments?.getString("jobid") ?: ""
+            val userEmail = backStackEntry.arguments?.getString("userEmail") ?: "" // Fixed here
             JobDetailScreen(
-                navController = navController,
-                jobTitle = jobTitle,
-                jobDescription = jobDescription,
-                jobLocation = jobLocation,
-                company = company,
-                minSalary = minSalary,
-                maxSalary = maxSalary,
-                createdAt = createdAt,
-                minExperience = minExperience,
-                maxExperience = maxExperience,
-                keySkills = keySkills,
-                createdBy = createdBy,
-                createdByEmp = createdByEmp,
-                shortlisted = shortlisted,
-                applications = applications,
-                updatedAt = updatedAt,
-                userEmail = userEmail
+                navController,
+                jobid,
+                apiService,
+                userEmail
             )
         }
-
         composable("SavedJobs/{email}") { backStackEntry ->
             val userEmail = backStackEntry.arguments?.getString("email") ?: ""
             SavedJobs(
@@ -237,9 +213,12 @@ fun Navigation(apiService: ApiService){
                 navController =navController
             )
         }
-        composable("Applicationscreen") {
+        composable("Applicationscreen/{jobid}/{userEmail}") {backStackEntry ->
+            val jobid = backStackEntry.arguments?.getString("jobid") ?: ""
+            val userEmail = backStackEntry.arguments?.getString("userEmail") ?: ""
             JobApplicationScreenPreview(
-                navController = navController
+                navController = navController,
+                jobid,apiService,userEmail
             )
         }
         composable("Jobposted") {

@@ -41,7 +41,7 @@ data class EducationDetails(
 )
 
 data class ExperienceDetails(
-    val userId: String, // Added userId
+    val userId: String,
     val jobTitle: String,
     val companyName: String,
     val startDate: String,
@@ -57,7 +57,7 @@ data class JobPreferenceData(
 
 
 data class ContactInfo(
-    val userId: String, // Added userId
+    val userId: String,
     var email: String = "",
     var phoneNumber: String = "",
     var alternatePhoneNumber: String = "",
@@ -91,24 +91,27 @@ data class JobApplication(
 )
 
 data class JobPost(
+    val jobid:String,
+    val Employerid: String,
     val jobTitle: String,
     val country: String,
     val contractType: String,
     val workingHours: String,
-    val minExperience: Int,
-    val maxExperience: Int,
+    val minExperience: String,
+    val maxExperience: String,
     val keySkills: String,
-    val minSalary: Int,
-    val maxSalary: Int,
+    val minSalary: String,
+    val maxSalary: String,
     val jobDescription: String,
     val jobLocation: String,
     val applicationMethod: String,
     val contactEmail: String,
     val externalLink: String,
     val phoneNumber: String,
-    val relocationSupport: Boolean
+    val relocationSupport: String,
+    val Companyname:String,
+    val createdAt: String,
 )
-
 
 data class Job(
     val _id: String,
@@ -220,7 +223,7 @@ interface ApiService {
     suspend fun storeUserData(@Body jobData: JobApplication): Response<ApiResponse>
 
     @GET("getJobs")
-    suspend fun getAllJobs(): List<Job>
+    suspend fun getAllJobs(): List<JobPost>
 
     @GET("getDataID/{id}")
     suspend fun getJobById(@Path("id") id: String): Job
@@ -240,9 +243,6 @@ interface ApiService {
     @GET("getSavedJobIDs/{email}")
     suspend fun getSavedJobs(@Path("email") email: String): SavedJobResponse
 
-    @POST("getJobsByIds")
-    suspend fun getJobsByIds(@Body jobIds: List<String>): List<Job>
-
     @POST("JobPost")
     suspend fun storeJob(@Body jobPost: JobPost): Response<ApiResponse>
 
@@ -251,6 +251,10 @@ interface ApiService {
 
     @GET("getcomapnyData/{userId}")
     suspend fun getcomapnyData(@Path("userId") userId: String): CompanyDetails
+
+    @GET("getJobById/{jobid}")
+    suspend fun jobbyid(@Path("jobid") userId: String): JobPost
+
 
     @Multipart
     @POST("uploadResume")

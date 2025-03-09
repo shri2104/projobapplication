@@ -1,3 +1,4 @@
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -5,25 +6,50 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.projobliveapp.DataBase.ApiService
 import com.example.projobliveapp.Navigation.Screen
 import com.example.projobliveapp.R
 import com.google.firebase.auth.FirebaseAuth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun JobPostingScreen(navController: NavController, userEmail: String) {
+fun JobPostingScreen(navController: NavController, userEmail: String, apiService: ApiService) {
     val sheetState = rememberModalBottomSheetState()
     val showBottomSheet = remember { mutableStateOf(false) }
+    var isLoading by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    var employerid by remember { mutableStateOf<String?>(null) }
+
+    val context = LocalContext.current
+    LaunchedEffect(userEmail) {
+        if (!userEmail.isNullOrEmpty()) {
+            isLoading = true
+            errorMessage = null
+            try {
+                val userIdResponse = apiService.getuserid(userEmail)
+                employerid = userIdResponse.userId
+            } catch (e: Exception) {
+                errorMessage = "Error fetching personal data: ${e.message}"
+                Toast.makeText(context, "Error fetching personal data: ${e.message}", Toast.LENGTH_SHORT).show()
+            } finally {
+                isLoading = false
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -124,7 +150,7 @@ fun JobPostingScreen(navController: NavController, userEmail: String) {
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Button(
-                    onClick = { navController.navigate("jobpost") },
+                    onClick = { navController.navigate("jobpost$employerid") },
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(0.dp),
                     colors = ButtonDefaults.buttonColors(Color.Blue)
