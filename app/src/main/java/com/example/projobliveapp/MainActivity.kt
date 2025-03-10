@@ -1,18 +1,21 @@
 package com.example.projobliveapp
 
 
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.RequiresApi
 import com.example.projobliveapp.Navigation.Navigation
 import com.example.projobliveapp.ui.theme.ProJobLiveAppTheme
-
 import com.example.projobliveapp.DataBase.createApiService
 import com.example.projobliveapp.Screens.Login.LoginScreenViewModel
 import com.jakewharton.threetenabp.AndroidThreeTen
 
+
 class MainActivity : ComponentActivity() {
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AndroidThreeTen.init(this)

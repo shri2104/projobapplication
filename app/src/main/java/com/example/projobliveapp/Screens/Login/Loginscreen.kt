@@ -43,7 +43,6 @@ fun LoginScreen(
 ) {
     val userType = rememberSaveable { mutableStateOf("Candidate") }
     val coroutineScope = rememberCoroutineScope()
-
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -67,7 +66,8 @@ fun LoginScreen(
                                     navController.navigate("EmployerHomeScreen/$email")
                                 }
                             }
-                        } else {
+                        }
+                        else {
 //                            // Show error message (Mismatch or User not found)
 //                            viewModel.showError("Invalid login details")
                         }
@@ -221,8 +221,6 @@ fun Signup(
         }
     }
 }
-
-
 @Composable
 fun UserForm(
     loading: Boolean = false,

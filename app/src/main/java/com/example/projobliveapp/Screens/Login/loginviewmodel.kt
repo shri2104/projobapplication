@@ -14,12 +14,10 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 
 class LoginScreenViewModel() : ViewModel() {
-
     private val auth: FirebaseAuth = Firebase.auth
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
     private val _loading = MutableLiveData(false)
     val loading: LiveData<Boolean> = _loading
-
     /**
      * Sign in user with email and password.
      */

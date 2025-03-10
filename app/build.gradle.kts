@@ -4,8 +4,8 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 //    id("com.android.application")
     id("com.google.gms.google-services")
-
 }
+
 android {
     namespace = "com.example.projobliveapp"
     compileSdk = 35
@@ -71,6 +71,5 @@ dependencies {
     implementation (libs.androidx.material3.v110)
     implementation (libs.threetenabp)
     implementation (libs.threetenabp.v131)
-        implementation (libs.material3)
-
+    implementation (libs.material3)
 }

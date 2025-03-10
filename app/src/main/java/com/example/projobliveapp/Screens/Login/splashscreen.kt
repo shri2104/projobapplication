@@ -54,7 +54,6 @@ fun SplashScreen(navController: NavHostController, apiService: ApiService) {
             )
         )
         delay(2000L)
-
         val userEmail = FirebaseAuth.getInstance().currentUser?.email
         if (userEmail.isNullOrEmpty()) {
             navController.navigate(Screen.LoginScreen.name)

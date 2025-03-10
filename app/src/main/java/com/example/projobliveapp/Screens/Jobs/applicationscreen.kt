@@ -312,15 +312,12 @@ fun CoverLetterScreenContent() {
         fontWeight = FontWeight.Bold
     )
     Spacer(modifier = Modifier.height(8.dp))
-
-    // Sample employer's questions
     val questions = listOf(
         "Why do you think you're a good fit for this role?",
         "What are your strengths and weaknesses?",
         "Where do you see yourself in 5 years?"
     )
 
-    // Iterate over the list of questions to display them
     questions.forEachIndexed { index, question ->
         Text(
             text = question,

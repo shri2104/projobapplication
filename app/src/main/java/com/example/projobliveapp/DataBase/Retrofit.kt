@@ -14,8 +14,10 @@ import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
 import retrofit2.http.Path
+import retrofit2.http.Query
 import retrofit2.http.Streaming
 import java.time.LocalDateTime
+import java.util.Date
 
 data class PersonalData(
     val userId: String,
@@ -54,7 +56,6 @@ data class JobPreferenceData(
     val jobLocations: List<String>,
     val selectedSkills: List<String>
 )
-
 
 data class ContactInfo(
     val userId: String,
@@ -113,6 +114,8 @@ data class JobPost(
     val createdAt: String,
 )
 
+
+
 data class Job(
     val _id: String,
     val jobTitle: String,
@@ -160,7 +163,6 @@ data class CompanyDetails(
     val aboutCompany: String
 )
 
-
 data class Resume(
     val success: Boolean,
     val message: String,
@@ -173,6 +175,13 @@ data class ResumeUploadResponse(
     val message: String,
     val filePath: String? = null,
     val error: String? = null
+)
+
+data class jobapplications(
+    val jobid: String,
+    val employerid: String,
+    val userid: String,
+    val timestamp: String
 )
 
 data class SavedJobResponse(val email: String, val jobIds: List<List<String>>)
@@ -246,6 +255,12 @@ interface ApiService {
     @POST("JobPost")
     suspend fun storeJob(@Body jobPost: JobPost): Response<ApiResponse>
 
+    @POST("jobapplications")
+    suspend fun addJobApplication(@Body jobapplications: jobapplications): Response<ApiResponse>
+
+    @GET("jobapplications/{id}")
+    suspend fun getJobApplicationById(@Path("id") id: String): Response<jobapplications>
+
     @POST("comapnyData")
     suspend fun PostcomapnyData(@Body companyDetails: CompanyDetails): Response<ApiResponse>
 
@@ -254,7 +269,6 @@ interface ApiService {
 
     @GET("getJobById/{jobid}")
     suspend fun jobbyid(@Path("jobid") userId: String): JobPost
-
 
     @Multipart
     @POST("uploadResume")
@@ -277,7 +291,6 @@ interface ApiService {
         @Part resume: MultipartBody.Part,
         @Part("userId") userId: RequestBody
     ): Response<ResumeUploadResponse>
-
 }
 
 fun createApiService(): ApiService {
