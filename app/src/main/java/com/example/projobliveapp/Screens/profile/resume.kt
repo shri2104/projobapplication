@@ -124,7 +124,6 @@ fun ProfileSection(apiService: ApiService, userEmail: String, navController: Nav
                 val requestBody = inputStream?.use {
                     it.readBytes().toRequestBody("application/pdf".toMediaTypeOrNull())
                 }
-
                 if (requestBody != null) {
                     val resumePart = MultipartBody.Part.createFormData("resume", "updated_resume.pdf", requestBody)
                     val response = apiService.updateResume(resumePart, userIdRequestBody)

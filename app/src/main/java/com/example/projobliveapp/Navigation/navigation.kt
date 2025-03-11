@@ -26,6 +26,7 @@ import com.example.projobliveapp.DataBase.ApiService
 import com.example.projobliveapp.DataBase.Job
 import com.example.projobliveapp.DataBase.JobPost
 import com.example.projobliveapp.Screens.Employer.CandidateApplications
+import com.example.projobliveapp.Screens.Employer.CompanyLogo
 import com.example.projobliveapp.Screens.Employer.CompanyProfileScreen
 import com.example.projobliveapp.Screens.Employer.postedJobs
 import com.example.projobliveapp.Screens.Employer.JobDetailsScreen
@@ -122,6 +123,10 @@ fun Navigation(apiService: ApiService){
         composable("candidateresume/{userId}") { backStackEntry ->
             val userId = backStackEntry.arguments?.getString("userId") ?:""
             downloadresume(apiService,userId)
+        }
+        composable("logo/{userId}") { backStackEntry ->
+            val userId = backStackEntry.arguments?.getString("userId") ?:""
+            CompanyLogo(userId,apiService)
         }
         composable(Screen.PHHomeScreen.name){
             PHHomeScreen(

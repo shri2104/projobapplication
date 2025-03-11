@@ -187,7 +187,7 @@ fun poosetdscreen(
     var isFilterVisible by remember { mutableStateOf(false) } // Controls filter visibility
     var expanded by remember { mutableStateOf(false) }
     val totalJobs = jobs.size
-    val filterOptions = listOf("All", "Job Title", "Company Name", "Location")
+    val filterOptions = listOf("All", "Job Title", "Location")
     Column {
         TopAppBar(
             title = {
@@ -230,7 +230,6 @@ fun poosetdscreen(
                 }
             }
         )
-
         Scaffold { innerPadding ->
             Column(
                 modifier = Modifier
@@ -313,7 +312,6 @@ fun poosetdscreen(
                         }
                     }
                 }
-
                 val filteredJobs = if (searchQuery.isNotEmpty()) {
                     when (selectedFilter) {
                         "Job Title" -> jobs.filter { it.jobTitle.contains(searchQuery, ignoreCase = true) }
