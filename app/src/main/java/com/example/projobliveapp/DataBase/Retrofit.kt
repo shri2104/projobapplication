@@ -258,8 +258,8 @@ interface ApiService {
     @POST("jobapplications")
     suspend fun addJobApplication(@Body jobapplications: jobapplications): Response<ApiResponse>
 
-    @GET("jobapplications/{id}")
-    suspend fun getJobApplicationById(@Path("id") id: String): Response<jobapplications>
+    @GET("getapplieduserids/{jobid}")
+    suspend fun getapplieduserids(@Path("jobid") jobid: String): List<jobapplications>
 
     @POST("comapnyData")
     suspend fun PostcomapnyData(@Body companyDetails: CompanyDetails): Response<ApiResponse>

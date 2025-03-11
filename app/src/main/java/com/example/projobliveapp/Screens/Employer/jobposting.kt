@@ -55,7 +55,12 @@ import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun JobpostScreen(navController: NavHostController, apiService: ApiService, employerid: String) {
+fun JobpostScreen(
+    navController: NavHostController,
+    apiService: ApiService,
+    employerid: String,
+    userEmail: String
+) {
     var jobtitle by remember { mutableStateOf("") }
     val country = remember { mutableStateOf("United States") }
     val selectedContractType = remember { mutableStateOf("Permanent") }
@@ -102,7 +107,7 @@ fun JobpostScreen(navController: NavHostController, apiService: ApiService, empl
                 modifier = Modifier.fillMaxWidth()
             ) {
                 IconButton(
-                    onClick = {  },
+                    onClick = { navController.navigate("EmployerHomeScreen/$userEmail") },
                     modifier = Modifier.weight(1f)
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -115,12 +120,12 @@ fun JobpostScreen(navController: NavHostController, apiService: ApiService, empl
                     modifier = Modifier.weight(1f)
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Default.Groups, contentDescription = "Posted Jobs")
-                        Text(text = "Internships", style = MaterialTheme.typography.titleSmall)
+                        Icon(Icons.Default.Groups, contentDescription = "Applications")
+                        Text(text = "Applications", style = MaterialTheme.typography.titleSmall)
                     }
                 }
                 IconButton(
-                    onClick = { },
+                    onClick = {navController.navigate("postedjobs/${employerid}/${userEmail}")  },
                     modifier = Modifier.weight(1f)
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -1130,3 +1135,5 @@ fun JobPostedScreen(navController: NavHostController) {
         }
     }
 }
+
+

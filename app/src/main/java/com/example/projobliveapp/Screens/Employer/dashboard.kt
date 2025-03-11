@@ -150,17 +150,16 @@ fun JobPostingScreen(navController: NavController, userEmail: String, apiService
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Button(
-                    onClick = { navController.navigate("jobpost$employerid") },
+                    onClick = { navController.navigate("jobpost/${employerid}/${userEmail}")},
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(0.dp),
                     colors = ButtonDefaults.buttonColors(Color.Blue)
                 ) {
                     Text("Post a Job")
                 }
-
                 Button(
                     onClick = {navController.navigate("postedjobs/${employerid}/${userEmail}") },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE6F7FF)), // Very light blue
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE6F7FF)),
                     shape = RoundedCornerShape(4.dp),
                     contentPadding = PaddingValues(8.dp),
                     modifier = Modifier.weight(1f) // Ensures equal width

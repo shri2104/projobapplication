@@ -1,5 +1,6 @@
 package com.example.projobliveapp.Screens.Employer
 
+import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -36,6 +37,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -68,11 +70,17 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.projobliveapp.DataBase.ApiService
 import com.example.projobliveapp.DataBase.JobPost
+import com.example.projobliveapp.DataBase.PersonalData
 import com.example.projobliveapp.DataBase.SaveJob
+import com.example.projobliveapp.DataBase.jobapplications
 import com.example.projobliveapp.R
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 @Composable
 fun postedJobs(
@@ -125,16 +133,16 @@ fun postedJobs(
                     }
                 }
                 IconButton(
-                    onClick = { navController.navigate("AvailableInterns/$userEmail") },
+                    onClick = {  },
                     modifier = Modifier.weight(1f)
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Default.Groups, contentDescription = "Internships")
-                        Text(text = "Internships", style = MaterialTheme.typography.titleSmall)
+                        Icon(Icons.Default.Groups, contentDescription = "Application")
+                        Text(text = "Application", style = MaterialTheme.typography.titleSmall)
                     }
                 }
                 IconButton(
-                    onClick = { },
+                    onClick = { navController.navigate("postedjobs/${employerid}/${userEmail}") },
                     modifier = Modifier.weight(1f)
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -219,13 +227,6 @@ fun poosetdscreen(
                             expanded = false
                         },
                         text = { Text("Profile") }
-                    )
-                    DropdownMenuItem(
-                        onClick = {
-                            navController.navigate("SavedJobs/$userEmail")
-                            expanded = false
-                        },
-                        text = { Text("Saved Jobs") }
                     )
                 }
             }
@@ -356,10 +357,16 @@ fun poosetdscreen(
         }
     }
 }
-
 @Composable
-fun formatTimestamp(timestamp: String): String {
-    return timestamp.replace("T", " ").substring(0, 19)
+fun formatTimestamp(timestamp: String?): String {
+    if (timestamp.isNullOrEmpty()) return "N/A"
+    return try {
+        val parsedDate = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault()).parse(timestamp)
+        val formattedDate = SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault()).format(parsedDate!!)
+        formattedDate
+    } catch (e: Exception) {
+        "Invalid Date"
+    }
 }
 
 @Composable
@@ -401,7 +408,7 @@ fun JobCard(
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = "Created at: ${formatTimestamp(job.createdAt)}",
+                text = formatTimestamp(job.createdAt ?: "N/A"),
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.Gray
             )
@@ -445,12 +452,121 @@ fun JobCard(
             Button(
                 onClick = {
                     Log.d("JobCard", "Navigating to application screen for job ${job.jobid}")
-                    navController.navigate("Applicationscreen/${job.jobid}/${userEmail}/${job.Employerid}")
+                    navController.navigate("CandidateApplications/${job.jobid}/${userEmail}")
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Blue),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("View Applications", color = Color.White, fontWeight = FontWeight.Bold)
+            }
+        }
+    }
+}
+
+@Composable
+fun CandidateApplications(
+    apiService: ApiService,
+    userEmail: String,
+    jobid: String
+) {
+    var isLoading by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    var jobList by remember { mutableStateOf<List<jobapplications>>(emptyList()) }
+    var candidates by remember { mutableStateOf<List<PersonalData>>(emptyList()) }
+    val context = LocalContext.current
+
+    LaunchedEffect(jobid) {
+        isLoading = true
+        errorMessage = null
+        try {
+            val response = apiService.getapplieduserids(jobid)
+            if (response.isNotEmpty()) {
+                jobList = response
+                Log.d("CandidateApplications", "Successfully fetched job applications: ${response.size}")
+
+                val candidateData = response.mapNotNull { job ->
+                    try {
+                        apiService.getCandidatepersonaldata(job.userid)
+                    } catch (e: Exception) {
+                        Log.e("CandidateApplications", "Error fetching data for userId: ${job.userid}, ${e.message}")
+                        null
+                    }
+                }
+                candidates = candidateData
+            } else {
+                errorMessage = "No candidates found for this job."
+                Log.e("CandidateApplications", errorMessage ?: "Unknown error")
+            }
+        } catch (e: Exception) {
+            errorMessage = "Failed to load job applications: ${e.localizedMessage}"
+            Log.e("CandidateApplications", "Exception: ${e.message}")
+            Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+        } finally {
+            isLoading = false
+        }
+    }
+
+    if (isLoading) {
+        CircularProgressIndicator()
+    } else if (errorMessage != null) {
+        Text(text = errorMessage ?: "Error occurred")
+    } else {
+        LazyColumn {
+            items(candidates) { candidate ->
+                CandidateCard(candidate, apiService, context)
+            }
+        }
+    }
+}
+
+@Composable
+fun CandidateCard(candidate: PersonalData, apiService: ApiService, context: Context) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(text = "First Name: ${candidate.Firstname}", style = MaterialTheme.typography.headlineSmall)
+            Text(text = "Last Name: ${candidate.Lastname}", style = MaterialTheme.typography.titleSmall)
+            Text(text = "Gender: ${candidate.gender}", style = MaterialTheme.typography.titleMedium)
+            Text(text = "Nationality: ${candidate.nationality}", style = MaterialTheme.typography.titleSmall)
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Button(
+                onClick = {
+                    downloadResume(apiService, candidate.userId, context)
+                }
+            ) {
+                Text("Download Resume")
+            }
+        }
+    }
+}
+
+fun downloadResume(apiService: ApiService, userId: String, context: Context) {
+    CoroutineScope(Dispatchers.IO).launch {
+        try {
+            val response = apiService.downloadResume(userId)
+            if (response.isSuccessful) {
+                response.body()?.let { body ->
+                    val file = File(context.getExternalFilesDir(null), "${userId}_resume.pdf")
+                    file.outputStream().use { output ->
+                        body.byteStream().copyTo(output)
+                    }
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(context, "Resume downloaded: ${file.absolutePath}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            } else {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, "Failed to download resume", Toast.LENGTH_SHORT).show()
+                }
+            }
+        } catch (e: Exception) {
+            withContext(Dispatchers.Main) {
+                Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
     }

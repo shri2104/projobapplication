@@ -25,6 +25,7 @@ import com.bawp.freader.screens.login.UserForm
 import com.example.projobliveapp.DataBase.ApiService
 import com.example.projobliveapp.DataBase.Job
 import com.example.projobliveapp.DataBase.JobPost
+import com.example.projobliveapp.Screens.Employer.CandidateApplications
 import com.example.projobliveapp.Screens.Employer.CompanyProfileScreen
 import com.example.projobliveapp.Screens.Employer.postedJobs
 import com.example.projobliveapp.Screens.Employer.JobDetailsScreen
@@ -66,11 +67,19 @@ fun Navigation(apiService: ApiService){
         composable(Screen.SplashScreen.name){
             SplashScreen(navController=navController,apiService)
         }
-        composable("jobpost{employerid}") {backStackEntry ->
+        composable("jobpost/{employerid}/{userEmail}") {backStackEntry ->
             val employerid = backStackEntry.arguments?.getString("employerid") ?: ""
+            val userEmail = backStackEntry.arguments?.getString("userEmail") ?: ""
             JobpostScreen(
                 navController = navController,
-                apiService = apiService,employerid
+                apiService = apiService,employerid,userEmail
+            )
+        }
+        composable("CandidateApplications/{jobid}/{userEmail}") {backStackEntry ->
+            val jobid = backStackEntry.arguments?.getString("jobid") ?: ""
+            val userEmail = backStackEntry.arguments?.getString("userEmail") ?: ""
+            CandidateApplications(
+                apiService = apiService,userEmail, jobid
             )
         }
         composable(Screen.LoginScreen.name){
