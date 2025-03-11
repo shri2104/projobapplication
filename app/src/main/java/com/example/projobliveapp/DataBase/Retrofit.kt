@@ -270,6 +270,12 @@ interface ApiService {
     @GET("getJobById/{jobid}")
     suspend fun jobbyid(@Path("jobid") userId: String): JobPost
 
+
+    @GET("getJobByemployerId/{Employerid}")
+    suspend fun getJobByemployerId(@Path("Employerid") email: String): List<JobPost>
+
+
+
     @Multipart
     @POST("uploadResume")
     suspend fun uploadResume(

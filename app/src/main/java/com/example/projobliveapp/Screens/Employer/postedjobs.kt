@@ -1,22 +1,26 @@
-package com.example.projobliveapp.Screens.Jobs
+package com.example.projobliveapp.Screens.Employer
 
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material3.*
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Favorite
@@ -27,14 +31,21 @@ import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Message
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Work
+import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -49,8 +60,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.projobliveapp.DataBase.ApiService
@@ -61,29 +74,41 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-
 @Composable
-fun InternshipList(apiService: ApiService, navController: NavHostController, userEmail: String) {
-    val internshipList = remember { mutableStateListOf<JobPost>() }
+fun postedJobs(
+    navController: NavHostController,
+    employerid: String,
+    apiService: ApiService,
+    userEmail: String
+) {
+    // Fetch Job by Employer ID
     val context = LocalContext.current
+    var isLoading by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    var jobList by remember { mutableStateOf<List<JobPost>>(emptyList()) }
 
-    LaunchedEffect(true) {
-        Log.d("InternshipList", "Fetching internships from API...")
+    // Fetch Job by Employer ID
+    LaunchedEffect(employerid) {
+        isLoading = true
+        errorMessage = null
         try {
-            val response = apiService.getAllJobs()
-            val filteredInternships = response.filter { it.contractType == "Internship" } // Fetch only internships
-            if (filteredInternships.isNotEmpty()) {
-                internshipList.clear()
-                internshipList.addAll(filteredInternships)
-                Log.d("InternshipList", "Successfully fetched ${filteredInternships.size} Internship")
+            val response = apiService.getJobByemployerId(employerid)
+            if (response.isNotEmpty()) {
+                jobList = response
+                Log.d("PostedJobs", "Successfully fetched jobs: ${response.size}")
             } else {
-                Log.d("InternshipList", "No internships found in the response")
+                errorMessage = "No jobs found for this employer."
+                Log.e("PostedJobs", errorMessage ?: "Unknown error")
             }
         } catch (e: Exception) {
-            Log.e("InternshipList", "Error fetching internships: ${e.message}", e)
-            Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+            errorMessage = "Failed to load jobs: ${e.localizedMessage}"
+            Log.e("PostedJobs", "Exception: ${e.message}")
+            Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+        } finally {
+            isLoading = false
         }
     }
+
 
     Scaffold(
         bottomBar = {
@@ -91,7 +116,7 @@ fun InternshipList(apiService: ApiService, navController: NavHostController, use
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 IconButton(
-                    onClick = { navController.navigate("homeScreen/$userEmail") },
+                    onClick = { navController.navigate("EmployerHomeScreen/$userEmail") },
                     modifier = Modifier.weight(1f)
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -100,84 +125,7 @@ fun InternshipList(apiService: ApiService, navController: NavHostController, use
                     }
                 }
                 IconButton(
-                    onClick = {  },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Default.Groups, contentDescription = "Internships")
-                        Text(text = "Internships", style = MaterialTheme.typography.titleSmall)
-                    }
-                }
-                IconButton(
-                    onClick = { navController.navigate("AvailableJobs/$userEmail")},
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Default.Work, contentDescription = "Jobs")
-                        Text(text = "Jobs", style = MaterialTheme.typography.titleSmall)
-                    }
-                }
-                IconButton(
-                    onClick = { },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Default.Message, contentDescription = "Messages")
-                        Text(text = "Messages", style = MaterialTheme.typography.titleSmall)
-                    }
-                }
-            }
-        }
-    ) { paddingValues ->
-        JobListScreen(
-            jobs = internshipList,
-            navController = navController,
-            userEmail = userEmail,
-            apiService = apiService,
-            modifier = Modifier.padding(paddingValues)
-        )
-    }
-}
-
-@Composable
-fun JobList(apiService: ApiService, navController: NavHostController, userEmail: String) {
-    val jobList = remember { mutableStateListOf<JobPost>() }
-    val context = LocalContext.current
-
-    LaunchedEffect(true) {
-        Log.d("JobList", "Fetching jobs from API...")
-        try {
-            val response = apiService.getAllJobs()
-            val filteredJobs = response.filter { it.contractType == "Jobs" } // Only fetch jobs
-            if (filteredJobs.isNotEmpty()) {
-                jobList.clear()
-                jobList.addAll(filteredJobs)
-                Log.d("JobList", "Successfully fetched ${filteredJobs.size} jobs")
-            } else {
-                Log.d("JobList", "No jobs found in the response")
-            }
-        } catch (e: Exception) {
-            Log.e("JobList", "Error fetching jobs: ${e.message}", e)
-            Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    Scaffold(
-        bottomBar = {
-            BottomAppBar(
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                IconButton(
-                    onClick = { navController.navigate("homeScreen/$userEmail") },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Default.Home, contentDescription = "Home")
-                        Text(text = "Home", style = MaterialTheme.typography.titleSmall)
-                    }
-                }
-                IconButton(
-                    onClick = {navController.navigate("AvailableInterns/$userEmail")  },
+                    onClick = { navController.navigate("AvailableInterns/$userEmail") },
                     modifier = Modifier.weight(1f)
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -206,7 +154,7 @@ fun JobList(apiService: ApiService, navController: NavHostController, userEmail:
             }
         }
     ) { paddingValues ->
-        JobListScreen(
+        poosetdscreen(
             jobs = jobList,
             navController = navController,
             userEmail = userEmail,
@@ -216,9 +164,10 @@ fun JobList(apiService: ApiService, navController: NavHostController, userEmail:
     }
 }
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun JobListScreen(
+fun poosetdscreen(
     jobs: List<JobPost>,
     navController: NavHostController,
     userEmail: String,
@@ -289,7 +238,7 @@ fun JobListScreen(
                     .padding(innerPadding)
             ) {
                 Text(
-                    text = "$totalJobs Available Internship",
+                    text = "$totalJobs Available Jobs",
                     style = MaterialTheme.typography.bodyLarge,
                     fontSize = 20.sp,
                     modifier = Modifier.padding(16.dp)
@@ -341,7 +290,6 @@ fun JobListScreen(
                                     }
                                 )
                             }
-
                             if (isFilterVisible) { // Show filter options in LazyRow
                                 LazyRow(
                                     modifier = Modifier
@@ -409,7 +357,10 @@ fun JobListScreen(
     }
 }
 
-
+@Composable
+fun formatTimestamp(timestamp: String): String {
+    return timestamp.replace("T", " ").substring(0, 19)
+}
 
 @Composable
 fun JobCard(
@@ -422,21 +373,6 @@ fun JobCard(
     val coroutineScope = rememberCoroutineScope()
     var isFavorite by remember { mutableStateOf(false) }
 
-    LaunchedEffect(job.jobid) {
-        Log.d("JobCard", "Checking if job ${job.jobid} is in favorites for user $userEmail")
-        try {
-            val response = apiService.isJobInFavorites(userEmail, job.jobid)
-            if (response.isSuccessful) {
-                isFavorite = response.body()?.success ?: false
-                Log.d("JobCard", "Job ${job.jobid} favorite status: $isFavorite")
-            } else {
-                Log.e("JobCard", "API response error: ${response.code()} ${response.message()}")
-            }
-        } catch (e: Exception) {
-            Log.e("JobCard", "Error checking favorites: ${e.message}", e)
-            Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
-        }
-    }
     Card(
         elevation = CardDefaults.cardElevation(8.dp),
         modifier = Modifier
@@ -444,74 +380,33 @@ fun JobCard(
             .padding(8.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            // Job Title & Saved Job Icon Row
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = job.jobTitle ?: "Unknown Title",
+                    text = job.jobTitle,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Bold,
                     color = Color.Blue,
                     fontSize = 20.sp
                 )
-
-                // Saved Job Icon
-                IconButton(
-                    onClick = {
-                        coroutineScope.launch(Dispatchers.IO) {
-                            val newFavoriteState = !isFavorite
-                            try {
-                                val saveJob = SaveJob(userEmail, listOf(job.jobid))
-                                Log.d("JobCard", "Preparing to ${if (newFavoriteState) "add" else "remove"} job ${job.jobid} from favorites")
-
-                                val response = if (newFavoriteState) {
-                                    apiService.addJobToFavorite(saveJob)
-                                } else {
-                                    apiService.deleteFavorite(saveJob)
-                                }
-
-                                withContext(Dispatchers.Main) {
-                                    if (response.isSuccessful) {
-                                        isFavorite = newFavoriteState
-                                        Log.d("JobCard", "Job ${job.jobid} favorite status updated to: $isFavorite")
-                                        Toast.makeText(
-                                            context,
-                                            if (isFavorite) "Added to Favorites" else "Removed from Favorites",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    } else {
-                                        Log.e("JobCard", "API response error: ${response.code()} ${response.message()}")
-                                        Toast.makeText(
-                                            context,
-                                            "Error: ${response.message()}",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    }
-                                }
-                            } catch (e: Exception) {
-                                Log.e("JobCard", "Error updating favorite status: ${e.message}", e)
-                                withContext(Dispatchers.Main) {
-                                    Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
-                                }
-                            }
-                        }
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Favorite,
-                        tint = if (isFavorite) Color.Red else Color.Gray,
-                        contentDescription = if (isFavorite) "Remove from Favorites" else "Add to Favorites"
-                    )
-                }
+                Text(
+                    text = job.Companyname,
+                    style = MaterialTheme.typography.bodyMedium
+                )
             }
 
+            Spacer(modifier = Modifier.height(4.dp))
+
             Text(
-                text = job.Companyname ?: "Unknown Company",
-                style = MaterialTheme.typography.bodyMedium
+                text = "Created at: ${formatTimestamp(job.createdAt)}",
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.Gray
             )
+
+            Spacer(modifier = Modifier.height(4.dp))
 
             // Job Location
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -523,13 +418,14 @@ fun JobCard(
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = job.jobLocation ?: "Unknown Location",
+                    text = job.jobLocation,
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
 
-            // Salary
             Spacer(modifier = Modifier.height(4.dp))
+
+            // Salary Information
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     imageVector = Icons.Default.AttachMoney,
@@ -544,37 +440,17 @@ fun JobCard(
                     color = Color.Gray
                 )
             }
+            Spacer(modifier = Modifier.height(4.dp))
 
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // View and Apply Buttons (each taking half width)
-            Row(modifier = Modifier.fillMaxWidth()) {
-                Button(
-                    onClick = {
-                        Log.d("JobCard", "Navigating to job detail screen for job ${job.jobid}")
-                        navController.navigate("jobDetailScreen/${job.jobid}/${userEmail}")
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Blue),
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(end = 4.dp)
-                ) {
-                    Text("View")
-                }
-                Button(
-                    onClick = {
-                        Log.d("JobCard", "Applying for job ${job.jobid}")
-                        navController.navigate("Applicationscreen/${job.jobid}/${userEmail}/${job.Employerid}")
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE6F7FF)),
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(start = 4.dp)
-                ) {
-                    Text(text = "Apply",
-                        color = Color.Blue,
-                        fontWeight = FontWeight.Bold)
-                }
+            Button(
+                onClick = {
+                    Log.d("JobCard", "Navigating to application screen for job ${job.jobid}")
+                    navController.navigate("Applicationscreen/${job.jobid}/${userEmail}/${job.Employerid}")
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Blue),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("View Applications", color = Color.White, fontWeight = FontWeight.Bold)
             }
         }
     }

@@ -515,8 +515,6 @@ fun JobpostScreen(navController: NavHostController, apiService: ApiService, empl
                     Text(text = "Preview", color = Color.White)
                 }
             }
-
-
         }
     }
 }

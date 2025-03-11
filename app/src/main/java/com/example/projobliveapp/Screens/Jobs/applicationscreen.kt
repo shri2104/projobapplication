@@ -41,7 +41,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavHostController
 import com.example.projobliveapp.DataBase.ApiService
 import com.example.projobliveapp.DataBase.JobPost
+import com.example.projobliveapp.DataBase.jobapplications
 import com.example.projobliveapp.Navigation.Screen
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,6 +52,7 @@ fun JobApplicationScreen(
     jobid: String,
     apiService: ApiService,
     userEmail: String,
+    employerid: String,
     navController: NavHostController
 ) {
     val context = LocalContext.current
@@ -58,7 +62,7 @@ fun JobApplicationScreen(
     var userId by remember { mutableStateOf<String?>(null) }
     var resumeExists by remember { mutableStateOf(false) }
     var resumeUrl by remember { mutableStateOf<String?>(null) }
-
+    val coroutineScope = rememberCoroutineScope()
     LaunchedEffect(jobid) {
         if (jobid.isNotEmpty()) {
             isLoading = true
@@ -72,7 +76,20 @@ fun JobApplicationScreen(
             }
         }
     }
-
+    LaunchedEffect(userEmail) {
+        if (userEmail.isNotEmpty()) {
+            isLoading = true
+            errorMessage = null
+            try {
+                val userIdResponse = apiService.getuserid(userEmail)
+                userId = userIdResponse.userId
+            } catch (e: Exception) {
+                errorMessage = "Error fetching job data: ${e.message}"
+            } finally {
+                isLoading = false
+            }
+        }
+    }
     val totalSteps = 3
     val currentStep = remember { mutableStateOf(1) }
     Scaffold(
@@ -184,10 +201,23 @@ fun JobApplicationScreen(
             } else {
                 Button(
                     onClick = {
+                        val jobapply = jobapplications(
+                            jobid = jobid,
+                            employerid = employerid,
+                            userid = userId ?: "",
+                            timestamp = System.currentTimeMillis().toString()
+                        )
+                        coroutineScope.launch(Dispatchers.IO) {
+                            try {
+                                apiService.addJobApplication(jobapply)
+                            } catch (e: Exception) {
+                            }
+                        }
                         navController.navigate("homeScreen/$userEmail")
                     },
                     modifier = Modifier.fillMaxWidth()
-                ) {
+                )
+                {
                     Text("Submit Application")
                 }
             }
@@ -356,12 +386,14 @@ fun JobApplicationScreenPreview(
     navController: NavHostController,
     jobid: String,
     apiService: ApiService,
-    userEmail: String
+    userEmail: String,
+    employerid: String
 ) {
     JobApplicationScreen(
         jobid,
         apiService,
         userEmail,
+        employerid,
         navController = navController
     )
 }

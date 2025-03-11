@@ -171,7 +171,6 @@ fun ContactItem(icon: ImageVector, text: String) {
     }
 }
 
-// Job Listing Card
 @Composable
 fun JobCard(position: String, location: String, salary: String) {
     Card(

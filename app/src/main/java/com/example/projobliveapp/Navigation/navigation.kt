@@ -26,6 +26,7 @@ import com.example.projobliveapp.DataBase.ApiService
 import com.example.projobliveapp.DataBase.Job
 import com.example.projobliveapp.DataBase.JobPost
 import com.example.projobliveapp.Screens.Employer.CompanyProfileScreen
+import com.example.projobliveapp.Screens.Employer.postedJobs
 import com.example.projobliveapp.Screens.Employer.JobDetailsScreen
 import com.example.projobliveapp.Screens.Employer.JobPostedScreen
 import com.example.projobliveapp.Screens.Employer.JobpostScreen
@@ -66,7 +67,7 @@ fun Navigation(apiService: ApiService){
             SplashScreen(navController=navController,apiService)
         }
         composable("jobpost{employerid}") {backStackEntry ->
-            val employerid = backStackEntry.arguments?.getString("email") ?: ""
+            val employerid = backStackEntry.arguments?.getString("employerid") ?: ""
             JobpostScreen(
                 navController = navController,
                 apiService = apiService,employerid
@@ -91,6 +92,13 @@ fun Navigation(apiService: ApiService){
             val userEmail = backStackEntry.arguments?.getString("email") ?: ""
             JobPostingScreen(
                 navController = navController,userEmail,apiService
+            )
+        }
+        composable("postedjobs/{employerid}/{userEmail}"){ backStackEntry ->
+            val employerid = backStackEntry.arguments?.getString("employerid") ?: ""
+            val userEmail = backStackEntry.arguments?.getString("userEmail") ?: ""
+            postedJobs(
+                navController = navController,employerid,apiService,userEmail
             )
         }
         composable(Screen.FrontScreen.name){
@@ -213,12 +221,13 @@ fun Navigation(apiService: ApiService){
                 navController =navController
             )
         }
-        composable("Applicationscreen/{jobid}/{userEmail}") {backStackEntry ->
+        composable("Applicationscreen/{jobid}/{userEmail}/{employerid}") {backStackEntry ->
             val jobid = backStackEntry.arguments?.getString("jobid") ?: ""
+            val employerid = backStackEntry.arguments?.getString("employerid") ?: ""
             val userEmail = backStackEntry.arguments?.getString("userEmail") ?: ""
             JobApplicationScreenPreview(
                 navController = navController,
-                jobid,apiService,userEmail
+                jobid,apiService,userEmail,employerid
             )
         }
         composable("Jobposted") {

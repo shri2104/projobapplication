@@ -94,12 +94,12 @@ fun JobPostingScreen(navController: NavController, userEmail: String, apiService
                     modifier = Modifier.weight(1f)
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Default.Assignment, contentDescription = "Internships")
+                        Icon(Icons.Default.Assignment, contentDescription = "Application")
                         Text(text = "Applications", style = MaterialTheme.typography.titleSmall)
                     }
                 }
                 IconButton(
-                    onClick = { },
+                    onClick = { navController.navigate("postedjobs/${employerid}/${userEmail}")},
                     modifier = Modifier.weight(1f)
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -159,7 +159,7 @@ fun JobPostingScreen(navController: NavController, userEmail: String, apiService
                 }
 
                 Button(
-                    onClick = { },
+                    onClick = {navController.navigate("postedjobs/${employerid}/${userEmail}") },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE6F7FF)), // Very light blue
                     shape = RoundedCornerShape(4.dp),
                     contentPadding = PaddingValues(8.dp),
