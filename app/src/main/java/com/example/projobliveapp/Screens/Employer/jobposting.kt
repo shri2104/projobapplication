@@ -840,7 +840,7 @@ fun StepIndicator(isFilled: Boolean) {
 fun CustomButton(text:String) {
     Button(
         onClick = {  },
-        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE6F7FF)), // Very light blue
+        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE6F7FF)),
         shape = RoundedCornerShape(4.dp),
         contentPadding = PaddingValues(8.dp),
         modifier = Modifier

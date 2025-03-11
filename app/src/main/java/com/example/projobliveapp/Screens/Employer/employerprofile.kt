@@ -178,7 +178,7 @@ fun CompanyLogo(companyId: String, apiService: ApiService) {
         errorMessage = null
 
         try {
-            val response = apiService.getLogo(companyId) // ✅ Now a suspend function
+            val response = apiService.getLogo(companyId) 
 
             if (response.isSuccessful) {
                 val responseBody = response.body()
