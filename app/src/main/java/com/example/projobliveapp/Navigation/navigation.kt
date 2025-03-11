@@ -31,6 +31,7 @@ import com.example.projobliveapp.Screens.Employer.postedJobs
 import com.example.projobliveapp.Screens.Employer.JobDetailsScreen
 import com.example.projobliveapp.Screens.Employer.JobPostedScreen
 import com.example.projobliveapp.Screens.Employer.JobpostScreen
+import com.example.projobliveapp.Screens.Employer.downloadresume
 
 
 import com.example.projobliveapp.Screens.Home.NotificationScreen
@@ -75,11 +76,12 @@ fun Navigation(apiService: ApiService){
                 apiService = apiService,employerid,userEmail
             )
         }
-        composable("CandidateApplications/{jobid}/{userEmail}") {backStackEntry ->
+        composable("CandidateApplications/{jobid}/{userEmail}/{employerid}") {backStackEntry ->
+            val employerid = backStackEntry.arguments?.getString("employerid") ?: ""
             val jobid = backStackEntry.arguments?.getString("jobid") ?: ""
             val userEmail = backStackEntry.arguments?.getString("userEmail") ?: ""
             CandidateApplications(
-                apiService = apiService,userEmail, jobid
+                apiService = apiService,userEmail, jobid,employerid,navController
             )
         }
         composable(Screen.LoginScreen.name){
@@ -116,6 +118,10 @@ fun Navigation(apiService: ApiService){
         composable("profileSection/{email}") { backStackEntry ->
             val email = backStackEntry.arguments?.getString("email")
             ScrollableProfileScreen(navController = navController, userEmail = email)
+        }
+        composable("candidateresume/{userId}") { backStackEntry ->
+            val userId = backStackEntry.arguments?.getString("userId") ?:""
+            downloadresume(apiService,userId)
         }
         composable(Screen.PHHomeScreen.name){
             PHHomeScreen(

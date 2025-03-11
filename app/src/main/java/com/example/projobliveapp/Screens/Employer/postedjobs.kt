@@ -1,6 +1,8 @@
 package com.example.projobliveapp.Screens.Employer
 
+import android.Manifest
 import android.content.Context
+import android.os.Build
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -24,7 +26,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Home
@@ -52,13 +53,13 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -67,18 +68,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.example.projobliveapp.DataBase.ApiService
 import com.example.projobliveapp.DataBase.JobPost
 import com.example.projobliveapp.DataBase.PersonalData
-import com.example.projobliveapp.DataBase.SaveJob
 import com.example.projobliveapp.DataBase.jobapplications
 import com.example.projobliveapp.R
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import downloadResume
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -452,7 +451,7 @@ fun JobCard(
             Button(
                 onClick = {
                     Log.d("JobCard", "Navigating to application screen for job ${job.jobid}")
-                    navController.navigate("CandidateApplications/${job.jobid}/${userEmail}")
+                    navController.navigate("CandidateApplications/${job.jobid}/${userEmail}/${job.Employerid}")
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Blue),
                 modifier = Modifier.fillMaxWidth()
@@ -463,11 +462,14 @@ fun JobCard(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CandidateApplications(
     apiService: ApiService,
     userEmail: String,
-    jobid: String
+    jobid: String,
+    employerid: String,
+    navController: NavController
 ) {
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
@@ -482,49 +484,106 @@ fun CandidateApplications(
             val response = apiService.getapplieduserids(jobid)
             if (response.isNotEmpty()) {
                 jobList = response
-                Log.d("CandidateApplications", "Successfully fetched job applications: ${response.size}")
-
                 val candidateData = response.mapNotNull { job ->
                     try {
                         apiService.getCandidatepersonaldata(job.userid)
                     } catch (e: Exception) {
-                        Log.e("CandidateApplications", "Error fetching data for userId: ${job.userid}, ${e.message}")
                         null
                     }
                 }
                 candidates = candidateData
             } else {
-                errorMessage = "No candidates found for this job."
-                Log.e("CandidateApplications", errorMessage ?: "Unknown error")
+                errorMessage = "No applications received yet."
             }
         } catch (e: Exception) {
-            errorMessage = "Failed to load job applications: ${e.localizedMessage}"
-            Log.e("CandidateApplications", "Exception: ${e.message}")
+            errorMessage = "Failed to load applications: ${e.localizedMessage}"
             Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
         } finally {
             isLoading = false
         }
     }
 
-    if (isLoading) {
-        CircularProgressIndicator()
-    } else if (errorMessage != null) {
-        Text(text = errorMessage ?: "Error occurred")
-    } else {
-        LazyColumn {
-            items(candidates) { candidate ->
-                CandidateCard(candidate, apiService, context)
+    Scaffold(
+        topBar = {
+            TopAppBar(title = { Text("Received Applications") })
+        },
+        bottomBar = {
+            BottomAppBar(
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                IconButton(
+                    onClick = { navController.navigate("EmployerHomeScreen/$userEmail") },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(Icons.Default.Home, contentDescription = "Home")
+                        Text(text = "Home", style = MaterialTheme.typography.titleSmall)
+                    }
+                }
+                IconButton(
+                    onClick = { },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(Icons.Default.Groups, contentDescription = "Applications")
+                        Text(text = "Applications", style = MaterialTheme.typography.titleSmall)
+                    }
+                }
+                IconButton(
+                    onClick = { navController.navigate("postedjobs/$employerid/$userEmail") },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(Icons.Default.Work, contentDescription = "Jobs")
+                        Text(text = "Jobs", style = MaterialTheme.typography.titleSmall)
+                    }
+                }
+                IconButton(
+                    onClick = { },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(Icons.Default.Message, contentDescription = "Messages")
+                        Text(text = "Messages", style = MaterialTheme.typography.titleSmall)
+                    }
+                }
+            }
+        }
+    ) { paddingValues ->
+        Box(modifier = Modifier.padding(paddingValues)) {
+            if (isLoading) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            } else if (errorMessage != null) {
+                Text(
+                    text = errorMessage ?: "Error occurred",
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            } else {
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    items(candidates) { candidate ->
+                        CandidateCard(candidate, apiService, context,navController)
+                    }
+                }
             }
         }
     }
 }
 
+
 @Composable
-fun CandidateCard(candidate: PersonalData, apiService: ApiService, context: Context) {
+fun CandidateCard(
+    candidate: PersonalData,
+    apiService: ApiService,
+    context: Context,
+    navController: NavController
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
+            .shadow(4.dp, RoundedCornerShape(12.dp)),
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(text = "First Name: ${candidate.Firstname}", style = MaterialTheme.typography.headlineSmall)
@@ -535,9 +594,10 @@ fun CandidateCard(candidate: PersonalData, apiService: ApiService, context: Cont
             Spacer(modifier = Modifier.height(8.dp))
 
             Button(
-                onClick = {
-                    downloadResume(apiService, candidate.userId, context)
-                }
+                onClick = {navController.navigate("candidateresume/${candidate.userId}")
+                },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary)
             ) {
                 Text("Download Resume")
             }
@@ -545,29 +605,64 @@ fun CandidateCard(candidate: PersonalData, apiService: ApiService, context: Cont
     }
 }
 
-fun downloadResume(apiService: ApiService, userId: String, context: Context) {
-    CoroutineScope(Dispatchers.IO).launch {
-        try {
-            val response = apiService.downloadResume(userId)
-            if (response.isSuccessful) {
-                response.body()?.let { body ->
-                    val file = File(context.getExternalFilesDir(null), "${userId}_resume.pdf")
-                    file.outputStream().use { output ->
-                        body.byteStream().copyTo(output)
+@Composable
+fun downloadresume(apiService: ApiService, userId: String) {
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    var message by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+
+
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+        ActivityCompat.requestPermissions(
+            context as android.app.Activity,
+            arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+            1
+        )
+    }
+
+    Column(
+        modifier = Modifier.fillMaxSize().padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = {
+                if (userId.isNotEmpty()) {
+                    coroutineScope.launch {
+                        isLoading = true
+                        downloadResume(context, apiService, userId) { success, resultMessage ->
+                            message = resultMessage
+                            Toast.makeText(context, resultMessage, Toast.LENGTH_LONG).show()
+                            isLoading = false
+                        }
                     }
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(context, "Resume downloaded: ${file.absolutePath}", Toast.LENGTH_SHORT).show()
-                    }
+                } else {
+                    Toast.makeText(context, "Please enter a User ID", Toast.LENGTH_SHORT).show()
                 }
+            },
+            enabled = userId.isNotEmpty()
+        ) {
+            if (isLoading) {
+                CircularProgressIndicator(modifier = Modifier.size(24.dp))
             } else {
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(context, "Failed to download resume", Toast.LENGTH_SHORT).show()
-                }
+                Text("Download Resume")
             }
-        } catch (e: Exception) {
-            withContext(Dispatchers.Main) {
-                Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        errorMessage?.let {
+            Text(text = it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium)
+        }
+
+        if (message.isNotEmpty()) {
+            Text(text = message, style = MaterialTheme.typography.bodyMedium)
         }
     }
 }
