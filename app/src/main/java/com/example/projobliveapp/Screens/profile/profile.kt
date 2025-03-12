@@ -185,6 +185,7 @@ fun NavigationMenuItem(
                 when (title) {
                     "Profile" -> navController.navigate("profilePage/$userEmail")
                     "My Resume" -> navController.navigate("MyResume/$userEmail")
+                    "My Applied Jobs" -> navController.navigate("Appliedjobs/$userEmail")
                 }
             },
         verticalAlignment = Alignment.CenterVertically

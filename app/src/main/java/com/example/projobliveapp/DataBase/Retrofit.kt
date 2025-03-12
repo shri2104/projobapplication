@@ -259,6 +259,9 @@ interface ApiService {
     @GET("getapplieduserids/{jobid}")
     suspend fun getapplieduserids(@Path("jobid") jobid: String): List<jobapplications>
 
+    @GET("getappliedjobids/{userid}")
+    suspend fun getappliedjobids(@Path("userid") userid: String): List<jobapplications>
+
     @POST("comapnyData")
     suspend fun PostcomapnyData(@Body companyDetails: CompanyDetails): Response<ApiResponse>
 
@@ -280,7 +283,6 @@ interface ApiService {
 
     @GET("getLogo/{companyId}")
     suspend fun getLogo(@Path("companyId") companyId: String): Response<ResponseBody>
-
 
     @Multipart
     @POST("uploadResume")

@@ -41,6 +41,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavHostController
 import com.example.projobliveapp.DataBase.ApiService
+import com.example.projobliveapp.DataBase.CompanyDetails
 import com.example.projobliveapp.DataBase.JobPost
 import com.example.projobliveapp.R
 import com.google.gson.Gson
@@ -77,8 +78,25 @@ fun JobpostScreen(
     val externalLink = remember { mutableStateOf("") }
     val phoneNumber = remember { mutableStateOf("") }
     val selectedOption = remember { mutableStateOf("Yes") }
+    var companyData by remember { mutableStateOf<CompanyDetails?>(null) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    var isLoading by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+    LaunchedEffect(employerid) {
+        try {
+            if (!employerid.isNullOrBlank()) {
+                companyData = apiService.getcomapnyData(employerid)
+            } else {
+                errorMessage = "User ID not found"
+            }
+        } catch (e: Exception) {
+            errorMessage = "Error fetching data: ${e.message}"
+            Toast.makeText(context, "Error fetching data: ${e.message}", Toast.LENGTH_SHORT).show()
+        } finally {
+            isLoading = false
+        }
+    }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -99,7 +117,6 @@ fun JobpostScreen(
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back Button")
                     }
                 },
-
             )
         },
         bottomBar = {
@@ -486,29 +503,30 @@ fun JobpostScreen(
 
                 Button(
                     onClick = {
-                        val jobPost = JobPost(
-                            jobid = jobid,
-                            Employerid = employerid,
-                            jobTitle = jobtitle,
-                            country = country.value,
-                            contractType = selectedContractType.value,
-                            workingHours = selectedWorkingHours.value,
-                            minExperience = (minexp.toIntOrNull() ?: 0).toString(),
-                            maxExperience = (maxexp.toIntOrNull() ?: 0).toString(),
-                            keySkills = Keyskills,
-                            minSalary = (minSalary.toIntOrNull() ?: 0).toString(),
-                            maxSalary = (maxSalary.toIntOrNull() ?: 0).toString(),
-                            jobDescription = jobDescription,
-                            jobLocation = jobLocation,
-                            applicationMethod = applicationMethod.value,
-                            contactEmail = email.value,
-                            externalLink = externalLink.value,
-                            phoneNumber = phoneNumber.value,
-                            relocationSupport = (selectedOption.value == "Yes").toString(),
-                            Companyname = "YourCompanyName", // Add the company name here
-                            createdAt = currentTime
-                        )
-
+                        val jobPost = companyData?.companyName?.let {
+                            JobPost(
+                                jobid = jobid,
+                                Employerid = employerid,
+                                jobTitle = jobtitle,
+                                country = country.value,
+                                contractType = selectedContractType.value,
+                                workingHours = selectedWorkingHours.value,
+                                minExperience = (minexp.toIntOrNull() ?: 0).toString(),
+                                maxExperience = (maxexp.toIntOrNull() ?: 0).toString(),
+                                keySkills = Keyskills,
+                                minSalary = (minSalary.toIntOrNull() ?: 0).toString(),
+                                maxSalary = (maxSalary.toIntOrNull() ?: 0).toString(),
+                                jobDescription = jobDescription,
+                                jobLocation = jobLocation,
+                                applicationMethod = applicationMethod.value,
+                                contactEmail = email.value,
+                                externalLink = externalLink.value,
+                                phoneNumber = phoneNumber.value,
+                                relocationSupport = (selectedOption.value == "Yes").toString(),
+                                Companyname = it, // Add the company name here
+                                createdAt = currentTime
+                            )
+                        }
                         val jobPostJson = Uri.encode(Gson().toJson(jobPost))
                         navController.navigate("jobDetailsScreen/$jobPostJson")
                     },
@@ -826,7 +844,6 @@ fun RadioButtonRow(selectedOption: MutableState<String>) {
     }
 }
 
-
 @Composable
 fun StepIndicator(isFilled: Boolean) {
     val color = if (isFilled) Color.Blue else Color.LightGray
@@ -836,6 +853,7 @@ fun StepIndicator(isFilled: Boolean) {
             .background(color = color, shape = CircleShape)
     )
 }
+
 @Composable
 fun CustomButton(text:String) {
     Button(
@@ -854,7 +872,6 @@ fun CustomButton(text:String) {
         )
     }
 }
-
 @Composable
 fun JobDetailsScreen(jobPost: JobPost, apiService: ApiService, navController: NavHostController) {
     val context = LocalContext.current
@@ -897,7 +914,7 @@ fun JobDetailsScreen(jobPost: JobPost, apiService: ApiService, navController: Na
 
         JobDetailsCard(
             jobTitle = jobPost.jobTitle,
-            companyName = "Microsoft",
+            companyName = jobPost.Companyname,
             country = jobPost.country,
             contractType = jobPost.contractType,
             minSalary = jobPost.minSalary,
@@ -905,7 +922,6 @@ fun JobDetailsScreen(jobPost: JobPost, apiService: ApiService, navController: Na
             jobLocation = jobPost.jobLocation,
             workingHours =  jobPost.workingHours
         )
-
         Spacer(modifier = Modifier.height(16.dp))
         Button(
             onClick = {

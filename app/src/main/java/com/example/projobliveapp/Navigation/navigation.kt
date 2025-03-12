@@ -36,6 +36,7 @@ import com.example.projobliveapp.Screens.Employer.downloadresume
 
 
 import com.example.projobliveapp.Screens.Home.NotificationScreen
+import com.example.projobliveapp.Screens.Jobs.Appliedjobs
 import com.example.projobliveapp.Screens.Jobs.InternshipList
 import com.example.projobliveapp.Screens.Jobs.JobApplicationScreenPreview
 import com.example.projobliveapp.Screens.Jobs.JobDetailScreen
@@ -211,22 +212,32 @@ fun Navigation(apiService: ApiService){
             val userEmail = backStackEntry.arguments?.getString("email") ?: ""
             JobList(navController = navController, apiService = apiService, userEmail = userEmail)
         }
+        composable("Appliedjobs/{email}") { backStackEntry ->
+            val userEmail = backStackEntry.arguments?.getString("email") ?: ""
+            Appliedjobs(navController = navController, apiService = apiService, userEmail = userEmail)
+        }
         composable("AvailableInterns/{email}") { backStackEntry ->
             val userEmail = backStackEntry.arguments?.getString("email") ?: ""
             InternshipList(navController = navController, apiService = apiService, userEmail = userEmail)
         }
         composable(
-            route = "jobDetailScreen/{jobid}/{userEmail}"
+            route = "jobDetailScreen/{jobid}/{userEmail}/{employerid}/{isApplied}"
         ) { backStackEntry ->
             val jobid = backStackEntry.arguments?.getString("jobid") ?: ""
-            val userEmail = backStackEntry.arguments?.getString("userEmail") ?: "" // Fixed here
+            val employerid = backStackEntry.arguments?.getString("employerid") ?: ""
+            val userEmail = backStackEntry.arguments?.getString("userEmail") ?: ""
+            val isApplied = backStackEntry.arguments?.getString("isApplied")?.toBoolean() ?: false
+
             JobDetailScreen(
                 navController,
                 jobid,
                 apiService,
-                userEmail
+                userEmail,
+                employerid,
+                isApplied
             )
         }
+
         composable("SavedJobs/{email}") { backStackEntry ->
             val userEmail = backStackEntry.arguments?.getString("email") ?: ""
             SavedJobs(

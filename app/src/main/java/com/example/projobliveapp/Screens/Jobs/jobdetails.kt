@@ -1,5 +1,6 @@
 package com.example.projobliveapp.Screens.Jobs
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -22,12 +23,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.example.projobliveapp.Component.formatDateTime
 import com.example.projobliveapp.DataBase.ApiService
 import com.example.projobliveapp.DataBase.JobPost
 
@@ -37,7 +38,9 @@ fun JobDetailScreen(
     navController: NavHostController,
     jobid: String,
     apiService: ApiService,
-    userEmail: String
+    userEmail: String,
+    Employerid: String,
+    isApplied: Boolean
 ) {
     val scrollState = rememberLazyListState()
     val isTitleVisible = remember { mutableStateOf(false) }
@@ -45,7 +48,7 @@ fun JobDetailScreen(
     var isLoading by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var jobData by remember { mutableStateOf<JobPost?>(null) }
-
+    val context = LocalContext.current
     LaunchedEffect(jobid) {
         if (jobid.isNotEmpty()) {
             isLoading = true
@@ -59,7 +62,6 @@ fun JobDetailScreen(
             }
         }
     }
-
     LaunchedEffect(scrollState.firstVisibleItemIndex, scrollState.firstVisibleItemScrollOffset) {
         isTitleVisible.value =
             scrollState.firstVisibleItemIndex > 0 || scrollState.firstVisibleItemScrollOffset > 200
@@ -284,7 +286,13 @@ fun JobDetailScreen(
                     }
                 }
                 FloatingActionButton(
-                    onClick = { navController.navigate("Applicationscreen/${jobid}/${userEmail}") },
+                    onClick = {
+                        if (!isApplied) {
+                            navController.navigate("Applicationscreen/${jobid}/${userEmail}/${Employerid}")
+                        } else {
+                            Toast.makeText(context, "Already Applied", Toast.LENGTH_SHORT).show()
+                        }
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp)
@@ -292,8 +300,9 @@ fun JobDetailScreen(
                         .offset(y = (-125).dp),
                     containerColor = Color(0xFF1E3A8A)
                 ) {
-                    Text(text = "Apply", color = Color.White)
+                    Text(text = if (isApplied) "Applied" else "Apply", color = Color.White)
                 }
+
 
             }
         }

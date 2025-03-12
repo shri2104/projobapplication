@@ -216,7 +216,7 @@ fun JobAppMenuContent(
             }
             item {
                 MenuItem(icon = Icons.Default.Email, label = "Applications") {
-                    navController.navigate("showApplications/$userEmail")
+                    navController.navigate("Appliedjobs/$userEmail")
                 }
             }
             item {
@@ -226,7 +226,7 @@ fun JobAppMenuContent(
             }
             item {
                 MenuItem(icon = Icons.Default.School, label = "Internships") {
-                    navController.navigate("Internships/$userEmail")
+                    navController.navigate("AvailableInterns/$userEmail")
                 }
             }
             item {

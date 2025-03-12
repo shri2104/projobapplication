@@ -239,7 +239,6 @@ fun EmployerDetailsForm(
                             contactPersonTitle = contactPersonTitle,
                             aboutCompany = aboutCompany
                         )
-
                         coroutineScope.launch(Dispatchers.IO) {
                             try {
                                 apiService.PostcomapnyData(companyDetails)

@@ -70,7 +70,6 @@ fun CompanyProfileScreen(navController: NavController, apiService: ApiService, e
             }
         }
     }
-
     val employerId = companyData?.userId
     LaunchedEffect(employerId) {
         if (!employerId.isNullOrEmpty()) {
@@ -178,7 +177,7 @@ fun CompanyLogo(companyId: String, apiService: ApiService) {
         errorMessage = null
 
         try {
-            val response = apiService.getLogo(companyId) 
+            val response = apiService.getLogo(companyId)
 
             if (response.isSuccessful) {
                 val responseBody = response.body()
@@ -247,7 +246,6 @@ fun HighlightCard(title: String, value: String) {
         }
     }
 }
-
 // Contact Item Row
 @Composable
 fun ContactItem(icon: ImageVector, text: String) {
@@ -266,6 +264,7 @@ fun JobCard(position: String, location: String) {
             .padding(vertical = 4.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
+
         Row(
             modifier = Modifier.padding(16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,

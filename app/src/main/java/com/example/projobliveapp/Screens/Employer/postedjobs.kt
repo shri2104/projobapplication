@@ -625,10 +625,7 @@ fun downloadresume(apiService: ApiService, userId: String) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-
-
         Spacer(modifier = Modifier.height(16.dp))
-
         Button(
             onClick = {
                 if (userId.isNotEmpty()) {

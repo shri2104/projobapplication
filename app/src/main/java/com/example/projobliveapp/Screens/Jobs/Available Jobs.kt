@@ -56,6 +56,7 @@ import androidx.navigation.NavHostController
 import com.example.projobliveapp.DataBase.ApiService
 import com.example.projobliveapp.DataBase.JobPost
 import com.example.projobliveapp.DataBase.SaveJob
+import com.example.projobliveapp.DataBase.jobapplications
 import com.example.projobliveapp.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -66,7 +67,9 @@ import kotlinx.coroutines.withContext
 fun InternshipList(apiService: ApiService, navController: NavHostController, userEmail: String) {
     val internshipList = remember { mutableStateListOf<JobPost>() }
     val context = LocalContext.current
-
+    var loading by remember { mutableStateOf(false) }
+    var error by remember { mutableStateOf<String?>(null) }
+    val appliedjobs = remember { mutableStateListOf<jobapplications>() }
     LaunchedEffect(true) {
         Log.d("InternshipList", "Fetching internships from API...")
         try {
@@ -84,7 +87,36 @@ fun InternshipList(apiService: ApiService, navController: NavHostController, use
             Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
+    LaunchedEffect(userEmail) {
+        if (userEmail.isNotBlank()) {
+            loading = true
+            error = null
+            try {
+                val userIdResponse = apiService.getuserid(userEmail)
+                val userId = userIdResponse.userId
 
+                if (!userId.isNullOrBlank()) {
+                    val response = apiService.getappliedjobids(userId)
+                    if (response.isNotEmpty()) {
+                        appliedjobs.clear()
+                        appliedjobs.addAll(response)
+                        Log.d("JobList", "Successfully fetched ${response.size} applied jobs")
+                    } else {
+                        Log.d("JobList", "No applied jobs found for user")
+                    }
+                } else {
+                    error = "User ID not found"
+                }
+            } catch (e: Exception) {
+                error = "Failed to fetch user data: ${e.message}"
+                Log.e("JobList", error, e)
+            } finally {
+                loading = false
+            }
+        } else {
+            error = "Please enter a valid email"
+        }
+    }
     Scaffold(
         bottomBar = {
             BottomAppBar(
@@ -134,7 +166,10 @@ fun InternshipList(apiService: ApiService, navController: NavHostController, use
             navController = navController,
             userEmail = userEmail,
             apiService = apiService,
-            modifier = Modifier.padding(paddingValues)
+            modifier = Modifier.padding(paddingValues),
+            internorjob="Internships(s)",
+            appliedjobs = appliedjobs,
+            Appliedjobsection=false
         )
     }
 }
@@ -142,13 +177,16 @@ fun InternshipList(apiService: ApiService, navController: NavHostController, use
 @Composable
 fun JobList(apiService: ApiService, navController: NavHostController, userEmail: String) {
     val jobList = remember { mutableStateListOf<JobPost>() }
+    val appliedjobs = remember { mutableStateListOf<jobapplications>() }
     val context = LocalContext.current
+    var loading by remember { mutableStateOf(false) }
+    var error by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(true) {
         Log.d("JobList", "Fetching jobs from API...")
         try {
             val response = apiService.getAllJobs()
-            val filteredJobs = response.filter { it.contractType == "Jobs" } // Only fetch jobs
+            val filteredJobs = response.filter { it.contractType == "Job" }
             if (filteredJobs.isNotEmpty()) {
                 jobList.clear()
                 jobList.addAll(filteredJobs)
@@ -162,6 +200,36 @@ fun JobList(apiService: ApiService, navController: NavHostController, userEmail:
         }
     }
 
+    LaunchedEffect(userEmail) {
+        if (userEmail.isNotBlank()) {
+            loading = true
+            error = null
+            try {
+                val userIdResponse = apiService.getuserid(userEmail)
+                val userId = userIdResponse.userId
+
+                if (!userId.isNullOrBlank()) {
+                    val response = apiService.getappliedjobids(userId)
+                    if (response.isNotEmpty()) {
+                        appliedjobs.clear()
+                        appliedjobs.addAll(response)
+                        Log.d("JobList", "Successfully fetched ${response.size} applied jobs")
+                    } else {
+                        Log.d("JobList", "No applied jobs found for user")
+                    }
+                } else {
+                    error = "User ID not found"
+                }
+            } catch (e: Exception) {
+                error = "Failed to fetch user data: ${e.message}"
+                Log.e("JobList", error, e)
+            } finally {
+                loading = false
+            }
+        } else {
+            error = "Please enter a valid email"
+        }
+    }
     Scaffold(
         bottomBar = {
             BottomAppBar(
@@ -185,6 +253,7 @@ fun JobList(apiService: ApiService, navController: NavHostController, userEmail:
                         Text(text = "Internships", style = MaterialTheme.typography.titleSmall)
                     }
                 }
+
                 IconButton(
                     onClick = { },
                     modifier = Modifier.weight(1f)
@@ -208,10 +277,13 @@ fun JobList(apiService: ApiService, navController: NavHostController, userEmail:
     ) { paddingValues ->
         JobListScreen(
             jobs = jobList,
+            appliedjobs=appliedjobs,
             navController = navController,
             userEmail = userEmail,
             apiService = apiService,
-            modifier = Modifier.padding(paddingValues)
+            modifier = Modifier.padding(paddingValues),
+            internorjob="Job(s)",
+            Appliedjobsection=false
         )
     }
 }
@@ -220,10 +292,13 @@ fun JobList(apiService: ApiService, navController: NavHostController, userEmail:
 @Composable
 fun JobListScreen(
     jobs: List<JobPost>,
+    appliedjobs: List<jobapplications>,
     navController: NavHostController,
     userEmail: String,
     apiService: ApiService,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    internorjob: String,
+    Appliedjobsection:Boolean
 ) {
     var searchQuery by remember { mutableStateOf("") }
     var selectedFilter by remember { mutableStateOf("All") }
@@ -288,12 +363,15 @@ fun JobListScreen(
                     .fillMaxSize()
                     .padding(innerPadding)
             ) {
-                Text(
-                    text = "$totalJobs Available Internship",
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontSize = 20.sp,
-                    modifier = Modifier.padding(16.dp)
-                )
+                if(!Appliedjobsection){
+                    Text(
+                        text = "$totalJobs Available $internorjob",
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontSize = 20.sp,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+
                 if (isSearchBarVisible) {
                     Card(
                         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
@@ -395,13 +473,17 @@ fun JobListScreen(
                         }
                     } else {
                         items(filteredJobs) { job ->
+                            val isApplied = appliedjobs.any { it.jobid == job.jobid }
                             JobCard(
                                 job = job,
+                                isApplied = isApplied,
                                 navController = navController,
                                 apiService = apiService,
-                                userEmail = userEmail
+                                userEmail = userEmail,
+                                Appliedjobsection = Appliedjobsection,
                             )
                         }
+
                     }
                 }
             }
@@ -409,15 +491,18 @@ fun JobListScreen(
     }
 }
 
-
-
 @Composable
 fun JobCard(
     job: JobPost,
+    isApplied: Boolean,
     navController: NavHostController,
     apiService: ApiService,
-    userEmail: String
+    userEmail: String,
+    Appliedjobsection: Boolean
 ) {
+    // If the section is meant to show only applied jobs and the job is not applied, return early.
+    if (Appliedjobsection && !isApplied) return
+
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     var isFavorite by remember { mutableStateOf(false) }
@@ -437,6 +522,7 @@ fun JobCard(
             Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
+
     Card(
         elevation = CardDefaults.cardElevation(8.dp),
         modifier = Modifier
@@ -465,8 +551,6 @@ fun JobCard(
                             val newFavoriteState = !isFavorite
                             try {
                                 val saveJob = SaveJob(userEmail, listOf(job.jobid))
-                                Log.d("JobCard", "Preparing to ${if (newFavoriteState) "add" else "remove"} job ${job.jobid} from favorites")
-
                                 val response = if (newFavoriteState) {
                                     apiService.addJobToFavorite(saveJob)
                                 } else {
@@ -476,14 +560,12 @@ fun JobCard(
                                 withContext(Dispatchers.Main) {
                                     if (response.isSuccessful) {
                                         isFavorite = newFavoriteState
-                                        Log.d("JobCard", "Job ${job.jobid} favorite status updated to: $isFavorite")
                                         Toast.makeText(
                                             context,
                                             if (isFavorite) "Added to Favorites" else "Removed from Favorites",
                                             Toast.LENGTH_SHORT
                                         ).show()
                                     } else {
-                                        Log.e("JobCard", "API response error: ${response.code()} ${response.message()}")
                                         Toast.makeText(
                                             context,
                                             "Error: ${response.message()}",
@@ -492,7 +574,6 @@ fun JobCard(
                                     }
                                 }
                             } catch (e: Exception) {
-                                Log.e("JobCard", "Error updating favorite status: ${e.message}", e)
                                 withContext(Dispatchers.Main) {
                                     Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
                                 }
@@ -547,12 +628,11 @@ fun JobCard(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // View and Apply Buttons (each taking half width)
+            // View and Apply Buttons
             Row(modifier = Modifier.fillMaxWidth()) {
                 Button(
                     onClick = {
-                        Log.d("JobCard", "Navigating to job detail screen for job ${job.jobid}")
-                        navController.navigate("jobDetailScreen/${job.jobid}/${userEmail}")
+                        navController.navigate("jobDetailScreen/${job.jobid}/${userEmail}/${job.Employerid}/${isApplied}")
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Blue),
                     modifier = Modifier
@@ -561,19 +641,23 @@ fun JobCard(
                 ) {
                     Text("View")
                 }
+
                 Button(
                     onClick = {
-                        Log.d("JobCard", "Applying for job ${job.jobid}")
-                        navController.navigate("Applicationscreen/${job.jobid}/${userEmail}/${job.Employerid}")
+                        if (!isApplied) {
+                            navController.navigate("Applicationscreen/${job.jobid}/${userEmail}/${job.Employerid}")
+                        }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE6F7FF)),
                     modifier = Modifier
                         .weight(1f)
                         .padding(start = 4.dp)
                 ) {
-                    Text(text = "Apply",
-                        color = Color.Blue,
-                        fontWeight = FontWeight.Bold)
+                    Text(
+                        text = if (isApplied) "Applied" else "Apply",
+                        color = if (isApplied) Color.Gray else Color.Blue,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
         }

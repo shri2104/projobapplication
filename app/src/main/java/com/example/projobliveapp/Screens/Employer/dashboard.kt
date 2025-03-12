@@ -136,7 +136,6 @@ fun JobPostingScreen(navController: NavController, userEmail: String, apiService
                 style = MaterialTheme.typography.bodyMedium
             )
 
-            // Bullet points section
             Text(text = "Benefits of posting a job:")
             BulletPointText(text = "Reach a large pool of candidates.")
             BulletPointText(text = "Save time and resources with automated processes.")
@@ -162,7 +161,7 @@ fun JobPostingScreen(navController: NavController, userEmail: String, apiService
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE6F7FF)),
                     shape = RoundedCornerShape(4.dp),
                     contentPadding = PaddingValues(8.dp),
-                    modifier = Modifier.weight(1f) // Ensures equal width
+                    modifier = Modifier.weight(1f)
                 ) {
                     Text(
                         text = "Posted Jobs",
@@ -173,8 +172,6 @@ fun JobPostingScreen(navController: NavController, userEmail: String, apiService
             }
         }
     }
-
-    // Bottom Sheet Content
     if (showBottomSheet.value) {
         ModalBottomSheet(
             onDismissRequest = { showBottomSheet.value = false },
@@ -193,14 +190,11 @@ fun JobPostingScreen(navController: NavController, userEmail: String, apiService
                 ) {
                     Icon(Icons.Default.Close, contentDescription = "Close")
                 }
-
                 Text(text = "Profile", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 Divider()
-
                 TextButton(onClick = {navController.navigate("CompanyProfileScreen/$userEmail")  }) {
                     Text("View Profile", style = MaterialTheme.typography.bodyLarge)
                 }
-
                 TextButton(onClick = { FirebaseAuth.getInstance().signOut()
                     navController.navigate(Screen.LoginScreen.name) }) {
                     Text("Logout", style = MaterialTheme.typography.bodyLarge, color = Color.Red)
