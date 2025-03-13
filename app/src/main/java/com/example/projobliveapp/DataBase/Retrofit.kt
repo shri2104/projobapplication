@@ -10,9 +10,11 @@ import retrofit2.Retrofit
 
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Streaming
@@ -49,7 +51,7 @@ data class ExperienceDetails(
     val responsibilities: String,
 )
 
-data class JobPreferenceData(
+data class JobPreference(
     val userId: String,
     val jobLocations: List<String>,
     val selectedSkills: List<String>
@@ -71,9 +73,6 @@ data class ContactInfo(
     var state: String = "",
     var pincode: String = ""
 )
-
-
-
 
 data class JobApplication(
     val firstName: String,
@@ -98,11 +97,11 @@ data class JobPost(
     val workingHours: String,
     val minExperience: String,
     val maxExperience: String,
-    val keySkills: String,
+    val keySkills: List<String>,
     val minSalary: String,
     val maxSalary: String,
     val jobDescription: String,
-    val jobLocation: String,
+    val jobLocation: List<String>,
     val applicationMethod: String,
     val contactEmail: String,
     val externalLink: String,
@@ -181,7 +180,10 @@ data class jobapplications(
     val userid: String,
     val timestamp: String
 )
-
+data class CompaniesResponse(
+    val success: Boolean,
+    val companies: List<CompanyDetails>
+)
 data class SavedJobResponse(val email: String, val jobIds: List<List<String>>)
 data class JobApiResponse(val success: Boolean, val jobs: List<Job>)
 data class ApiResponse(val success: Boolean, val id: String?)
@@ -197,13 +199,13 @@ interface ApiService {
     suspend fun Candidateeducationladata(@Body jobData: EducationDetails): Response<ApiResponse>
 
     @GET("getCandidateeducationladata/{userId}")
-    suspend fun getCandidateeducationladata(@Path("userId") userId: String): EducationDetails
+    suspend fun getCandidateeducationladata(@Path("userId") userId: String): List<EducationDetails>
 
     @POST("Candidateexperienceladata")
     suspend fun Candidateexperienceladata(@Body jobData: ExperienceDetails): Response<ApiResponse>
 
     @GET("getCandidateexperienceladata/{userId}")
-    suspend fun getCandidateexperienceladata(@Path("userId") userId: String): ExperienceDetails
+    suspend fun getCandidateexperienceladata(@Path("userId") userId: String): List<ExperienceDetails>
 
     @POST("Candidatecontactladata")
     suspend fun Candidatecontactladata(@Body jobData: ContactInfo): Response<ApiResponse>
@@ -211,8 +213,29 @@ interface ApiService {
     @GET("getCandidatecontactladata/{userId}")
     suspend fun getCandidatecontactladata(@Path("userId") userId: String): ContactInfo
 
-    @POST("Candidatejobprefrencedata")
-    suspend fun Candidatejobprefrencedata(@Body jobData: JobPreferenceData): Response<ApiResponse>
+    @POST("addJobPreference")
+    suspend fun Candidatejobprefrencedata(
+        @Body jobPreference: JobPreference
+    ): Response<ApiResponse>
+
+    // Get Job Preference by User ID
+    @GET("getJobPreference/{userId}")
+    suspend fun getJobPreference(
+        @Path("userId") userId: String
+    ): Response<JobPreference>
+
+    // Update Job Preference
+    @PUT("updateJobPreference/{userId}")
+    suspend fun updateJobPreference(
+        @Path("userId") userId: String,
+        @Body jobPreference: JobPreference
+    ): Response<ApiResponse>
+
+    // Delete Job Preference
+    @DELETE("deleteJobPreference/{userId}")
+    suspend fun deleteJobPreference(
+        @Path("userId") userId: String
+    ): Response<ApiResponse>
 
     @GET("getAllData")
     suspend fun getJobData(): List<JobApplication>
@@ -230,7 +253,7 @@ interface ApiService {
     suspend fun storeUserData(@Body jobData: JobApplication): Response<ApiResponse>
 
     @GET("getJobs")
-    suspend fun getAllJobs(): List<JobPost>
+    suspend fun getAllJobs(): Response<List<JobPost>>
 
     @GET("getDataID/{id}")
     suspend fun getJobById(@Path("id") id: String): Job
@@ -264,6 +287,9 @@ interface ApiService {
 
     @POST("comapnyData")
     suspend fun PostcomapnyData(@Body companyDetails: CompanyDetails): Response<ApiResponse>
+
+    @GET("getallcompanies")
+    suspend fun getallcompanies(): CompaniesResponse // Expecting an object now
 
     @GET("getcomapnyData/{userId}")
     suspend fun getcomapnyData(@Path("userId") userId: String): CompanyDetails

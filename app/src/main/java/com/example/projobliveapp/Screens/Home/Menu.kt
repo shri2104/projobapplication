@@ -124,7 +124,7 @@ fun MainJobScreenContent(
             RecentlyViewedJobsSection()
             ActiveJobsInCitiesSection()
             BrowseByCategorySection()
-            TrustedByCompaniesSection()
+            TrustedByCompaniesSection(apiservice,userEmail)
             HowItWorksSection()
         }
     }

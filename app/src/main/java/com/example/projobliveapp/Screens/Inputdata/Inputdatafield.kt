@@ -35,7 +35,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.projobliveapp.DataBase.ContactInfo
 import com.example.projobliveapp.DataBase.EducationDetails
 import com.example.projobliveapp.DataBase.ExperienceDetails
-import com.example.projobliveapp.DataBase.JobPreferenceData
+import com.example.projobliveapp.DataBase.JobPreference
 import com.example.projobliveapp.DataBase.PersonalData
 
 import com.example.projobliveapp.R
@@ -1314,7 +1314,7 @@ fun Jobprefrence(userId: String,apiService:ApiService, onNext: () -> Unit) {
             }
             item {
                 Button(onClick = {
-                    val jobPreferenceData = JobPreferenceData(
+                    val jobPreferenceData = JobPreference(
                         userId = userId,
                         jobLocations = jobLocations,
                         selectedSkills = selectedSkills

@@ -316,11 +316,11 @@ fun poosetdscreen(
                     when (selectedFilter) {
                         "Job Title" -> jobs.filter { it.jobTitle.contains(searchQuery, ignoreCase = true) }
                         "Company Name" -> jobs.filter { it.Companyname.contains(searchQuery, ignoreCase = true) }
-                        "Location" -> jobs.filter { it.jobLocation.contains(searchQuery, ignoreCase = true) }
+                        "Location" -> jobs.filter { it.jobLocation.any { location -> location.contains(searchQuery, ignoreCase = true) } }
                         else -> jobs.filter {
                             it.jobTitle.contains(searchQuery, ignoreCase = true) ||
                                     it.Companyname.contains(searchQuery, ignoreCase = true) ||
-                                    it.jobLocation.contains(searchQuery, ignoreCase = true)
+                                    it.jobLocation.any { location -> location.contains(searchQuery, ignoreCase = true) }
                         }
                     }
                 } else {
@@ -422,7 +422,7 @@ fun JobCard(
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = job.jobLocation,
+                    text = job.jobLocation.toString(),
                     style = MaterialTheme.typography.bodyMedium
                 )
             }

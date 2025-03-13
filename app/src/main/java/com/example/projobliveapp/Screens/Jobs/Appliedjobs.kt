@@ -83,19 +83,26 @@ fun Appliedjobs(apiService: ApiService, navController: NavHostController, userEm
     LaunchedEffect(true) {
         Log.d("JobList", "Fetching jobs from API...")
         try {
-            val filteredJobs = apiService.getAllJobs()
-            if (filteredJobs.isNotEmpty()) {
-                jobList.clear()
-                jobList.addAll(filteredJobs)
-                Log.d("JobList", "Successfully fetched ${filteredJobs.size} jobs")
+            val response = apiService.getAllJobs()
+            if (response.isSuccessful) {
+                val jobs = response.body()
+                if (!jobs.isNullOrEmpty()) {
+                    jobList.clear()
+                    jobList.addAll(jobs)
+                    Log.d("JobList", "Successfully fetched ${jobs.size} jobs")
+                } else {
+                    Log.d("JobList", "No jobs found in the response")
+                }
             } else {
-                Log.d("JobList", "No jobs found in the response")
+                Log.e("JobList", "API call failed: ${response.errorBody()?.string()}")
+                Toast.makeText(context, "Error: ${response.errorBody()?.string()}", Toast.LENGTH_SHORT).show()
             }
         } catch (e: Exception) {
             Log.e("JobList", "Error fetching jobs: ${e.message}", e)
             Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
+
 
     LaunchedEffect(userEmail) {
         if (userEmail.isNotBlank()) {

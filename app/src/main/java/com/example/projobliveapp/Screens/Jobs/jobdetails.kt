@@ -191,12 +191,11 @@ fun JobDetailScreen(
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text(
-                                        text = jobData?.jobLocation ?: "",
+                                        text = jobData?.jobLocation.toString() ?: "",
                                         fontSize = 20.sp,
                                         fontWeight = FontWeight.Medium,
                                     )
                                 }
-
                                 Spacer(modifier = Modifier.height(8.dp))
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically
@@ -259,16 +258,15 @@ fun JobDetailScreen(
                             modifier = Modifier.padding(16.dp)
                         )
                     }
-
                     item {
                         Text(
-                            text = "Key Skills: ${jobData?.jobDescription ?:""} ",
+                            text = "Key Skills: ${jobData?.keySkills ?:""} ",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Medium,
                             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                         )
                         Text(
-                            text = "Experience: ${jobData?.maxExperience} - ${jobData?.minExperience} years",
+                            text = "Experience: ${jobData?.minExperience} - ${jobData?.maxExperience} years",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Medium,
                             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)

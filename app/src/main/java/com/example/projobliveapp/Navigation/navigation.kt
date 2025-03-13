@@ -53,6 +53,7 @@ import com.example.projobliveapp.Screens.frontscreen.LoginSelectionScreen
 import com.example.projobliveapp.Screens.profile.ContactInfoScreen
 import com.example.projobliveapp.Screens.profile.EducationDetailsScreen
 import com.example.projobliveapp.Screens.profile.ExperienceDetailsScreen
+import com.example.projobliveapp.Screens.profile.JobPreferences
 import com.example.projobliveapp.Screens.profile.PersonalInformationScreen
 import com.example.projobliveapp.Screens.profile.ProfilePage
 import com.example.projobliveapp.Screens.profile.ProfileSection
@@ -191,6 +192,16 @@ fun Navigation(apiService: ApiService){
             val email = backStackEntry.arguments?.getString("email")
             if (email != null) {
                 ExperienceDetailsScreen(
+                    navController = navController,
+                    userEmail =email,
+                    apiService = apiService,
+                )
+            }
+        }
+        composable("candidatejobprefrences/{email}") { backStackEntry ->
+            val email = backStackEntry.arguments?.getString("email")
+            if (email != null) {
+                JobPreferences(
                     navController = navController,
                     userEmail =email,
                     apiService = apiService,

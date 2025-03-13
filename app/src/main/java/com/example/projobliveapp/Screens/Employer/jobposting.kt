@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocationOn
@@ -44,6 +45,8 @@ import com.example.projobliveapp.DataBase.ApiService
 import com.example.projobliveapp.DataBase.CompanyDetails
 import com.example.projobliveapp.DataBase.JobPost
 import com.example.projobliveapp.R
+import com.example.projobliveapp.Screens.Inputdata.InputField
+import com.example.projobliveapp.Screens.Inputdata.SkillSelector
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -83,6 +86,10 @@ fun JobpostScreen(
     var isLoading by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+    var selectedSkills by remember { mutableStateOf(listOf<String>()) }
+    var customSkill by remember { mutableStateOf("") }
+    var jobLocations by remember { mutableStateOf(listOf<String>()) }
+    var selectedLocation by remember { mutableStateOf("") }
     LaunchedEffect(employerid) {
         try {
             if (!employerid.isNullOrBlank()) {
@@ -243,38 +250,44 @@ fun JobpostScreen(
             }
 
             item {
-                Text(
-                    text = "Job location*",
-                    fontSize = 16.sp,
-                    color = Color.Black,
-                    modifier = Modifier.padding(bottom = 4.dp)
+                Spacer(modifier = Modifier.height(16.dp))
+                InputField(
+                    label = "Job Location*",
+                    value = selectedLocation,
+                    onValueChange = { selectedLocation = it },
+                    placeholder = "Select a city",
                 )
-                Card(
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .width(300.dp)
-                        .padding(bottom = 16.dp)
+                Button(
+                    onClick = {
+                        if (selectedLocation.isNotEmpty() && !jobLocations.contains(selectedLocation)) {
+                            jobLocations = jobLocations + selectedLocation
+                            selectedLocation = ""
+                        }
+                    },
+                    modifier = Modifier.padding(top = 8.dp)
                 ) {
-                    TextField(
-                        value = jobLocation,
-                        onValueChange = {jobLocation = it},
-                        placeholder = { Text(text = "Town or Region") },
-                        trailingIcon = {
-                            Icon(Icons.Filled.LocationOn, contentDescription = "Location icon")
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = TextFieldDefaults.colors(
-                            unfocusedIndicatorColor = Color.Transparent,
-                            focusedIndicatorColor = Color.Transparent,
-                            cursorColor = Color.Blue,
-                            focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White
+                    Text("Add More Locations")
+                }
+
+                jobLocations.forEach { location ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp)
+                    ) {
+                        Text(
+                            text = location,
+                            fontSize = 14.sp,
+                            modifier = Modifier.weight(1f)
                         )
-                    )
+                        IconButton(onClick = { jobLocations = jobLocations - location }) {
+                            Icon(Icons.Default.Close, contentDescription = "Remove Location")
+                        }
+                    }
                 }
             }
+
             item {
                 Text(
                     text = "Country*",
@@ -454,32 +467,69 @@ fun JobpostScreen(
                 }
             }
             item {
+                Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     text = "Key Skills*",
                     fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
                     color = Color.Black,
                     modifier = Modifier.padding(bottom = 4.dp)
                 )
-                Card(
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp)
-                ) {
-                    TextField(
-                        value = Keyskills,
-                        onValueChange = { Keyskills = it },
-                        placeholder = { Text(text = "placeholder") },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = TextFieldDefaults.colors(
-                            unfocusedIndicatorColor = Color.Transparent,
-                            focusedIndicatorColor = Color.Transparent,
-                            cursorColor = Color.Blue,
-                            focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White
-                        )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "Skills Set",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+                SkillSelector(selectedSkills = selectedSkills, onSkillSelected = {
+                    if (!selectedSkills.contains(it)) {
+                        selectedSkills = selectedSkills + it
+                    }
+                })
+                Spacer(modifier = Modifier.height(8.dp))
+                TextField(
+                    value = customSkill,
+                    onValueChange = { customSkill = it },
+                    label = { Text("Enter custom skill") },
+                    placeholder = { Text("Add new skill") },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = TextFieldDefaults.colors(
+                        unfocusedIndicatorColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        cursorColor = Color.Blue,
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White
                     )
+                )
+                Button(
+                    onClick = {
+                        if (customSkill.isNotEmpty() && !selectedSkills.contains(customSkill)) {
+                            selectedSkills = selectedSkills + customSkill
+                            customSkill = ""
+                        }
+                    },
+                    modifier = Modifier.padding(top = 8.dp)
+                ) {
+                    Text("Add Custom Skill")
+                }
+
+                selectedSkills.forEach { skill ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp)
+                    ) {
+                        Text(
+                            text = skill,
+                            fontSize = 14.sp,
+                            modifier = Modifier.weight(1f)
+                        )
+                        IconButton(onClick = { selectedSkills = selectedSkills - skill }) {
+                            Icon(Icons.Default.Close, contentDescription = "Remove Skill")
+                        }
+                    }
                 }
             }
             item {
@@ -513,11 +563,11 @@ fun JobpostScreen(
                                 workingHours = selectedWorkingHours.value,
                                 minExperience = (minexp.toIntOrNull() ?: 0).toString(),
                                 maxExperience = (maxexp.toIntOrNull() ?: 0).toString(),
-                                keySkills = Keyskills,
+                                keySkills = selectedSkills,
                                 minSalary = (minSalary.toIntOrNull() ?: 0).toString(),
                                 maxSalary = (maxSalary.toIntOrNull() ?: 0).toString(),
                                 jobDescription = jobDescription,
-                                jobLocation = jobLocation,
+                                jobLocation = jobLocations,
                                 applicationMethod = applicationMethod.value,
                                 contactEmail = email.value,
                                 externalLink = externalLink.value,
@@ -919,7 +969,7 @@ fun JobDetailsScreen(jobPost: JobPost, apiService: ApiService, navController: Na
             contractType = jobPost.contractType,
             minSalary = jobPost.minSalary,
             maxSalary = jobPost.maxSalary,
-            jobLocation = jobPost.jobLocation,
+            jobLocation = jobPost.jobLocation.joinToString(", "),
             workingHours =  jobPost.workingHours
         )
         Spacer(modifier = Modifier.height(16.dp))

@@ -1,6 +1,8 @@
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.util.Log
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
@@ -9,6 +11,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -29,7 +32,9 @@ import com.example.projobliveapp.R
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.unit.sp
 import com.example.projobliveapp.DataBase.ApiService
-import java.time.LocalTime
+import com.example.projobliveapp.DataBase.CompanyDetails
+import com.example.projobliveapp.Screens.Employer.CompanyLogo
+import kotlinx.coroutines.delay
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -287,7 +292,6 @@ fun CityCard(city: City) {
         }
     }
 }
-
 @Composable
 fun ContactDetailsSection() {
     val context = LocalContext.current
@@ -351,9 +355,6 @@ fun ContactDetailsSection() {
         }
     }
 }
-
-
-
 
 @Composable
 fun SearchBarSection() {
@@ -424,7 +425,47 @@ fun TrendingJobsSection() {
 }
 
 @Composable
-fun TrustedByCompaniesSection() {
+fun TrustedByCompaniesSection(apiService: ApiService, userEmail: String) {
+    val companyList = remember { mutableStateListOf<CompanyDetails>() }
+    val context = LocalContext.current
+    var loading by remember { mutableStateOf(false) }
+    var error by remember { mutableStateOf<String?>(null) }
+
+    // Auto-scrolling state
+    val scrollState = rememberLazyListState()
+
+    LaunchedEffect(Unit) {
+        Log.d("CompanyList", "Fetching companies from API...")
+        try {
+            val response = apiService.getallcompanies() // Now returns an object
+            if (response.success) { // Check if API response is successful
+                val companies = response.companies
+                Log.d("CompanyList", "Fetched companies: $companies")
+                if (companies.isNotEmpty()) {
+                    companyList.clear()
+                    companyList.addAll(companies)
+                } else {
+                    Log.d("CompanyList", "No companies found in the response")
+                }
+            } else {
+                Log.e("CompanyList", "API returned failure status")
+                Toast.makeText(context, "Failed to load companies", Toast.LENGTH_SHORT).show()
+            }
+        } catch (e: Exception) {
+            Log.e("CompanyList", "Error fetching companies: ${e.message}", e)
+            Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // Auto-scroll effect
+    LaunchedEffect(companyList.size) {
+        while (true) {
+            delay(3000) // Delay for smooth scrolling
+            val nextIndex = (scrollState.firstVisibleItemIndex + 1) % (companyList.size + 1)
+            scrollState.animateScrollToItem(nextIndex)
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -433,21 +474,19 @@ fun TrustedByCompaniesSection() {
         Text(
             text = "Trusted by Companies",
             style = MaterialTheme.typography.headlineSmall,
-            fontWeight=FontWeight.Bold,
+            fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = 8.dp),
             fontSize = 20.sp
         )
         LazyRow(
-            modifier = Modifier.fillMaxWidth()
+            state = scrollState,
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp) // Space between logos
         ) {
-            items(10) {
-                Image(
-                    painter = painterResource(id = R.drawable.microsoft),
-                    contentDescription = "Company Logo",
-                    modifier = Modifier
-                        .size(64.dp)
-                        .padding(8.dp),
-                    contentScale = ContentScale.Crop
+            items(companyList) { company ->
+                CompanyLogo(
+                    companyId = company.userId,
+                    apiService = apiService,
                 )
             }
         }
@@ -526,7 +565,6 @@ fun RecentlyViewedJobsSection() {
             modifier = Modifier.padding(bottom = 8.dp),
             fontSize = 20.sp
         )
-
         LazyRow(
             modifier = Modifier.fillMaxWidth()
         ) {

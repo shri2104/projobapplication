@@ -264,7 +264,10 @@ fun ProfileCard(navController: NavController,userEmail: String?) {
                 value = "Contact Information",
                 onEditClick = {navController.navigate("candidatecontactinfo/$userEmail") }
             )
-
+            ProfileDetailw(
+                value = "Job Prefrences",
+                onEditClick = {navController.navigate("candidatejobprefrences/$userEmail") }
+            )
         }
     }
 }

@@ -58,6 +58,7 @@ import com.example.projobliveapp.DataBase.JobPost
 import com.example.projobliveapp.DataBase.SaveJob
 import com.example.projobliveapp.DataBase.jobapplications
 import com.example.projobliveapp.R
+import com.example.projobliveapp.Screens.Employer.CompanyLogo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -71,21 +72,28 @@ fun InternshipList(apiService: ApiService, navController: NavHostController, use
     var error by remember { mutableStateOf<String?>(null) }
     val appliedjobs = remember { mutableStateListOf<jobapplications>() }
     LaunchedEffect(true) {
-        Log.d("InternshipList", "Fetching internships from API...")
+        Log.d("JobList", "Fetching jobs from API...")
         try {
             val response = apiService.getAllJobs()
-            val filteredInternships = response.filter { it.contractType == "Internship" } // Fetch only internships
-            if (filteredInternships.isNotEmpty()) {
-                internshipList.clear()
-                internshipList.addAll(filteredInternships)
-                Log.d("InternshipList", "Successfully fetched ${filteredInternships.size} Internship")
+            if (response.isSuccessful) {
+                val jobs = response.body()
+                if (!jobs.isNullOrEmpty()) {
+                    val filteredJobs = jobs.filter { it.contractType == "Internship" }
+                    internshipList.clear()
+                    internshipList.addAll(filteredJobs)
+                    Log.d("JobList", "Successfully fetched ${filteredJobs.size} jobs")
+                } else {
+                    Log.d("JobList", "No jobs found in the response")
+                }
             } else {
-                Log.d("InternshipList", "No internships found in the response")
+                Log.e("JobList", "API call failed: ${response.errorBody()?.string()}")
+                Toast.makeText(context, "Error: ${response.errorBody()?.string()}", Toast.LENGTH_SHORT).show()
             }
         } catch (e: Exception) {
-            Log.e("InternshipList", "Error fetching internships: ${e.message}", e)
+            Log.e("JobList", "Error fetching jobs: ${e.message}", e)
             Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
         }
+
     }
     LaunchedEffect(userEmail) {
         if (userEmail.isNotBlank()) {
@@ -186,18 +194,25 @@ fun JobList(apiService: ApiService, navController: NavHostController, userEmail:
         Log.d("JobList", "Fetching jobs from API...")
         try {
             val response = apiService.getAllJobs()
-            val filteredJobs = response.filter { it.contractType == "Job" }
-            if (filteredJobs.isNotEmpty()) {
-                jobList.clear()
-                jobList.addAll(filteredJobs)
-                Log.d("JobList", "Successfully fetched ${filteredJobs.size} jobs")
+            if (response.isSuccessful) {
+                val jobs = response.body()
+                if (!jobs.isNullOrEmpty()) {
+                    val filteredJobs = jobs.filter { it.contractType == "Job" }
+                    jobList.clear()
+                    jobList.addAll(filteredJobs)
+                    Log.d("JobList", "Successfully fetched ${filteredJobs.size} jobs")
+                } else {
+                    Log.d("JobList", "No jobs found in the response")
+                }
             } else {
-                Log.d("JobList", "No jobs found in the response")
+                Log.e("JobList", "API call failed: ${response.errorBody()?.string()}")
+                Toast.makeText(context, "Error: ${response.errorBody()?.string()}", Toast.LENGTH_SHORT).show()
             }
         } catch (e: Exception) {
             Log.e("JobList", "Error fetching jobs: ${e.message}", e)
             Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
         }
+
     }
 
     LaunchedEffect(userEmail) {
@@ -448,17 +463,16 @@ fun JobListScreen(
                     when (selectedFilter) {
                         "Job Title" -> jobs.filter { it.jobTitle.contains(searchQuery, ignoreCase = true) }
                         "Company Name" -> jobs.filter { it.Companyname.contains(searchQuery, ignoreCase = true) }
-                        "Location" -> jobs.filter { it.jobLocation.contains(searchQuery, ignoreCase = true) }
+                        "Location" -> jobs.filter { it.jobLocation.any { location -> location.contains(searchQuery, ignoreCase = true) } }
                         else -> jobs.filter {
                             it.jobTitle.contains(searchQuery, ignoreCase = true) ||
                                     it.Companyname.contains(searchQuery, ignoreCase = true) ||
-                                    it.jobLocation.contains(searchQuery, ignoreCase = true)
+                                    it.jobLocation.any { location -> location.contains(searchQuery, ignoreCase = true) }
                         }
                     }
                 } else {
                     jobs
                 }
-
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 80.dp)
@@ -505,23 +519,6 @@ fun JobCard(
 
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-    var isFavorite by remember { mutableStateOf(false) }
-
-    LaunchedEffect(job.jobid) {
-        Log.d("JobCard", "Checking if job ${job.jobid} is in favorites for user $userEmail")
-        try {
-            val response = apiService.isJobInFavorites(userEmail, job.jobid)
-            if (response.isSuccessful) {
-                isFavorite = response.body()?.success ?: false
-                Log.d("JobCard", "Job ${job.jobid} favorite status: $isFavorite")
-            } else {
-                Log.e("JobCard", "API response error: ${response.code()} ${response.message()}")
-            }
-        } catch (e: Exception) {
-            Log.e("JobCard", "Error checking favorites: ${e.message}", e)
-            Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
-        }
-    }
 
     Card(
         elevation = CardDefaults.cardElevation(8.dp),
@@ -530,7 +527,7 @@ fun JobCard(
             .padding(8.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            // Job Title & Saved Job Icon Row
+            // Job Title & Company Logo Row
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -544,49 +541,12 @@ fun JobCard(
                     fontSize = 20.sp
                 )
 
-                // Saved Job Icon
-                IconButton(
-                    onClick = {
-                        coroutineScope.launch(Dispatchers.IO) {
-                            val newFavoriteState = !isFavorite
-                            try {
-                                val saveJob = SaveJob(userEmail, listOf(job.jobid))
-                                val response = if (newFavoriteState) {
-                                    apiService.addJobToFavorite(saveJob)
-                                } else {
-                                    apiService.deleteFavorite(saveJob)
-                                }
+                // Company Logo (at the place of Save Icon)
+                CompanyLogo(
+                    companyId = job.Employerid,
+                    apiService = apiService,
 
-                                withContext(Dispatchers.Main) {
-                                    if (response.isSuccessful) {
-                                        isFavorite = newFavoriteState
-                                        Toast.makeText(
-                                            context,
-                                            if (isFavorite) "Added to Favorites" else "Removed from Favorites",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    } else {
-                                        Toast.makeText(
-                                            context,
-                                            "Error: ${response.message()}",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    }
-                                }
-                            } catch (e: Exception) {
-                                withContext(Dispatchers.Main) {
-                                    Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
-                                }
-                            }
-                        }
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Favorite,
-                        tint = if (isFavorite) Color.Red else Color.Gray,
-                        contentDescription = if (isFavorite) "Remove from Favorites" else "Add to Favorites"
-                    )
-                }
+                )
             }
 
             Text(
@@ -604,7 +564,7 @@ fun JobCard(
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = job.jobLocation ?: "Unknown Location",
+                    text = job.jobLocation.toString() ?: "Unknown Location",
                     style = MaterialTheme.typography.bodyMedium
                 )
             }

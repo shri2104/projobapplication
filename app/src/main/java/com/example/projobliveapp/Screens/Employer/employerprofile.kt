@@ -145,7 +145,7 @@ fun CompanyProfileScreen(navController: NavController, apiService: ApiService, e
                         }
                     }
 
-                    item { Text("Top 3 Open Positions", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold) }
+                    item { Text("Open Positions", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold) }
                     items(jobList) { job ->
                         JobCard(job.jobTitle, job.country)
                     }
