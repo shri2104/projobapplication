@@ -1,5 +1,3 @@
-//package com.example.projobliveapp
-//
 //const express = require('express');
 //const bodyParser = require('body-parser');
 //const { MongoClient } = require('mongodb');
@@ -203,6 +201,19 @@
 //    }
 //});
 //
+//app.get('/getallcompanies', async (req, res) => {
+//    const collection = database.collection("comapnyData"); // Collection name: companies
+//
+//    try {
+//        const companies = await collection.find({}).toArray(); // Retrieve all companies
+//        res.status(200).send({ success: true, companies: companies }); // Return company details as an object
+//    } catch (error) {
+//        console.error("Retrieve Companies Error:", error);
+//        res.status(500).send({ success: false, error: error.message });
+//    }
+//});
+//
+//
 //app.get('/getcomapnyData/:userId', async (req, res) => {
 //    const collection = database.collection("comapnyData");
 //    const userId = req.params.userId; // Retrieve userId from the URL parameter
@@ -293,9 +304,9 @@
 //    const collection = database.collection("Candidateeducationladata");
 //    const userId = req.params.userId; // Retrieve userId from the URL parameter
 //    try {
-//        const user = await collection.findOne({ userId: userId }); // Find user by userId
+//        const user = await collection.find({ userId }).toArray();; // Find user by userId
 //
-//        if (user) {
+//        if (user.length>0) {
 //            res.status(200).send(user); // Return the user data
 //        } else {
 //            res.status(404).send({ success: false, message: 'User not found' }); // If user doesn't exist
@@ -305,7 +316,6 @@
 //        res.status(500).send({ success: false, error: error.message });
 //    }
 //});
-//
 //app.post('/Candidateexperienceladata', async (req,res) => {
 //    const collection = database.collection("Candidateexperienceladata");
 //    const data = req.body;
@@ -322,9 +332,9 @@
 //    const collection = database.collection("Candidateexperienceladata");
 //    const userId = req.params.userId; // Retrieve userId from the URL parameter
 //    try {
-//        const user = await collection.findOne({ userId: userId }); // Find user by userId
+//        const user = await collection.find({ userId }).toArray();; // Find user by userId
 //
-//        if (user) {
+//        if (user.length>0) {
 //            res.status(200).send(user); // Return the user data
 //        } else {
 //            res.status(404).send({ success: false, message: 'User not found' }); // If user doesn't exist
@@ -492,7 +502,6 @@
 //        if (contractType) {
 //            filter = { contractType: contractType }; // Filter based on contractType
 //        }
-//
 //        const jobs = await collection.find(filter).toArray(); // Retrieve filtered job postings
 //        res.status(200).send(jobs); // Return job postings
 //    } catch (error) {
@@ -583,6 +592,26 @@
 //    }
 //});
 //
+//app.get('/getappliedjobids/:userid', async (req, res) => {
+//    const userid = req.params.userid;
+//    const collection = database.collection("jobapplications");
+//    try {
+//        // Find all documents matching the job ID
+//        const jobs = await collection.find({ userid }).toArray();
+//
+//        if (jobs.length > 0) {
+//            res.status(200).json(jobs);
+//        } else {
+//            res.status(404).json([]);
+//        }
+//    } catch (error) {
+//        console.error("Fetch Error:", error.message);
+//        res.status(500).json({ success: false, error: error.message });
+//    }
+//});
+//
+//
+//
 //// API to upload company logo
 //app.post('/uploadLogo', upload.single('logo'), async (req, res) => {
 //    if (!req.file) {
@@ -636,6 +665,77 @@
 //    }
 //});
 //
+//// API to add job preference
+//app.post('/addJobPreference', async (req, res) => {
+//    const collection = database.collection("jobPreferences");
+//    const { userId, jobLocations, selectedSkills } = req.body;
+//
+//    try {
+//        const result = await collection.insertOne({ userId, jobLocations, selectedSkills });
+//        res.status(200).send({ success: true, id: result.insertedId });
+//    } catch (error) {
+//        console.error("Job Preference Insert Error:", error);
+//        res.status(500).send({ success: false, error: error.message });
+//    }
+//});
+//
+//// API to get job preference by user ID
+//app.get('/getJobPreference/:userId', async (req, res) => {
+//    const collection = database.collection("jobPreferences");
+//    const userId = req.params.userId;
+//
+//    try {
+//        const preference = await collection.findOne({ userId: userId });
+//        if (preference) {
+//            res.status(200).send(preference);
+//        } else {
+//            res.status(404).send({ success: false, message: 'Job Preference not found' });
+//        }
+//    } catch (error) {
+//        console.error("Retrieve Job Preference Error:", error);
+//        res.status(500).send({ success: false, error: error.message });
+//    }
+//});
+//
+//// API to update job preference
+//app.put('/updateJobPreference/:userId', async (req, res) => {
+//    const collection = database.collection("jobPreferences");
+//    const userId = req.params.userId;
+//    const { jobLocations, selectedSkills } = req.body;
+//
+//    try {
+//        const result = await collection.updateOne(
+//            { userId: userId },
+//            { $set: { jobLocations, selectedSkills } }
+//        );
+//        if (result.matchedCount === 0) {
+//            res.status(404).send({ success: false, message: 'Job Preference not found' });
+//        } else {
+//            res.status(200).send({ success: true, message: 'Job Preference updated successfully' });
+//        }
+//    } catch (error) {
+//        console.error("Job Preference Update Error:", error);
+//        res.status(500).send({ success: false, error: error.message });
+//    }
+//});
+//
+//// API to delete job preference
+//app.delete('/deleteJobPreference/:userId', async (req, res) => {
+//    const collection = database.collection("jobPreferences");
+//    const userId = req.params.userId;
+//
+//    try {
+//        const result = await collection.deleteOne({ userId: userId });
+//        if (result.deletedCount === 0) {
+//            res.status(404).send({ success: false, message: 'Job Preference not found' });
+//        } else {
+//            res.status(200).send({ success: true, message: 'Job Preference deleted successfully' });
+//        }
+//    } catch (error) {
+//        console.error("Job Preference Deletion Error:", error);
+//        res.status(500).send({ success: false, error: error.message });
+//    }
+//});
 //
 //
 //app.listen(port, () => {
