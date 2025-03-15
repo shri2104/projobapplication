@@ -70,7 +70,9 @@ fun JobPostingScreen(navController: NavController, userEmail: String, apiService
                     }
                 },
                 actions = {
-                    IconButton(onClick = {}) {
+                    IconButton(onClick = {
+                        navController.navigate("EmployerNotificationsScreen/${employerid}")
+                    }) {
                         Icon(Icons.Default.Notifications, contentDescription = "Notification Icon")
                     }
                 }

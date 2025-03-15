@@ -1,13 +1,12 @@
 package com.example.projobliveapp.Screens.profile
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 
-import android.net.Uri
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -31,13 +30,12 @@ import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Work
 import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,6 +44,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -53,7 +52,11 @@ import com.example.projobliveapp.DataBase.ApiService
 import com.example.projobliveapp.R
 
 @Composable
-fun ScrollableProfileScreen(navController: NavHostController, userEmail: String?) {
+fun ScrollableProfileScreen(
+    navController: NavHostController,
+    userEmail: String?,
+    apiService: ApiService
+) {
     Scaffold(
         bottomBar = {
             BottomAppBar(
@@ -108,7 +111,8 @@ fun ScrollableProfileScreen(navController: NavHostController, userEmail: String?
             ProfileHeader()
             NavigationMenu(
                 navController = navController,
-                userEmail = userEmail
+                userEmail = userEmail,
+                apiService
             )
         }
     }
@@ -131,7 +135,7 @@ fun ProfileHeader() {
 }
 
 @Composable
-fun NavigationMenu(navController: NavHostController, userEmail: String?) {
+fun NavigationMenu(navController: NavHostController, userEmail: String?, apiService: ApiService) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -164,7 +168,7 @@ fun NavigationMenu(navController: NavHostController, userEmail: String?) {
         menuItems.forEach { item ->
             NavigationMenuItem(
                 title = item.first, icon = item.second,
-                navController =navController,userEmail=userEmail
+                navController =navController,userEmail=userEmail,apiService
             )
             Spacer(modifier = Modifier.height(8.dp))
         }
@@ -175,8 +179,37 @@ fun NavigationMenuItem(
     title: String,
     icon: ImageVector,
     navController: NavHostController,
-    userEmail: String?
+    userEmail: String?,
+    apiService: ApiService
 ) {
+    var userId by remember { mutableStateOf<String?>(null) }
+    var isLoading by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    val context = LocalContext.current
+    LaunchedEffect(userEmail) {
+        if (userEmail != null) {
+            if (userEmail.isNotEmpty()) {
+                isLoading = true
+                errorMessage = null
+                try {
+                    val userIdResponse = apiService.getuserid(userEmail)
+                    userId = userIdResponse.userId
+
+                    if (!userId.isNullOrBlank()) {
+                        Log.d("UserIDFetch", "Fetched userId: $userId")
+                    } else {
+                        errorMessage = "User ID not found."
+                    }
+                } catch (e: Exception) {
+                    errorMessage = "Error fetching user ID: ${e.message}"
+                    Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+                    Log.e("UserIDFetch", "Error: ${e.message}", e)
+                } finally {
+                    isLoading = false
+                }
+            }
+        }
+    }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -186,6 +219,7 @@ fun NavigationMenuItem(
                     "Profile" -> navController.navigate("profilePage/$userEmail")
                     "My Resume" -> navController.navigate("MyResume/$userEmail")
                     "My Applied Jobs" -> navController.navigate("Appliedjobs/$userEmail")
+                    "Following Employers" -> navController.navigate("followedcompanies/$userId")
                 }
             },
         verticalAlignment = Alignment.CenterVertically

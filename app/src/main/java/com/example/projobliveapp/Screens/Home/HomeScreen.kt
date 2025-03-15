@@ -3,6 +3,7 @@ import android.net.Uri
 import android.os.Build
 import android.util.Log
 import android.widget.Toast
+import kotlin.math.*  // Import math functions
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
@@ -11,6 +12,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -164,8 +166,8 @@ fun HowItWorksSection() {
     ) {
         Text(
             text = "How It Works?",
-            style = MaterialTheme.typography.headlineSmall,
-            modifier = Modifier.padding(bottom = 8.dp)
+            style = MaterialTheme.typography.headlineMedium, // Increased text size
+            modifier = Modifier.padding(bottom = 12.dp)
         )
 
         val steps = listOf(
@@ -185,27 +187,33 @@ fun HowItWorksSection() {
                 icon = Icons.Default.List
             )
         )
+
         steps.forEach { step ->
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 12.dp),
+                    .padding(vertical = 16.dp), // Increased padding for better spacing
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
                     imageVector = step.icon,
                     contentDescription = null,
-                    modifier = Modifier.size(40.dp).padding(end = 16.dp),
+                    modifier = Modifier
+                        .size(48.dp) // Slightly larger icon
+                        .padding(end = 16.dp),
                     tint = LocalContentColor.current
                 )
                 Column {
                     Text(
                         text = step.title,
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.titleMedium, // Larger text size for title
                         fontWeight = FontWeight.Bold
                     )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(text = step.description)
+                    Spacer(modifier = Modifier.height(6.dp)) // Adjusted spacing
+                    Text(
+                        text = step.description,
+                        style = MaterialTheme.typography.bodyMedium // Increased text size for better readability
+                    )
                 }
             }
         }
@@ -428,24 +436,16 @@ fun TrendingJobsSection() {
 fun TrustedByCompaniesSection(apiService: ApiService, userEmail: String) {
     val companyList = remember { mutableStateListOf<CompanyDetails>() }
     val context = LocalContext.current
-    var loading by remember { mutableStateOf(false) }
-    var error by remember { mutableStateOf<String?>(null) }
-
-    // Auto-scrolling state
     val scrollState = rememberLazyListState()
 
     LaunchedEffect(Unit) {
-        Log.d("CompanyList", "Fetching companies from API...")
         try {
-            val response = apiService.getallcompanies() // Now returns an object
-            if (response.success) { // Check if API response is successful
+            val response = apiService.getallcompanies()
+            if (response.success) {
                 val companies = response.companies
-                Log.d("CompanyList", "Fetched companies: $companies")
                 if (companies.isNotEmpty()) {
                     companyList.clear()
                     companyList.addAll(companies)
-                } else {
-                    Log.d("CompanyList", "No companies found in the response")
                 }
             } else {
                 Log.e("CompanyList", "API returned failure status")
@@ -456,16 +456,21 @@ fun TrustedByCompaniesSection(apiService: ApiService, userEmail: String) {
             Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
-
-    // Auto-scroll effect
     LaunchedEffect(companyList.size) {
-        while (true) {
-            delay(3000) // Delay for smooth scrolling
-            val nextIndex = (scrollState.firstVisibleItemIndex + 1) % (companyList.size + 1)
-            scrollState.animateScrollToItem(nextIndex)
+        if (companyList.isNotEmpty()) {
+            while (true) {
+                delay(1500)
+
+                val nextIndex = scrollState.firstVisibleItemIndex + 1
+                scrollState.animateScrollToItem(nextIndex)
+
+                // Reset after 5 loops
+                if (nextIndex >= companyList.size * 5) {
+                    scrollState.scrollToItem(0)
+                }
+            }
         }
     }
-
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -475,23 +480,32 @@ fun TrustedByCompaniesSection(apiService: ApiService, userEmail: String) {
             text = "Trusted by Companies",
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 8.dp),
-            fontSize = 20.sp
+            fontSize = 20.sp,
+            modifier = Modifier.padding(bottom = 8.dp)
         )
-        LazyRow(
-            state = scrollState,
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp) // Space between logos
-        ) {
-            items(companyList) { company ->
-                CompanyLogo(
-                    companyId = company.userId,
-                    apiService = apiService,
-                )
+
+        if (companyList.isEmpty()) {
+            Text(text = "No companies available", fontSize = 16.sp)
+        } else {
+            LazyRow(
+                state = scrollState,
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // Duplicate the list for seamless looping
+                items(List(5) { companyList }.flatten()) { company ->
+                    CompanyLogo(
+                        companyId = company.userId,
+                        apiService = apiService,
+                    )
+                }
             }
         }
     }
 }
+
+
+
 
 @Composable
 fun BrowseByCategorySection() {

@@ -144,10 +144,9 @@ fun CompanyProfileScreen(navController: NavController, apiService: ApiService, e
                             data.socialMediaLinks?.takeIf { it.isNotBlank() }?.let { ContactItem(Icons.Default.Message, it) }
                         }
                     }
-
                     item { Text("Open Positions", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold) }
                     items(jobList) { job ->
-                        JobCard(job.jobTitle, job.country)
+                        JobCard1(job.jobTitle, job.country)
                     }
 
                     item {
@@ -163,7 +162,6 @@ fun CompanyProfileScreen(navController: NavController, apiService: ApiService, e
         }
     }
 }
-
 
 @Composable
 fun CompanyLogo(companyId: String, apiService: ApiService) {
@@ -257,7 +255,7 @@ fun ContactItem(icon: ImageVector, text: String) {
 }
 
 @Composable
-fun JobCard(position: String, location: String) {
+fun JobCard1(position: String, location: String) {
     Card(
         modifier = Modifier
             .fillMaxWidth()

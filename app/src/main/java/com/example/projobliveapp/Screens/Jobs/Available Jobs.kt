@@ -3,6 +3,7 @@ package com.example.projobliveapp.Screens.Jobs
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -54,6 +55,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.projobliveapp.DataBase.ApiService
+import com.example.projobliveapp.DataBase.ExperienceDetails
 import com.example.projobliveapp.DataBase.JobPost
 import com.example.projobliveapp.DataBase.SaveJob
 import com.example.projobliveapp.DataBase.jobapplications
@@ -268,7 +270,6 @@ fun JobList(apiService: ApiService, navController: NavHostController, userEmail:
                         Text(text = "Internships", style = MaterialTheme.typography.titleSmall)
                     }
                 }
-
                 IconButton(
                     onClick = { },
                     modifier = Modifier.weight(1f)
@@ -514,11 +515,33 @@ fun JobCard(
     userEmail: String,
     Appliedjobsection: Boolean
 ) {
-    // If the section is meant to show only applied jobs and the job is not applied, return early.
-    if (Appliedjobsection && !isApplied) return
-
+    var isLoading by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
     val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
+    if (Appliedjobsection && !isApplied) return
+    var userId by remember { mutableStateOf<String?>(null) }
+    LaunchedEffect(userEmail) {
+        if (userEmail.isNotEmpty()) {
+            isLoading = true
+            errorMessage = null
+            try {
+                val userIdResponse = apiService.getuserid(userEmail)
+                userId = userIdResponse.userId
+
+                if (!userId.isNullOrBlank()) {
+                    Log.d("UserIDFetch", "Fetched userId: $userId")
+                } else {
+                    errorMessage = "User ID not found."
+                }
+            } catch (e: Exception) {
+                errorMessage = "Error fetching user ID: ${e.message}"
+                Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+                Log.e("UserIDFetch", "Error: ${e.message}", e)
+            } finally {
+                isLoading = false
+            }
+        }
+    }
 
     Card(
         elevation = CardDefaults.cardElevation(8.dp),
@@ -530,28 +553,35 @@ fun JobCard(
             // Job Title & Company Logo Row
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = job.jobTitle ?: "Unknown Title",
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Blue,
-                    fontSize = 20.sp
-                )
+                // Ensures the text takes up the available space and wraps properly
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = job.jobTitle ?: "Unknown Title",
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Blue,
+                        fontSize = 20.sp,
+                    )
+                }
 
-                // Company Logo (at the place of Save Icon)
+                Spacer(modifier = Modifier.width(8.dp)) // Ensures spacing between title and logo
+
+                // Fixed-size Company Logo
                 CompanyLogo(
                     companyId = job.Employerid,
-                    apiService = apiService,
-
+                    apiService = apiService
                 )
             }
 
             Text(
                 text = job.Companyname ?: "Unknown Company",
-                style = MaterialTheme.typography.bodyMedium
+                style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.clickable {
+                    navController.navigate("CompanyProfileScreenforcandidates/${job.Employerid}/${userId}")
+                    println("Job title clicked: ${job.jobTitle}")
+                }
             )
 
             // Job Location

@@ -3,12 +3,12 @@ package com.example.projobliveapp.Navigation
 
 import AboutScreen
 import DownloadScreen
-
 import JobAppSlidingMenuScreen
 import JobPostingScreen
 import ProJobSafetyTipsScreen
 import SavedJobs
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
@@ -28,6 +28,7 @@ import com.example.projobliveapp.DataBase.JobPost
 import com.example.projobliveapp.Screens.Employer.CandidateApplications
 import com.example.projobliveapp.Screens.Employer.CompanyLogo
 import com.example.projobliveapp.Screens.Employer.CompanyProfileScreen
+import com.example.projobliveapp.Screens.Employer.EmployerNotificationsScreen
 import com.example.projobliveapp.Screens.Employer.postedJobs
 import com.example.projobliveapp.Screens.Employer.JobDetailsScreen
 import com.example.projobliveapp.Screens.Employer.JobPostedScreen
@@ -37,6 +38,7 @@ import com.example.projobliveapp.Screens.Employer.downloadresume
 
 import com.example.projobliveapp.Screens.Home.NotificationScreen
 import com.example.projobliveapp.Screens.Jobs.Appliedjobs
+import com.example.projobliveapp.Screens.Jobs.CompanyProfileScreenforCandidate
 import com.example.projobliveapp.Screens.Jobs.InternshipList
 import com.example.projobliveapp.Screens.Jobs.JobApplicationScreenPreview
 import com.example.projobliveapp.Screens.Jobs.JobDetailScreen
@@ -53,6 +55,7 @@ import com.example.projobliveapp.Screens.frontscreen.LoginSelectionScreen
 import com.example.projobliveapp.Screens.profile.ContactInfoScreen
 import com.example.projobliveapp.Screens.profile.EducationDetailsScreen
 import com.example.projobliveapp.Screens.profile.ExperienceDetailsScreen
+import com.example.projobliveapp.Screens.profile.FollowedCompaniesScreen
 import com.example.projobliveapp.Screens.profile.JobPreferences
 import com.example.projobliveapp.Screens.profile.PersonalInformationScreen
 import com.example.projobliveapp.Screens.profile.ProfilePage
@@ -120,7 +123,7 @@ fun Navigation(apiService: ApiService){
         }
         composable("profileSection/{email}") { backStackEntry ->
             val email = backStackEntry.arguments?.getString("email")
-            ScrollableProfileScreen(navController = navController, userEmail = email)
+            ScrollableProfileScreen(navController = navController, userEmail = email,apiService)
         }
         composable("candidateresume/{userId}") { backStackEntry ->
             val userId = backStackEntry.arguments?.getString("userId") ?:""
@@ -144,6 +147,28 @@ fun Navigation(apiService: ApiService){
         composable("CompanyProfileScreen/{email}"){backStackEntry->
             val email = backStackEntry.arguments?.getString("email")
             CompanyProfileScreen(navController=navController,apiService,email)
+        }
+        composable("followedcompanies/{userid}"){backStackEntry->
+            val userid = backStackEntry.arguments?.getString("userid")
+            if (userid != null) {
+                FollowedCompaniesScreen(navController=navController,apiService,userid)
+            }
+        }
+        composable("EmployerNotificationsScreen/{employerId}"){backStackEntry->
+            val employerId = backStackEntry.arguments?.getString("employerId")
+            if (employerId != null) {
+                EmployerNotificationsScreen(apiService,employerId)
+            }
+        }
+
+        composable("CompanyProfileScreenforcandidates/{employerId}/{userid}") { backStackEntry ->
+            val employerId = backStackEntry.arguments?.getString("employerId")
+            val userid = backStackEntry.arguments?.getString("userid")
+            employerId?.let {
+                if (userid != null) {
+                    CompanyProfileScreenforCandidate(navController = navController, apiService = apiService, employerId = it,userid)
+                }
+            } ?: Log.e("NavigationError", "Employer ID is null")
         }
         composable(Screen.MoreScreen.name){
             MorePage(navController=navController)

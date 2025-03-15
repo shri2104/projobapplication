@@ -38,6 +38,12 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.util.UUID
 
+fun getOrCreateUserId(context: Context): String {
+    val sharedPref = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+    return sharedPref.getString("USER_ID", null) ?: UUID.randomUUID().toString().also {
+        sharedPref.edit().putString("USER_ID", it).apply()
+    }
+}
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -46,8 +52,11 @@ fun EmployerDetailsScreen(
     apiService: ApiService,
     userType: String
 ) {
+    val context = LocalContext.current
+    val userId = remember { getOrCreateUserId(context) }  // Stable across app restarts
+
     var showUserForm by remember { mutableStateOf(false) }
-    val userId = remember { UUID.randomUUID().toString() }
+
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -55,12 +64,12 @@ fun EmployerDetailsScreen(
             modifier = Modifier.padding(16.dp)
         ) {
             if (!showUserForm) {
-                EmployerDetailsForm(navController = navController,apiService,userId) {
+                EmployerDetailsForm(navController = navController, apiService, userId) {
                     showUserForm = true
                 }
             } else {
                 logo()
-                Signup(userType, userId, navController, apiService,)
+                Signup(userType, userId, navController, apiService)
             }
             Spacer(modifier = Modifier.height(30.dp))
             if (showUserForm) {
@@ -81,6 +90,7 @@ fun EmployerDetailsScreen(
         }
     }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

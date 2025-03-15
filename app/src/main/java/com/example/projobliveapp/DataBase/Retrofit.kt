@@ -1,5 +1,6 @@
 package com.example.projobliveapp.DataBase
 
+import com.google.gson.annotations.SerializedName
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
@@ -184,6 +185,44 @@ data class CompaniesResponse(
     val success: Boolean,
     val companies: List<CompanyDetails>
 )
+
+data class FollowRequest(
+    val userId: String,
+    val employerId: String
+)
+
+data class FollowResponse(
+    val success: Boolean,
+    val following: Boolean,
+    val message: String
+)
+data class FollowedCompaniesResponse(
+    val success: Boolean,
+    val companies: List<String>
+)
+
+
+data class Notification(
+    val id: String?,  // Make sure this matches the backend response
+    val employerId: String,
+    val userId: String,
+    val message: String,
+    val createdAt: String,
+    val read: Boolean
+)
+
+
+data class NotificationResponse(
+    val success: Boolean,
+    val notifications: List<Notification>
+)
+
+data class DeleteResponse(
+    val success: Boolean,
+    val message: String
+)
+
+
 data class SavedJobResponse(val email: String, val jobIds: List<List<String>>)
 data class JobApiResponse(val success: Boolean, val jobs: List<Job>)
 data class ApiResponse(val success: Boolean, val id: String?)
@@ -300,6 +339,7 @@ interface ApiService {
     @GET("getJobByemployerId/{Employerid}")
     suspend fun getJobByemployerId(@Path("Employerid") email: String): List<JobPost>
 
+
     @Multipart
     @POST("/uploadLogo")
     fun uploadLogo(
@@ -309,6 +349,19 @@ interface ApiService {
 
     @GET("getLogo/{companyId}")
     suspend fun getLogo(@Path("companyId") companyId: String): Response<ResponseBody>
+
+    @POST("toggleFollow")
+    suspend fun toggleFollow(@Body followRequest: FollowRequest): Response<FollowResponse>
+
+    @GET("/getNotifications/{employerId}")
+    suspend fun getNotifications(@Path("employerId") employerId: String): Response<NotificationResponse>
+
+    @GET("checkFollowStatus/{userId}/{employerId}")
+    suspend fun checkFollowStatus(@Path("userId") userId: String, @Path("employerId") employerId: String): FollowResponse
+
+    @GET("getFollowedCompanies/{userId}")
+    suspend fun getFollowedCompanies(@Path("userId") userId: String): FollowedCompaniesResponse
+
 
     @Multipart
     @POST("uploadResume")
@@ -323,6 +376,10 @@ interface ApiService {
 
     @GET("checkResumeExists/{userId}")
     suspend fun checkResumeExists(@Path("userId") userId: String): Response<Resume>
+
+    @DELETE("deleteNotification/{notificationId}")
+    suspend fun deleteNotification(@Path("notificationId") notificationId: String): Response<DeleteResponse>
+
 
     @Multipart
     @POST("updateResume")
