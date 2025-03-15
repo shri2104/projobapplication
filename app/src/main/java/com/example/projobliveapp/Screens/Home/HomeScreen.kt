@@ -3,16 +3,14 @@ import android.net.Uri
 import android.os.Build
 import android.util.Log
 import android.widget.Toast
-import kotlin.math.*  // Import math functions
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.*
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -22,19 +20,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.projobliveapp.R
 
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.unit.sp
 import com.example.projobliveapp.DataBase.ApiService
 import com.example.projobliveapp.DataBase.CompanyDetails
+import com.example.projobliveapp.DataBase.JobPost
 import com.example.projobliveapp.Screens.Employer.CompanyLogo
 import kotlinx.coroutines.delay
 
@@ -392,7 +388,49 @@ fun SearchBarSection() {
 }
 
 @Composable
-fun TrendingJobsSection() {
+fun JobForYou(apiService: ApiService, userEmail: String) {
+    var isLoading by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    var userId by remember { mutableStateOf<String?>(null) }
+    val recommendedJobs = remember { mutableStateListOf<JobPost>() }
+    val context = LocalContext.current
+
+    LaunchedEffect(userEmail) {
+        Log.d("JobForYou", "Fetching recommended jobs for user: $userEmail")
+        if (userEmail.isNotEmpty()) {
+            isLoading = true
+            errorMessage = null
+            try {
+                val userIdResponse = apiService.getuserid(userEmail)
+                userId = userIdResponse.userId
+
+                if (!userId.isNullOrBlank()) {
+                    Log.d("UserIDFetch", "Fetched userId: $userId")
+
+                    val jobResponse = apiService.getRecommendedJobs(userId!!)
+                    if (jobResponse.isSuccessful) {
+                        val jobs = jobResponse.body()
+                        if (!jobs.isNullOrEmpty()) {
+                            recommendedJobs.clear()
+                            recommendedJobs.addAll(jobs)
+                            Log.d("JobList", "Fetched ${jobs.size} recommended jobs")
+                        } else {
+                            errorMessage = "No recommended jobs found."
+                        }
+                    } else {
+                        errorMessage = "Failed to fetch jobs."
+                    }
+                } else {
+                    errorMessage = "User ID not found."
+                }
+            } catch (e: Exception) {
+                errorMessage = "Error fetching jobs: ${e.message}"
+            } finally {
+                isLoading = false
+            }
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -401,36 +439,86 @@ fun TrendingJobsSection() {
         Text(
             text = "Trending on ProJob",
             style = MaterialTheme.typography.headlineSmall,
-            fontWeight=FontWeight.Bold,
+            fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = 8.dp),
             fontSize = 20.sp
         )
 
-        LazyRow(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            items(10) { index ->
-                Card(
-                    modifier = Modifier
-                        .size(150.dp)
-                        .padding(8.dp)
-                        .clickable {
-                            println("Clicked on Trending Job $index")
-
-                        },
-                    elevation = CardDefaults.cardElevation(4.dp)
-                ) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(text = "Job $index", textAlign = TextAlign.Center)
-                    }
+        if (isLoading) {
+            CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+        } else if (!errorMessage.isNullOrEmpty()) {
+            Text(text = errorMessage!!, color = Color.Red)
+        } else if (recommendedJobs.isEmpty()) {
+            Text(text = "No jobs found matching your preferences.", color = Color.Gray)
+        } else {
+            LazyRow(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                items(recommendedJobs) { job ->
+                    JobCard(job = job, onViewClick = {
+                        Log.d("JobView", "Viewing job: ${job.jobTitle}")
+                        Toast.makeText(context, "Viewing ${job.jobTitle}", Toast.LENGTH_SHORT).show()
+                    })
                 }
             }
         }
     }
 }
+
+
+@Composable
+fun JobCard(job: JobPost, onViewClick: () -> Unit) {
+    Log.d("JobCard", "Rendering job: ${job.jobTitle}")
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(200.dp) // Increased height for a more spacious look
+            .padding(8.dp)
+            .clickable { Log.d("JobClick", "Clicked on job: ${job.jobTitle}") },
+        elevation = CardDefaults.cardElevation(6.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            Text(
+                text = job.jobTitle,
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
+            Text(
+                text = job.Companyname,
+                fontSize = 16.sp,
+                color = Color.Gray,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
+            Text(
+                text = "Location: ${job.jobLocation.joinToString()}",
+                fontSize = 14.sp,
+                modifier = Modifier.padding(bottom = 2.dp)
+            )
+            Text(
+                text = "Salary: ${job.minSalary} - ${job.maxSalary}",
+                fontSize = 14.sp,
+                color = Color.Green,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            Button(
+                onClick = onViewClick,
+                modifier = Modifier
+                    .align(Alignment.End)
+                    .padding(top = 8.dp)
+            ) {
+                Text(text = "View")
+            }
+        }
+    }
+}
+
 
 @Composable
 fun TrustedByCompaniesSection(apiService: ApiService, userEmail: String) {

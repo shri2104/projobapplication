@@ -120,7 +120,7 @@ fun MainJobScreenContent(
                 apiService = apiservice
             )
 
-            TrendingJobsSection()
+            JobForYou(apiservice,userEmail)
             RecentlyViewedJobsSection()
             ActiveJobsInCitiesSection()
             BrowseByCategorySection()

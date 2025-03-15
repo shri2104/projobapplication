@@ -294,6 +294,13 @@ interface ApiService {
     @GET("getJobs")
     suspend fun getAllJobs(): Response<List<JobPost>>
 
+    @GET("getRecommendedJobs/{userId}")
+    suspend fun getRecommendedJobs(
+        @Path("userId") userId: String
+    ): Response<List<JobPost>> // ✅ Ensure it expects a List
+
+
+
     @GET("getDataID/{id}")
     suspend fun getJobById(@Path("id") id: String): Job
 
@@ -391,8 +398,9 @@ interface ApiService {
 
 fun createApiService(): ApiService {
     val retrofit = Retrofit.Builder()
-        .baseUrl("http://10.0.2.2:3000/")
+        .baseUrl("https://8f9d-122-252-228-30.ngrok-free.app/") // Updated URL
         .addConverterFactory(GsonConverterFactory.create())
         .build()
     return retrofit.create(ApiService::class.java)
 }
+
