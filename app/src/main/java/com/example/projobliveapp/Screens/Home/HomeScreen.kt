@@ -25,7 +25,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.unit.sp
 import com.example.projobliveapp.DataBase.ApiService
@@ -119,7 +118,7 @@ fun JobAppSlidingMenuScreen(
 ) {
     var isMenuVisible by remember { mutableStateOf(false) }
     val menuWidth by animateFloatAsState(
-        targetValue = if (isMenuVisible) 0.85f else 0f,
+        targetValue = if (isMenuVisible) 0.5f else 0f,  // Set to half screen
         label = "MenuWidthAnimation"
     )
     Box(modifier = Modifier.fillMaxSize()) {
@@ -127,8 +126,8 @@ fun JobAppSlidingMenuScreen(
             MainJobScreenContent(
                 onMenuClick = { isMenuVisible = true },
                 navController = navController,
-                userEmail=userEmail,
-                apiservice=apiservice
+                userEmail = userEmail,
+                apiservice = apiservice
             )
         }
         if (isMenuVisible) {
@@ -138,20 +137,21 @@ fun JobAppSlidingMenuScreen(
                     .fillMaxWidth(menuWidth)
                     .align(Alignment.CenterStart)
                     .background(
-                        Color(0xFF1E1E1E),
+                        Color.White,
                         RoundedCornerShape(topEnd = 16.dp, bottomEnd = 16.dp)
                     )
             ) {
                 JobAppMenuContent(
                     onCloseMenu = { isMenuVisible = false },
-                    navController=navController,
-                    userEmail=userEmail,
-                    apiservice= apiservice
+                    navController = navController,
+                    userEmail = userEmail,
+                    apiservice = apiservice
                 )
             }
         }
     }
 }
+
 
 @Composable
 fun HowItWorksSection() {
@@ -305,13 +305,11 @@ fun ContactDetailsSection() {
             .fillMaxWidth()
             .padding(16.dp)
     ) {
-
         Text(
             text = "Contact Details",
             style = MaterialTheme.typography.headlineMedium,
             modifier = Modifier.padding(bottom = 8.dp)
         )
-
         Text(
             text = "ProJob",
             style = MaterialTheme.typography.headlineLarge,
@@ -465,7 +463,6 @@ fun JobForYou(apiService: ApiService, userEmail: String) {
     }
 }
 
-
 @Composable
 fun JobCard(job: JobPost, onViewClick: () -> Unit) {
     Log.d("JobCard", "Rendering job: ${job.jobTitle}")
@@ -473,37 +470,41 @@ fun JobCard(job: JobPost, onViewClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(200.dp) // Increased height for a more spacious look
-            .padding(8.dp)
+            .height(250.dp) // Increased height for a more spacious look
+            .padding(12.dp)
             .clickable { Log.d("JobClick", "Clicked on job: ${job.jobTitle}") },
-        elevation = CardDefaults.cardElevation(6.dp)
+        elevation = CardDefaults.cardElevation(8.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White  // Set card color to white
+        )
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
+                .padding(20.dp)  // Increased padding for a better look
         ) {
             Text(
                 text = job.jobTitle,
                 fontWeight = FontWeight.Bold,
-                fontSize = 20.sp,
-                modifier = Modifier.padding(bottom = 4.dp)
+                fontSize = 24.sp,  // Increased font size for better visibility
+                modifier = Modifier.padding(bottom = 6.dp)
             )
             Text(
                 text = job.Companyname,
-                fontSize = 16.sp,
+                fontSize = 18.sp,
                 color = Color.Gray,
                 modifier = Modifier.padding(bottom = 4.dp)
             )
             Text(
                 text = "Location: ${job.jobLocation.joinToString()}",
-                fontSize = 14.sp,
+                fontSize = 16.sp,
+                color = Color.Black,
                 modifier = Modifier.padding(bottom = 2.dp)
             )
             Text(
                 text = "Salary: ${job.minSalary} - ${job.maxSalary}",
-                fontSize = 14.sp,
-                color = Color.Green,
+                fontSize = 16.sp,
+                color = Color.Black,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
             Spacer(modifier = Modifier.weight(1f))
@@ -511,13 +512,21 @@ fun JobCard(job: JobPost, onViewClick: () -> Unit) {
                 onClick = onViewClick,
                 modifier = Modifier
                     .align(Alignment.End)
-                    .padding(top = 8.dp)
+                    .padding(top = 8.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Black
+                )
             ) {
-                Text(text = "View")
+                Text(
+                    text = "VIEW",
+                    fontWeight = FontWeight.Bold,  // Bold text on the button
+                    color = Color.White
+                )
             }
         }
     }
 }
+
 
 
 @Composable

@@ -362,13 +362,6 @@ fun JobListScreen(
                         },
                         text = { Text("Profile") }
                     )
-                    DropdownMenuItem(
-                        onClick = {
-                            navController.navigate("SavedJobs/$userEmail")
-                            expanded = false
-                        },
-                        text = { Text("Saved Jobs") }
-                    )
                 }
             }
         )

@@ -181,6 +181,7 @@ data class jobapplications(
     val userid: String,
     val timestamp: String
 )
+
 data class CompaniesResponse(
     val success: Boolean,
     val companies: List<CompanyDetails>
@@ -346,7 +347,6 @@ interface ApiService {
     @GET("getJobByemployerId/{Employerid}")
     suspend fun getJobByemployerId(@Path("Employerid") email: String): List<JobPost>
 
-
     @Multipart
     @POST("/uploadLogo")
     fun uploadLogo(
@@ -398,7 +398,7 @@ interface ApiService {
 
 fun createApiService(): ApiService {
     val retrofit = Retrofit.Builder()
-        .baseUrl("https://8f9d-122-252-228-30.ngrok-free.app/") // Updated URL
+        .baseUrl("https://ab4d-122-252-228-30.ngrok-free.app/") // Updated URL
         .addConverterFactory(GsonConverterFactory.create())
         .build()
     return retrofit.create(ApiService::class.java)

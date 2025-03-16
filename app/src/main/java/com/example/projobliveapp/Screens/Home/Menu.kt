@@ -175,28 +175,13 @@ fun JobAppMenuContent(
                 contentScale = ContentScale.Fit
             )
             IconButton(onClick = onCloseMenu) {
-                Icon(Icons.Default.Close, contentDescription = "Close Menu", tint = Color.White)
+                Icon(Icons.Default.Close, contentDescription = "Close Menu", tint = Color.Black)
             }
-        }
-        Column(
-            modifier = Modifier.padding(bottom = 24.dp)
-        ) {
-            Text(
-                text = "$userName $userlastName",
-                fontSize = 20.sp,
-                color = Color.White,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = userFetchedEmail,
-                fontSize = 16.sp,
-                color = Color.LightGray
-            )
         }
         Text(
             text = "EXPLORE",
             fontSize = 22.sp,
-            color = Color.White,
+            color = Color.Black,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = 16.dp)
         )
@@ -207,11 +192,6 @@ fun JobAppMenuContent(
             item {
                 MenuItem(icon = Icons.Default.Person, label = "Profile") {
                     navController.navigate("profileSection/$userEmail")
-                }
-            }
-            item {
-                MenuItem(icon = Icons.Default.Favorite, label = "Saved Jobs") {
-                    navController.navigate("SavedJobs/$userEmail")
                 }
             }
             item {
@@ -252,6 +232,7 @@ fun JobAppMenuContent(
             }
         }
 
+
         Spacer(modifier = Modifier.weight(1f))
         Text(
             text = "Version 1.0.0",
@@ -271,22 +252,24 @@ fun MenuItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() }
-            .padding(8.dp),
+            .clickable(onClick = onClick)
+            .padding(12.dp),  // Reduced padding
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
             imageVector = icon,
             contentDescription = label,
-            tint = Color.White,
-            modifier = Modifier.size(28.dp)
+            tint = Color.Black,
+            modifier = Modifier.size(20.dp)  // Reduced icon size
         )
-        Spacer(modifier = Modifier.width(16.dp))
+        Spacer(modifier = Modifier.width(12.dp))  // Reduced space
         Text(
             text = label,
-            fontSize = 18.sp,
-            color = Color.White,
+            fontSize = 14.sp,  // Reduced text size
+            color = Color.Black,
             fontWeight = FontWeight.Medium
         )
     }
 }
+
+
