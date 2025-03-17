@@ -25,6 +25,7 @@ import com.bawp.freader.screens.login.UserForm
 import com.example.projobliveapp.DataBase.ApiService
 import com.example.projobliveapp.DataBase.Job
 import com.example.projobliveapp.DataBase.JobPost
+import com.example.projobliveapp.DataBase.JobViewModel
 import com.example.projobliveapp.Screens.Employer.CandidateApplications
 import com.example.projobliveapp.Screens.Employer.CompanyLogo
 import com.example.projobliveapp.Screens.Employer.CompanyProfileScreen
@@ -66,7 +67,7 @@ import com.google.gson.Gson
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun Navigation(apiService: ApiService){
+fun Navigation(apiService: ApiService, jobViewModel: JobViewModel){
     val savedJobs = remember { mutableStateListOf<Job>() }
     val navController= rememberNavController()
 
@@ -103,7 +104,7 @@ fun Navigation(apiService: ApiService){
         }
         composable("homeScreen/{email}"){ backStackEntry ->
             val userEmail = backStackEntry.arguments?.getString("email") ?: ""
-            JobAppSlidingMenuScreen(navController = navController, userEmail = userEmail,apiservice=apiService)
+            JobAppSlidingMenuScreen(navController = navController, userEmail = userEmail,apiservice=apiService,jobViewModel)
         }
         composable("EmployerHomeScreen/{email}"){ backStackEntry ->
             val userEmail = backStackEntry.arguments?.getString("email") ?: ""
@@ -246,15 +247,26 @@ fun Navigation(apiService: ApiService){
         }
         composable("AvailableJobs/{email}") { backStackEntry ->
             val userEmail = backStackEntry.arguments?.getString("email") ?: ""
-            JobList(navController = navController, apiService = apiService, userEmail = userEmail)
+            JobList(
+                navController = navController, apiService = apiService, userEmail = userEmail,
+                jobViewModel = jobViewModel
+            )
         }
         composable("Appliedjobs/{email}") { backStackEntry ->
             val userEmail = backStackEntry.arguments?.getString("email") ?: ""
-            Appliedjobs(navController = navController, apiService = apiService, userEmail = userEmail)
+            Appliedjobs(
+                navController = navController, apiService = apiService, userEmail = userEmail,
+                jobViewModel =jobViewModel
+            )
         }
         composable("AvailableInterns/{email}") { backStackEntry ->
             val userEmail = backStackEntry.arguments?.getString("email") ?: ""
-            InternshipList(navController = navController, apiService = apiService, userEmail = userEmail)
+            InternshipList(
+                navController = navController,
+                apiService = apiService,
+                userEmail = userEmail,
+                jobViewModel = jobViewModel
+            )
         }
         composable(
             route = "jobDetailScreen/{jobid}/{userEmail}/{employerid}/{isApplied}"

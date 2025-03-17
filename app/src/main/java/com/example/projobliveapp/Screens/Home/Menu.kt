@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.projobliveapp.DataBase.ApiService
+import com.example.projobliveapp.DataBase.JobViewModel
 import com.example.projobliveapp.Navigation.Screen
 import com.example.projobliveapp.R
 import com.google.firebase.auth.FirebaseAuth
@@ -34,7 +35,8 @@ fun MainJobScreenContent(
     onMenuClick: () -> Unit,
     navController: NavHostController,
     userEmail: String,
-    apiservice: ApiService
+    apiservice: ApiService,
+    jobViewModel: JobViewModel
 ) {
     val scrollState = rememberScrollState()
     val openMenu = remember { mutableStateOf(false) }
@@ -120,10 +122,14 @@ fun MainJobScreenContent(
                 apiService = apiservice
             )
 
-            JobForYou(apiservice,userEmail)
-            RecentlyViewedJobsSection()
-            ActiveJobsInCitiesSection()
-            BrowseByCategorySection()
+            JobForYou(apiservice,userEmail,navController)
+            RecentlyViewedJobsSection(
+                apiService = apiservice,
+                navController = navController,
+                jobViewModel = jobViewModel,
+                userEmail
+            )
+            ActiveJobsInCitiesSection(apiservice)
             TrustedByCompaniesSection(apiservice,userEmail)
             HowItWorksSection()
         }
@@ -227,7 +233,10 @@ fun JobAppMenuContent(
             item {
                 MenuItem(icon = Icons.Default.Logout, label = "Logout") {
                     FirebaseAuth.getInstance().signOut()
-                    navController.navigate(Screen.LoginScreen.name)
+                    navController.navigate(Screen.LoginScreen.name) {
+                        popUpTo("homeScreen/$userEmail") { inclusive = true }
+                        launchSingleTop = true
+                    }
                 }
             }
         }

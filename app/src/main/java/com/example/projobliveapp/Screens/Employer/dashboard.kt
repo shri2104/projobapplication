@@ -1,6 +1,8 @@
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -82,98 +84,103 @@ fun JobPostingScreen(navController: NavController, userEmail: String, apiService
             BottomAppBar(
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                IconButton(
-                    onClick = { },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Default.Home, contentDescription = "Home")
-                        Text(text = "Home", style = MaterialTheme.typography.titleSmall)
-                    }
-                }
-                IconButton(
-                    onClick = { },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Default.Assignment, contentDescription = "Application")
-                        Text(text = "Applications", style = MaterialTheme.typography.titleSmall)
-                    }
-                }
-                IconButton(
-                    onClick = { navController.navigate("postedjobs/${employerid}/${userEmail}")},
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Default.Work, contentDescription = "Jobs")
-                        Text(text = "Jobs", style = MaterialTheme.typography.titleSmall)
-                    }
-                }
-                IconButton(
-                    onClick = { },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Default.Message, contentDescription = "Messages")
-                        Text(text = "Messages", style = MaterialTheme.typography.titleSmall)
+                listOf(
+                    Pair(Icons.Default.Home, "Home"),
+                    Pair(Icons.Default.Assignment, "Applications"),
+                    Pair(Icons.Default.Work, "Jobs"),
+                    Pair(Icons.Default.Message, "Messages")
+                ).forEachIndexed { index, (icon, label) ->
+                    IconButton(
+                        onClick = {
+                            when (index) {
+                                2 -> navController.navigate("postedjobs/${employerid}/${userEmail}")
+                            }
+                        },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(icon, contentDescription = label)
+                            Text(text = label, style = MaterialTheme.typography.titleSmall)
+                        }
                     }
                 }
             }
         }
     ) { paddingValues ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text(
-                text = "Direct Job Posting",
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = "Post your opening and start receiving the applications. Be featured in top search results.",
-                style = MaterialTheme.typography.bodyMedium
-            )
+            item {
+                Text(
+                    text = "Direct Job Posting",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "Post your opening and start receiving the applications. Be featured in top search results.",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
 
-            Text(text = "Benefits of posting a job:")
-            BulletPointText(text = "Reach a large pool of candidates.")
-            BulletPointText(text = "Save time and resources with automated processes.")
-            BulletPointText(text = "Get featured in top search results to attract more attention.")
-            BulletPointText(text = "Easy to manage and track applications.")
-            BulletPointText(text = "Access to detailed analytics for better decision-making.")
-            Spacer(modifier = Modifier.height(16.dp))
+            item { Text(text = "Benefits of posting a job:") }
 
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Button(
-                    onClick = { navController.navigate("jobpost/${employerid}/${userEmail}")},
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(0.dp),
-                    colors = ButtonDefaults.buttonColors(Color.Blue)
+            items(
+                listOf(
+                    "Reach a large pool of candidates.",
+                    "Save time and resources with automated processes.",
+                    "Get featured in top search results to attract more attention.",
+                    "Easy to manage and track applications.",
+                    "Access to detailed analytics for better decision-making."
+                )
+            ) { benefit ->
+                BulletPointText(text = benefit)
+            }
+
+            item { Spacer(modifier = Modifier.height(16.dp)) }
+
+            item {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Post a Job")
+                    Button(
+                        onClick = { navController.navigate("jobpost/${employerid}/${userEmail}") },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(0.dp),
+                        colors = ButtonDefaults.buttonColors(Color.Blue)
+                    ) {
+                        Text("Post a Job")
+                    }
+                    Button(
+                        onClick = { navController.navigate("postedjobs/${employerid}/${userEmail}") },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE6F7FF)),
+                        shape = RoundedCornerShape(4.dp),
+                        contentPadding = PaddingValues(8.dp),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(
+                            text = "Posted Jobs",
+                            color = Color.Blue,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
-                Button(
-                    onClick = {navController.navigate("postedjobs/${employerid}/${userEmail}") },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE6F7FF)),
-                    shape = RoundedCornerShape(4.dp),
-                    contentPadding = PaddingValues(8.dp),
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = "Posted Jobs",
-                        color = Color.Blue,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
+            }
+
+            item {
+                Divider(modifier = Modifier.padding(vertical = 16.dp))
+            }
+
+            item {
+                HowItWorksSectionforemployers()
             }
         }
     }
+
     if (showBottomSheet.value) {
         ModalBottomSheet(
             onDismissRequest = { showBottomSheet.value = false },
@@ -194,11 +201,16 @@ fun JobPostingScreen(navController: NavController, userEmail: String, apiService
                 }
                 Text(text = "Profile", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 Divider()
-                TextButton(onClick = {navController.navigate("CompanyProfileScreen/$userEmail")  }) {
+                TextButton(onClick = { navController.navigate("CompanyProfileScreen/$userEmail") }) {
                     Text("View Profile", style = MaterialTheme.typography.bodyLarge)
                 }
-                TextButton(onClick = { FirebaseAuth.getInstance().signOut()
-                    navController.navigate(Screen.LoginScreen.name) }) {
+                TextButton(onClick = {
+                    FirebaseAuth.getInstance().signOut()
+                    navController.navigate(Screen.LoginScreen.name) {
+                        popUpTo("EmployerHomeScreen/$userEmail") { inclusive = true }
+                        launchSingleTop = true
+                    }
+                }) {
                     Text("Logout", style = MaterialTheme.typography.bodyLarge, color = Color.Red)
                 }
             }

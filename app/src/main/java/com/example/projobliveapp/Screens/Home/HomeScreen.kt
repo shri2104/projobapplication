@@ -8,10 +8,10 @@ import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -30,8 +30,13 @@ import androidx.compose.ui.unit.sp
 import com.example.projobliveapp.DataBase.ApiService
 import com.example.projobliveapp.DataBase.CompanyDetails
 import com.example.projobliveapp.DataBase.JobPost
+import com.example.projobliveapp.DataBase.JobViewModel
 import com.example.projobliveapp.Screens.Employer.CompanyLogo
 import kotlinx.coroutines.delay
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -114,7 +119,8 @@ fun UserGreetingScreen(email: String, apiService: ApiService) {
 fun JobAppSlidingMenuScreen(
     navController: NavHostController,
     userEmail: String,
-    apiservice: ApiService
+    apiservice: ApiService,
+    jobViewModel: JobViewModel
 ) {
     var isMenuVisible by remember { mutableStateOf(false) }
     val menuWidth by animateFloatAsState(
@@ -127,7 +133,8 @@ fun JobAppSlidingMenuScreen(
                 onMenuClick = { isMenuVisible = true },
                 navController = navController,
                 userEmail = userEmail,
-                apiservice = apiservice
+                apiservice = apiservice,
+                jobViewModel
             )
         }
         if (isMenuVisible) {
@@ -151,10 +158,72 @@ fun JobAppSlidingMenuScreen(
         }
     }
 }
+@Composable
+fun HowItWorksSection() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        Text(
+            text = "How It Works?",
+            style = MaterialTheme.typography.headlineMedium, // Increased text size
+            modifier = Modifier.padding(bottom = 12.dp)
+        )
+
+        val steps = listOf(
+            Step(
+                title = "Create Your Profile",
+                description = "Sign up and complete your profile with your skills, experience, and preferences to get matched with the best job opportunities.",
+                icon = Icons.Default.PersonAdd
+            ),
+            Step(
+                title = "Browse Job Listings",
+                description = "Explore thousands of job listings from top companies, filter based on your preferences, and find the best opportunities for your career.",
+                icon = Icons.Default.Search
+            ),
+            Step(
+                title = "Apply & Get Hired",
+                description = "Submit applications easily, track your job applications, and connect with recruiters to land your dream job.",
+                icon = Icons.Default.Work
+            )
+        )
+
+        steps.forEach { step ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp), // Increased padding for better spacing
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = step.icon,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(48.dp) // Slightly larger icon
+                        .padding(end = 16.dp),
+                    tint = LocalContentColor.current
+                )
+                Column {
+                    Text(
+                        text = step.title,
+                        style = MaterialTheme.typography.titleMedium, // Larger text size for title
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(6.dp)) // Adjusted spacing
+                    Text(
+                        text = step.description,
+                        style = MaterialTheme.typography.bodyMedium // Increased text size for better readability
+                    )
+                }
+            }
+        }
+    }
+}
 
 
 @Composable
-fun HowItWorksSection() {
+fun HowItWorksSectionforemployers() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -223,7 +292,28 @@ data class Step(
 )
 
 @Composable
-fun ActiveJobsInCitiesSection() {
+fun ActiveJobsInCitiesSection(apiService: ApiService) {
+    var jobPosts by remember { mutableStateOf<List<JobPost>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        try {
+            val response = apiService.getAllJobs()
+            if (response.isSuccessful) {
+                jobPosts = response.body() ?: emptyList()
+            } else {
+                errorMessage = "Failed to fetch jobs: ${response.message()}"
+            }
+        } catch (e: Exception) {
+            errorMessage = "Error: ${e.message}"
+            Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+        } finally {
+            isLoading = false
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -232,30 +322,47 @@ fun ActiveJobsInCitiesSection() {
         Text(
             text = "Active Jobs in Cities",
             style = MaterialTheme.typography.headlineSmall,
-            fontWeight=FontWeight.Bold,
+            fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = 8.dp),
             fontSize = 20.sp
         )
 
-        val cities = listOf(
-            City("New York", Icons.Default.Home),
-            City("San Francisco", Icons.Default.DirectionsBoat),
-            City("Austin", Icons.Default.Place),
-            City("Los Angeles", Icons.Default.Star),
-            City("Chicago", Icons.Default.LocationCity)
-        )
+        when {
+            isLoading -> {
+                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+            }
 
-        LazyRow(
-            modifier = Modifier.fillMaxWidth(),
-            contentPadding = PaddingValues(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            items(cities) { city ->
-                CityCard(city = city)
+            !errorMessage.isNullOrEmpty() -> {
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(text = errorMessage.orEmpty(), color = Color.Red, modifier = Modifier.padding(8.dp))
+                }
+            }
+
+            else -> {
+                // Extract unique job locations properly
+                val uniqueCities = jobPosts.flatMap { it.jobLocation }.distinct().take(10)
+
+                LazyRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentPadding = PaddingValues(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    items(uniqueCities) { city ->
+                        CityCard(city = City(name = city, icon = Icons.Default.LocationCity))
+                    }
+                }
             }
         }
     }
 }
+
+
+
 
 data class City(
     val name: String,
@@ -266,36 +373,51 @@ data class City(
 fun CityCard(city: City) {
     Card(
         modifier = Modifier
-            .size(150.dp)
-            .clickable { println("Clicked on ${city.name}") },
-        elevation = CardDefaults.cardElevation(4.dp)
+            .size(160.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .clickable {  }
+            .shadow(6.dp, shape = RoundedCornerShape(16.dp)),
+        elevation = CardDefaults.cardElevation(4.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFFF3E5F5)),
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(Color(0xFFFFF3E0), Color(0xFFFFE0B2)) // Soft Orange Gradient
+                    )
+                ),
             contentAlignment = Alignment.Center
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
-                modifier = Modifier.padding(8.dp)
+                modifier = Modifier.padding(12.dp)
             ) {
                 Icon(
                     imageVector = city.icon,
                     contentDescription = city.name,
-                    modifier = Modifier.size(40.dp)
+                    modifier = Modifier
+                        .size(48.dp)
+                        .background(Color.White.copy(alpha = 0.3f), shape = CircleShape)
+                        .padding(8.dp),
+                    tint = Color(0xFF6D4C41) // Soft Brown Tint for Icon
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(10.dp))
                 Text(
                     text = city.name,
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF6D4C41) // Soft Brown for Readability
+                    ),
                     textAlign = TextAlign.Center
                 )
             }
         }
     }
 }
+
 @Composable
 fun ContactDetailsSection() {
     val context = LocalContext.current
@@ -336,16 +458,12 @@ fun ContactDetailsSection() {
             style = MaterialTheme.typography.headlineMedium,
             modifier = Modifier.padding(bottom = 4.dp)
         )
-
         Text(
             text = "Explore all the features of our platform to help you find the best candidates and advertise your job openings to millions of users.",
             style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier.padding(bottom = 16.dp)
         )
-
         Spacer(modifier = Modifier.height(16.dp))
-
-
         Button(
             onClick = {
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.projob.co.in"))
@@ -386,11 +504,12 @@ fun SearchBarSection() {
 }
 
 @Composable
-fun JobForYou(apiService: ApiService, userEmail: String) {
+fun JobForYou(apiService: ApiService, userEmail: String, navController: NavHostController) {
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var userId by remember { mutableStateOf<String?>(null) }
     val recommendedJobs = remember { mutableStateListOf<JobPost>() }
+    val appliedJobs = remember { mutableStateMapOf<String, Boolean>() }
     val context = LocalContext.current
 
     LaunchedEffect(userEmail) {
@@ -412,6 +531,16 @@ fun JobForYou(apiService: ApiService, userEmail: String) {
                             recommendedJobs.clear()
                             recommendedJobs.addAll(jobs)
                             Log.d("JobList", "Fetched ${jobs.size} recommended jobs")
+
+                            jobs.forEach { job ->
+                                try {
+                                    val isApplied = apiService.checkApplication(job.jobid, userId!!)
+                                    appliedJobs[job.jobid] = isApplied
+                                } catch (e: Exception) {
+                                    Log.e("JobApplicationCheck", "Error checking application: ${e.message}")
+                                    appliedJobs[job.jobid] = false
+                                }
+                            }
                         } else {
                             errorMessage = "No recommended jobs found."
                         }
@@ -453,40 +582,48 @@ fun JobForYou(apiService: ApiService, userEmail: String) {
                 modifier = Modifier.fillMaxWidth()
             ) {
                 items(recommendedJobs) { job ->
-                    JobCard(job = job, onViewClick = {
-                        Log.d("JobView", "Viewing job: ${job.jobTitle}")
-                        Toast.makeText(context, "Viewing ${job.jobTitle}", Toast.LENGTH_SHORT).show()
-                    })
+                    val isApplied = appliedJobs[job.jobid] ?: false
+                    JobCard(
+                        job = job,
+                        navController = navController,
+                        userEmail = userEmail,
+                        isApplied = isApplied,
+                        onViewClick = {
+                            Log.d("JobView", "Viewing job: ${job.jobTitle}")
+                            Toast.makeText(context, "Viewing ${job.jobTitle}", Toast.LENGTH_SHORT).show()
+                        }
+                    )
                 }
             }
         }
     }
 }
 
+
 @Composable
-fun JobCard(job: JobPost, onViewClick: () -> Unit) {
-    Log.d("JobCard", "Rendering job: ${job.jobTitle}")
+fun JobCard(job: JobPost, navController: NavHostController, userEmail: String, isApplied: Boolean, onViewClick: () -> Unit) {
+    Log.d("JobCard", "Rendering job: ${job.jobTitle}, Applied: $isApplied")
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(250.dp) // Increased height for a more spacious look
+            .height(250.dp)
             .padding(12.dp)
             .clickable { Log.d("JobClick", "Clicked on job: ${job.jobTitle}") },
         elevation = CardDefaults.cardElevation(8.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color.White  // Set card color to white
+            containerColor = Color.White
         )
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(20.dp)  // Increased padding for a better look
+                .padding(20.dp)
         ) {
             Text(
                 text = job.jobTitle,
                 fontWeight = FontWeight.Bold,
-                fontSize = 24.sp,  // Increased font size for better visibility
+                fontSize = 24.sp,
                 modifier = Modifier.padding(bottom = 6.dp)
             )
             Text(
@@ -509,7 +646,9 @@ fun JobCard(job: JobPost, onViewClick: () -> Unit) {
             )
             Spacer(modifier = Modifier.weight(1f))
             Button(
-                onClick = onViewClick,
+                onClick = {
+                    navController.navigate("jobDetailScreen/${job.jobid}/${userEmail}/${job.Employerid}/${isApplied}") // ✅ Pass isApplied
+                },
                 modifier = Modifier
                     .align(Alignment.End)
                     .padding(top = 8.dp),
@@ -518,10 +657,131 @@ fun JobCard(job: JobPost, onViewClick: () -> Unit) {
                 )
             ) {
                 Text(
-                    text = "VIEW",
-                    fontWeight = FontWeight.Bold,  // Bold text on the button
+                    text = if (isApplied) "APPLIED" else "VIEW",
+                    fontWeight = FontWeight.Bold,
                     color = Color.White
                 )
+            }
+        }
+    }
+}
+
+
+@Composable
+fun RecentlyViewedJobsSection(
+    apiService: ApiService,
+    navController: NavHostController,
+    jobViewModel: JobViewModel,
+    userEmail: String
+) {
+    val recentJobs by jobViewModel.recentJobs.observeAsState(emptyList())
+    var isLoading by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    var userId by remember { mutableStateOf<String?>(null) }
+    val recommendedJobs = remember { mutableStateListOf<JobPost>() }
+    val appliedJobs = remember { mutableStateMapOf<String, Boolean>() } // Store application status
+    val context = LocalContext.current
+
+    LaunchedEffect(userEmail) {
+        Log.d("JobForYou", "Fetching recommended jobs for user: $userEmail")
+        if (userEmail.isNotEmpty()) {
+            isLoading = true
+            errorMessage = null
+            try {
+                val userIdResponse = apiService.getuserid(userEmail)
+                userId = userIdResponse.userId
+
+                if (!userId.isNullOrBlank()) {
+                    Log.d("UserIDFetch", "Fetched userId: $userId")
+
+                    val jobResponse = apiService.getRecommendedJobs(userId!!)
+                    if (jobResponse.isSuccessful) {
+                        val jobs = jobResponse.body()
+                        if (!jobs.isNullOrEmpty()) {
+                            recommendedJobs.clear()
+                            recommendedJobs.addAll(jobs)
+                            Log.d("JobList", "Fetched ${jobs.size} recommended jobs")
+
+                            // Check application status for each job
+                            jobs.forEach { job ->
+                                try {
+                                    val isApplied = apiService.checkApplication(job.jobid, userId!!)
+                                    appliedJobs[job.jobid] = isApplied
+                                } catch (e: Exception) {
+                                    Log.e("JobApplicationCheck", "Error checking application: ${e.message}")
+                                    appliedJobs[job.jobid] = false
+                                }
+                            }
+                        } else {
+                            errorMessage = "No recommended jobs found."
+                        }
+                    } else {
+                        errorMessage = "Failed to fetch jobs."
+                    }
+                } else {
+                    errorMessage = "User ID not found."
+                }
+            } catch (e: Exception) {
+                errorMessage = "Error fetching jobs: ${e.message}"
+            } finally {
+                isLoading = false
+            }
+        }
+    }
+    if (recentJobs.isNotEmpty()) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Text(
+                text = "Recently Viewed Jobs",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            LazyRow(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                items(recentJobs) { job ->
+                    val isApplied = appliedJobs[job.jobid] ?: false
+                    Card(
+                        modifier = Modifier
+                            .wrapContentSize()
+                            .padding(8.dp)
+                            .clickable { navController.navigate("jobDetailScreen/${job.jobid}/${userEmail}/${job.Employerid}/${isApplied}")},
+                        elevation = CardDefaults.cardElevation(8.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.White)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(25.dp)
+                        ) {
+                            Text(
+                                text = job.jobTitle,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 18.sp,
+                                modifier = Modifier.padding(bottom = 4.dp)
+                            )
+                            Text(
+                                text = job.Companyname,
+                                color = Color.Gray,
+                                fontSize = 16.sp
+                            )
+                            Text(
+                                text = "Location: ${job.jobLocation}",
+                                fontSize = 14.sp
+                            )
+                            Text(
+                                text = "Salary: ${job.minSalary} - ${job.maxSalary}",
+                                fontSize = 14.sp
+                            )
+                        }
+                    }
+                }
             }
         }
     }
@@ -662,41 +922,3 @@ fun CategoryCard(category: String, onClick: () -> Unit) {
     }
 }
 
-@Composable
-fun RecentlyViewedJobsSection() {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-    ) {
-        Text(
-            text = "Recently Viewed Jobs",
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight=FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 8.dp),
-            fontSize = 20.sp
-        )
-        LazyRow(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            items(5) { index ->
-                Card(
-                    modifier = Modifier
-                        .size(150.dp)
-                        .padding(8.dp)
-                        .clickable {
-                            println("Clicked on Recently Viewed Job $index")
-                        },
-                    elevation = CardDefaults.cardElevation(4.dp)
-                ) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(text = "Job $index", textAlign = TextAlign.Center)
-                    }
-                }
-            }
-        }
-    }
-}

@@ -186,8 +186,7 @@ fun JobApplicationScreen(
 
             when (currentStep.value) {
                 1 -> ResumeScreenContent(userEmail, apiService, navController)
-                2 -> CoverLetterScreenContent()
-                3 -> ReviewAndSubmitScreenContent(userEmail,navController)
+                2 -> ReviewAndSubmitScreenContent(userEmail,navController)
             }
 
             Spacer(modifier = Modifier.height(16.dp))

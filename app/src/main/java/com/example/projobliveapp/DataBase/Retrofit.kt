@@ -332,6 +332,12 @@ interface ApiService {
     @GET("getappliedjobids/{userid}")
     suspend fun getappliedjobids(@Path("userid") userid: String): List<jobapplications>
 
+    @GET("checkapplication/{jobid}/{userid}")
+    suspend fun checkApplication(
+        @Path("jobid") jobId: String,
+        @Path("userid") userId: String
+    ): Boolean
+
     @POST("comapnyData")
     suspend fun PostcomapnyData(@Body companyDetails: CompanyDetails): Response<ApiResponse>
 
@@ -369,7 +375,6 @@ interface ApiService {
     @GET("getFollowedCompanies/{userId}")
     suspend fun getFollowedCompanies(@Path("userId") userId: String): FollowedCompaniesResponse
 
-
     @Multipart
     @POST("uploadResume")
     suspend fun uploadResume(
@@ -398,7 +403,7 @@ interface ApiService {
 
 fun createApiService(): ApiService {
     val retrofit = Retrofit.Builder()
-        .baseUrl("https://ab4d-122-252-228-30.ngrok-free.app/") // Updated URL
+        .baseUrl("https://07a3-122-252-228-30.ngrok-free.app/") // Updated URL
         .addConverterFactory(GsonConverterFactory.create())
         .build()
     return retrofit.create(ApiService::class.java)

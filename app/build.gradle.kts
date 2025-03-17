@@ -4,6 +4,8 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 //    id("com.android.application")
     id("com.google.gms.google-services")
+
+    id ("kotlin-kapt")
 }
 
 android {
@@ -72,4 +74,24 @@ dependencies {
     implementation (libs.threetenabp)
     implementation (libs.threetenabp.v131)
     implementation (libs.material3)
+
+    val room_version = "2.6.1"
+    implementation(libs.androidx.room.runtime)
+    kapt(libs.androidx.room.compiler.v261)
+    implementation(libs.androidx.room.ktx)
+    // Coroutines support for Room
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
+    implementation(libs.kotlinx.coroutines.core)
+    // Room Paging integration
+    implementation(libs.androidx.room.paging)
+
+    // ViewModel integration with Compose
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
+
+// LiveData support
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.1")
+
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.1")
+
+
 }

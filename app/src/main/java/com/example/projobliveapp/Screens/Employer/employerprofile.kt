@@ -152,7 +152,7 @@ fun CompanyProfileScreen(navController: NavController, apiService: ApiService, e
                     item {
                         Spacer(modifier = Modifier.height(16.dp))
                         Button(
-                            onClick = { navController.navigate("jobpost") },
+                            onClick = { navController.navigate("jobpost/${companyData?.userId}/${email}") },
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(8.dp)
                         ) { Text("Post a Job", fontWeight = FontWeight.Bold) }

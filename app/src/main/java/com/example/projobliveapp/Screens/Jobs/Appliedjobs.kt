@@ -65,6 +65,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import com.example.projobliveapp.DataBase.Job
 import com.example.projobliveapp.DataBase.JobPost
+import com.example.projobliveapp.DataBase.JobViewModel
 import com.example.projobliveapp.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -73,7 +74,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Composable
-fun Appliedjobs(apiService: ApiService, navController: NavHostController, userEmail: String){
+fun Appliedjobs(apiService: ApiService, navController: NavHostController, userEmail: String,jobViewModel: JobViewModel){
     val jobList = remember { mutableStateListOf<JobPost>() }
     val appliedjobs = remember { mutableStateListOf<jobapplications>() }
     val context = LocalContext.current
@@ -181,13 +182,14 @@ fun Appliedjobs(apiService: ApiService, navController: NavHostController, userEm
     ) { paddingValues ->
         JobListScreen(
             jobs = jobList,
-            appliedjobs=appliedjobs,
+            appliedjobs = appliedjobs,
             navController = navController,
             userEmail = userEmail,
             apiService = apiService,
             modifier = Modifier.padding(paddingValues),
-            internorjob="Job(s)",
-            Appliedjobsection=true
+            internorjob = "Job(s)",
+            Appliedjobsection = true,
+            jobViewModel = jobViewModel
         )
     }
 }

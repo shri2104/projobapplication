@@ -53,10 +53,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.projobliveapp.DataBase.ApiService
 import com.example.projobliveapp.DataBase.ExperienceDetails
 import com.example.projobliveapp.DataBase.JobPost
+import com.example.projobliveapp.DataBase.JobViewModel
 import com.example.projobliveapp.DataBase.SaveJob
 import com.example.projobliveapp.DataBase.jobapplications
 import com.example.projobliveapp.R
@@ -67,7 +69,7 @@ import kotlinx.coroutines.withContext
 
 
 @Composable
-fun InternshipList(apiService: ApiService, navController: NavHostController, userEmail: String) {
+fun InternshipList(apiService: ApiService, navController: NavHostController, userEmail: String,jobViewModel: JobViewModel) {
     val internshipList = remember { mutableStateListOf<JobPost>() }
     val context = LocalContext.current
     var loading by remember { mutableStateOf(false) }
@@ -177,15 +179,16 @@ fun InternshipList(apiService: ApiService, navController: NavHostController, use
             userEmail = userEmail,
             apiService = apiService,
             modifier = Modifier.padding(paddingValues),
-            internorjob="Internships(s)",
+            internorjob = "Internships(s)",
             appliedjobs = appliedjobs,
-            Appliedjobsection=false
+            Appliedjobsection = false,
+            jobViewModel = jobViewModel,
         )
     }
 }
 
 @Composable
-fun JobList(apiService: ApiService, navController: NavHostController, userEmail: String) {
+fun JobList(apiService: ApiService, navController: NavHostController, userEmail: String,jobViewModel: JobViewModel) {
     val jobList = remember { mutableStateListOf<JobPost>() }
     val appliedjobs = remember { mutableStateListOf<jobapplications>() }
     val context = LocalContext.current
@@ -293,13 +296,14 @@ fun JobList(apiService: ApiService, navController: NavHostController, userEmail:
     ) { paddingValues ->
         JobListScreen(
             jobs = jobList,
-            appliedjobs=appliedjobs,
+            appliedjobs = appliedjobs,
             navController = navController,
             userEmail = userEmail,
             apiService = apiService,
             modifier = Modifier.padding(paddingValues),
-            internorjob="Job(s)",
-            Appliedjobsection=false
+            internorjob = "Job(s)",
+            Appliedjobsection = false,
+            jobViewModel = jobViewModel
         )
     }
 }
@@ -314,7 +318,8 @@ fun JobListScreen(
     apiService: ApiService,
     modifier: Modifier = Modifier,
     internorjob: String,
-    Appliedjobsection:Boolean
+    Appliedjobsection:Boolean,
+    jobViewModel: JobViewModel
 ) {
     var searchQuery by remember { mutableStateOf("") }
     var selectedFilter by remember { mutableStateOf("All") }
@@ -489,6 +494,7 @@ fun JobListScreen(
                                 apiService = apiService,
                                 userEmail = userEmail,
                                 Appliedjobsection = Appliedjobsection,
+                                viewModel = jobViewModel,
                             )
                         }
 
@@ -506,7 +512,8 @@ fun JobCard(
     navController: NavHostController,
     apiService: ApiService,
     userEmail: String,
-    Appliedjobsection: Boolean
+    Appliedjobsection: Boolean,
+    viewModel: JobViewModel
 ) {
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
@@ -616,6 +623,7 @@ fun JobCard(
                 Button(
                     onClick = {
                         navController.navigate("jobDetailScreen/${job.jobid}/${userEmail}/${job.Employerid}/${isApplied}")
+                        viewModel.addJobToRecentlyViewed(job)
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Blue),
                     modifier = Modifier
