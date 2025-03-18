@@ -1,7 +1,6 @@
 package com.example.projobliveapp.Screens.profile
 
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -96,7 +95,7 @@ fun FollowedCompaniesScreen(navController: NavController, apiService: ApiService
                     items(companyDetails) { company ->
                         CompanyCard(
                             company, navController,
-                            apiService = apiService
+                            apiService = apiService,userId
                         )
                     }
                 }
@@ -106,13 +105,18 @@ fun FollowedCompaniesScreen(navController: NavController, apiService: ApiService
 }
 
 @Composable
-fun CompanyCard(company: CompanyDetails, navController: NavController,apiService: ApiService) {
+fun CompanyCard(
+    company: CompanyDetails,
+    navController: NavController,
+    apiService: ApiService,
+    userId: String
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
             .clickable {
-                navController.navigate("CompanyProfile/${company.userId}")
+                navController.navigate("CompanyProfileScreenforcandidates/${company.userId}/${userId}")
             },
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp)

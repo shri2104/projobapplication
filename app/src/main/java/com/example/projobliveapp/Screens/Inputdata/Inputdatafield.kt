@@ -41,6 +41,7 @@ import com.example.projobliveapp.DataBase.PersonalData
 import com.example.projobliveapp.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.util.UUID
 
 @Composable
 fun JobApplicationForm(
@@ -742,6 +743,7 @@ fun EducationDetailsScreen(
                                             if (record.level != "Uneducated") {
                                                 apiService.Candidateeducationladata(
                                                     EducationDetails(
+                                                        id = UUID.randomUUID().toString(),
                                                         userId = userId,
                                                         degree = record.degree,
                                                         fieldOfStudy = record.fieldOfStudy,
@@ -753,6 +755,7 @@ fun EducationDetailsScreen(
                                                         yearOfCompletion = ""
                                                     )
                                                 )
+
                                             }
                                         }
                                     } catch (e: Exception) {
@@ -1035,6 +1038,7 @@ fun ExperienceDetailsScreen(
                                         experienceRecords.forEach { record ->
                                             apiService.Candidateexperienceladata(
                                                 ExperienceDetails(
+                                                    id = UUID.randomUUID().toString(),
                                                     userId = userId,
                                                     jobTitle = record.jobTitle,
                                                     companyName = record.companyName,

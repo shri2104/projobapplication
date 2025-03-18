@@ -32,6 +32,7 @@ data class PersonalData(
 )
 
 data class EducationDetails(
+    val id: String,
     val userId: String,
     val degree: String,
     val fieldOfStudy: String,
@@ -44,6 +45,7 @@ data class EducationDetails(
 )
 
 data class ExperienceDetails(
+    val id: String,
     val userId: String,
     val jobTitle: String,
     val companyName: String,
@@ -212,7 +214,6 @@ data class Notification(
     val read: Boolean
 )
 
-
 data class NotificationResponse(
     val success: Boolean,
     val notifications: List<Notification>
@@ -235,23 +236,48 @@ interface ApiService {
     @GET("getCandidatepersonaldata/{userId}")
     suspend fun getCandidatepersonaldata(@Path("userId") userId: String): PersonalData
 
+    @PUT("updateCandidatepersonaldata/{userId}")
+    suspend fun updateCandidatepersonaldata(
+        @Path("userId") userId: String,
+        @Body updatedData: PersonalData
+    ): Response<ApiResponse>
+
     @POST("Candidateeducationladata")
     suspend fun Candidateeducationladata(@Body jobData: EducationDetails): Response<ApiResponse>
 
     @GET("getCandidateeducationladata/{userId}")
     suspend fun getCandidateeducationladata(@Path("userId") userId: String): List<EducationDetails>
 
+    @PUT("updateCandidateEducation/{educationId}")
+    suspend fun updateCandidateEducation(
+        @Path("educationId") educationId: String,
+        @Body updatedEducation: EducationDetails
+    ): Response<ApiResponse>
+
+
     @POST("Candidateexperienceladata")
     suspend fun Candidateexperienceladata(@Body jobData: ExperienceDetails): Response<ApiResponse>
 
     @GET("getCandidateexperienceladata/{userId}")
     suspend fun getCandidateexperienceladata(@Path("userId") userId: String): List<ExperienceDetails>
+    @PUT("updateCandidateexperienceladata/{userId}")
+
+    suspend fun updateCandidateexperienceladata(
+        @Path("id") id: String,
+        @Body updatedData: ExperienceDetails
+    ): Response<ApiResponse>
 
     @POST("Candidatecontactladata")
     suspend fun Candidatecontactladata(@Body jobData: ContactInfo): Response<ApiResponse>
 
     @GET("getCandidatecontactladata/{userId}")
     suspend fun getCandidatecontactladata(@Path("userId") userId: String): ContactInfo
+
+    @PUT("updateCandidatecontactladata/{userId}")
+    suspend fun updateCandidatecontactladata(
+        @Path("userId") userId: String,
+        @Body updatedData: ContactInfo
+    ): Response<ApiResponse>
 
     @POST("addJobPreference")
     suspend fun Candidatejobprefrencedata(
@@ -403,7 +429,7 @@ interface ApiService {
 
 fun createApiService(): ApiService {
     val retrofit = Retrofit.Builder()
-        .baseUrl("https://07a3-122-252-228-30.ngrok-free.app/") // Updated URL
+        .baseUrl("https://f530-122-252-228-30.ngrok-free.app/") // Updated URL
         .addConverterFactory(GsonConverterFactory.create())
         .build()
     return retrofit.create(ApiService::class.java)

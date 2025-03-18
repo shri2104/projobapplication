@@ -558,40 +558,241 @@ fun JobForYou(apiService: ApiService, userEmail: String, navController: NavHostC
         }
     }
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
+//            .padding(16.dp)
+            .background(Color(0xFFE3F2FD), shape = RoundedCornerShape(16.dp))
     ) {
-        Text(
-            text = "Trending on ProJob",
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 8.dp),
-            fontSize = 20.sp
-        )
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .background(Color(0xFFE3F2FD), shape = RoundedCornerShape(8.dp))
+//                    .padding(16.dp)
+            ) {
+                Text(
+                    text = "Recommended Jobs",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp,
+                    color = Color(0xFF1E88E5)
+                )
+                Text(
+                    text = "As per your preferences",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Gray,
+                    fontSize = 16.sp,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
 
-        if (isLoading) {
-            CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
-        } else if (!errorMessage.isNullOrEmpty()) {
-            Text(text = errorMessage!!, color = Color.Red)
-        } else if (recommendedJobs.isEmpty()) {
-            Text(text = "No jobs found matching your preferences.", color = Color.Gray)
-        } else {
-            LazyRow(
+
+            if (isLoading) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+            } else if (!errorMessage.isNullOrEmpty()) {
+                Text(text = errorMessage!!, color = Color.Red)
+            } else if (recommendedJobs.isEmpty()) {
+                Text(text = "No jobs found matching your preferences.", color = Color.Gray)
+            } else {
+                LazyRow(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    items(recommendedJobs) { job ->
+                        val isApplied = appliedJobs[job.jobid] ?: false
+                        userId?.let {
+                            JobCard(
+                                job = job,
+                                navController = navController,
+                                userEmail = userEmail,
+                                onViewClick = {
+                                    Log.d("JobView", "Viewing job: ${job.jobTitle}")
+                                    Toast.makeText(
+                                        context,
+                                        "Viewing ${job.jobTitle}",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                },
+                                apiService = apiService,
+                                isapplied = isApplied,
+                                userId = it,
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                StepIndicator(steps = listOf("Apply", "Interview", "Selection"), currentStep = 1)
+            }
+        }
+    }
+}
+@Composable
+fun StepIndicator1(steps: List<String>, currentStep: Int) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        steps.forEachIndexed { index, step ->
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(16.dp)
+                        .clip(CircleShape)
+                        .background(if (index == currentStep) Color(0xFF2196F3) else Color.Gray)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun StepIndicator(steps: List<String>, currentStep: Int) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        steps.forEachIndexed { index, step ->
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(30.dp)
+                        .clip(CircleShape)
+                        .background(if (index <= currentStep) Color(0xFF2196F3) else Color.Gray),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = (index + 1).toString(),
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                Text(
+                    text = step,
+                    fontSize = 12.sp,
+                    color = if (index <= currentStep) Color(0xFF2196F3) else Color.Gray,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
+            if (index < steps.size - 1) {
+                Spacer(
+                    modifier = Modifier
+                        .height(2.dp)
+                        .width(40.dp)
+                        .background(if (index < currentStep) Color(0xFF2196F3) else Color.Gray)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun JobCard(
+    job: JobPost,
+    navController: NavHostController,
+    userEmail: String,
+    apiService: ApiService,
+    onViewClick: () -> Unit,
+    isapplied: Boolean,
+    userId: String
+) {
+    Log.d("JobCard", "Rendering job: ${job.jobTitle}")
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+            .padding(10.dp)
+            .clickable { Log.d("JobClick", "Clicked on job: ${job.jobTitle}") },
+        elevation = CardDefaults.cardElevation(8.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White
+        ),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                items(recommendedJobs) { job ->
-                    val isApplied = appliedJobs[job.jobid] ?: false
-                    JobCard(
-                        job = job,
-                        navController = navController,
-                        userEmail = userEmail,
-                        isApplied = isApplied,
-                        onViewClick = {
-                            Log.d("JobView", "Viewing job: ${job.jobTitle}")
-                            Toast.makeText(context, "Viewing ${job.jobTitle}", Toast.LENGTH_SHORT).show()
-                        }
+                CompanyLogo(
+                    companyId = job.Employerid,
+                    apiService = apiService,
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = job.jobTitle,
+                fontWeight = FontWeight.Bold,
+                fontSize = 22.sp,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
+            Text(
+                text = job.Companyname,
+                fontSize = 18.sp,
+                color = Color.Gray,
+                modifier = Modifier
+                    .padding(bottom = 6.dp)
+                    .clickable {
+                        navController.navigate("CompanyProfileScreenforcandidates/${job.Employerid}/${userId}")
+                        Log.d("CompanyClick", "Navigating to company profile of ${job.Companyname}")
+                    }
+            )
+            Text(
+                text = job.jobLocation.joinToString(),
+                fontSize = 16.sp,
+                color = Color.Black,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
+            Text(
+                text = "₹ ${job.minSalary} - ${job.maxSalary} / month",
+                fontSize = 16.sp,
+                color = Color.Black,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
+            Text(
+                text = "${job.contractType} Months",
+                fontSize = 16.sp,
+                color = Color.Black,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                TextButton(
+                    onClick = {
+                        navController.navigate("jobDetailScreen/${job.jobid}/${userEmail}/${job.Employerid}/${isapplied}")
+                    }
+                ) {
+                    Text(
+                        text = "View Details",
+                        color = Color.Blue,
+                        fontWeight = FontWeight.Bold
                     )
                 }
             }
@@ -599,72 +800,6 @@ fun JobForYou(apiService: ApiService, userEmail: String, navController: NavHostC
     }
 }
 
-
-@Composable
-fun JobCard(job: JobPost, navController: NavHostController, userEmail: String, isApplied: Boolean, onViewClick: () -> Unit) {
-    Log.d("JobCard", "Rendering job: ${job.jobTitle}, Applied: $isApplied")
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(250.dp)
-            .padding(12.dp)
-            .clickable { Log.d("JobClick", "Clicked on job: ${job.jobTitle}") },
-        elevation = CardDefaults.cardElevation(8.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White
-        )
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(20.dp)
-        ) {
-            Text(
-                text = job.jobTitle,
-                fontWeight = FontWeight.Bold,
-                fontSize = 24.sp,
-                modifier = Modifier.padding(bottom = 6.dp)
-            )
-            Text(
-                text = job.Companyname,
-                fontSize = 18.sp,
-                color = Color.Gray,
-                modifier = Modifier.padding(bottom = 4.dp)
-            )
-            Text(
-                text = "Location: ${job.jobLocation.joinToString()}",
-                fontSize = 16.sp,
-                color = Color.Black,
-                modifier = Modifier.padding(bottom = 2.dp)
-            )
-            Text(
-                text = "Salary: ${job.minSalary} - ${job.maxSalary}",
-                fontSize = 16.sp,
-                color = Color.Black,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-            Spacer(modifier = Modifier.weight(1f))
-            Button(
-                onClick = {
-                    navController.navigate("jobDetailScreen/${job.jobid}/${userEmail}/${job.Employerid}/${isApplied}") // ✅ Pass isApplied
-                },
-                modifier = Modifier
-                    .align(Alignment.End)
-                    .padding(top = 8.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Black
-                )
-            ) {
-                Text(
-                    text = if (isApplied) "APPLIED" else "VIEW",
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                )
-            }
-        }
-    }
-}
 
 
 @Composable

@@ -3,6 +3,7 @@ package com.example.projobliveapp.Screens.Jobs
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.DropdownMenu
@@ -518,8 +519,10 @@ fun JobCard(
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     val context = LocalContext.current
-    if (Appliedjobsection && !isApplied) return
     var userId by remember { mutableStateOf<String?>(null) }
+
+    if (Appliedjobsection && !isApplied) return
+
     LaunchedEffect(userEmail) {
         if (userEmail.isNotEmpty()) {
             isLoading = true
@@ -527,7 +530,6 @@ fun JobCard(
             try {
                 val userIdResponse = apiService.getuserid(userEmail)
                 userId = userIdResponse.userId
-
                 if (!userId.isNullOrBlank()) {
                     Log.d("UserIDFetch", "Fetched userId: $userId")
                 } else {
@@ -544,81 +546,86 @@ fun JobCard(
     }
 
     Card(
-        elevation = CardDefaults.cardElevation(8.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
+            .wrapContentHeight()
+            .padding(10.dp)
+            .clickable { Log.d("JobClick", "Clicked on job: ${job.jobTitle}") },
+        elevation = CardDefaults.cardElevation(8.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White
+        ),
+        shape = RoundedCornerShape(16.dp)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            // Job Title & Company Logo Row
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Ensures the text takes up the available space and wraps properly
-                Column(modifier = Modifier.weight(1f)) {
+                Box(
+                    modifier = Modifier
+                        .background(Color(0xFFE0F7FA), RoundedCornerShape(8.dp))
+                        .padding(4.dp)
+                ) {
                     Text(
-                        text = job.jobTitle ?: "Unknown Title",
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Blue,
-                        fontSize = 20.sp,
+                        text = "Actively hiring",
+                        color = Color(0xFF00796B),
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold
                     )
                 }
-
-                Spacer(modifier = Modifier.width(8.dp)) // Ensures spacing between title and logo
-
-                // Fixed-size Company Logo
+                Spacer(modifier = Modifier.weight(1f))
                 CompanyLogo(
                     companyId = job.Employerid,
-                    apiService = apiService
-                )
-            }
-
-            Text(
-                text = job.Companyname ?: "Unknown Company",
-                style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.clickable {
-                    navController.navigate("CompanyProfileScreenforcandidates/${job.Employerid}/${userId}")
-                    println("Job title clicked: ${job.jobTitle}")
-                }
-            )
-
-            // Job Location
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Default.LocationOn,
-                    contentDescription = "Location",
-                    modifier = Modifier.size(20.dp),
-                    tint = Color.Gray
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = job.jobLocation.toString() ?: "Unknown Location",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-
-            // Salary
-            Spacer(modifier = Modifier.height(4.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Default.AttachMoney,
-                    contentDescription = "Salary",
-                    modifier = Modifier.size(20.dp),
-                    tint = Color.Gray
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = "${job.minSalary} - ${job.maxSalary} per annum",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Gray
+                    apiService = apiService,
                 )
             }
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // View and Apply Buttons
+            Text(
+                text = job.jobTitle,
+                fontWeight = FontWeight.Bold,
+                fontSize = 22.sp,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
+            Text(
+                text = job.Companyname,
+                fontSize = 18.sp,
+                color = Color.Gray,
+                modifier = Modifier
+                    .padding(bottom = 6.dp)
+                    .clickable {
+                        navController.navigate("CompanyProfileScreenforcandidates/${job.Employerid}/${userId}")
+                        Log.d("CompanyClick", "Navigating to company profile of ${job.Companyname}")
+                    }
+            )
+            Text(
+                text = job.jobLocation.joinToString(),
+                fontSize = 16.sp,
+                color = Color.Black,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
+            Text(
+                text = "₹ ${job.minSalary} - ${job.maxSalary} / month",
+                fontSize = 16.sp,
+                color = Color.Black,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
+            Text(
+                text = "${job.contractType} Months",
+                fontSize = 16.sp,
+                color = Color.Black,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            Spacer(modifier = Modifier.height(8.dp)) // Slightly larger spacer to create separation
+
+            Spacer(modifier = Modifier.weight(1f))
+
             Row(modifier = Modifier.fillMaxWidth()) {
                 Button(
                     onClick = {
@@ -630,7 +637,7 @@ fun JobCard(
                         .weight(1f)
                         .padding(end = 4.dp)
                 ) {
-                    Text("View")
+                    Text("View", color = Color.White)
                 }
 
                 Button(
@@ -639,17 +646,35 @@ fun JobCard(
                             navController.navigate("Applicationscreen/${job.jobid}/${userEmail}/${job.Employerid}")
                         }
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE6F7FF)),
+                    colors = ButtonDefaults.buttonColors(containerColor = if (isApplied) Color.Gray else Color(0xFFE6F7FF)),
                     modifier = Modifier
                         .weight(1f)
                         .padding(start = 4.dp)
                 ) {
                     Text(
                         text = if (isApplied) "Applied" else "Apply",
-                        color = if (isApplied) Color.Gray else Color.Blue,
+                        color = if (isApplied) Color.White else Color.Blue,
                         fontWeight = FontWeight.Bold
                     )
                 }
+            }
+            if (isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(top = 8.dp)
+                )
+            }
+
+            errorMessage?.let {
+                Text(
+                    text = it,
+                    color = Color.Red,
+                    fontSize = 14.sp,
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(top = 8.dp)
+                )
             }
         }
     }
