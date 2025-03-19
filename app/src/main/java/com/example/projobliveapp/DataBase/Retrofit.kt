@@ -418,7 +418,6 @@ interface ApiService {
     @DELETE("deleteNotification/{notificationId}")
     suspend fun deleteNotification(@Path("notificationId") notificationId: String): Response<DeleteResponse>
 
-
     @Multipart
     @POST("updateResume")
     suspend fun updateResume(
@@ -429,7 +428,7 @@ interface ApiService {
 
 fun createApiService(): ApiService {
     val retrofit = Retrofit.Builder()
-        .baseUrl("https://f530-122-252-228-30.ngrok-free.app/") // Updated URL
+        .baseUrl("https://e5cb-122-252-228-30.ngrok-free.app/") // Updated URL
         .addConverterFactory(GsonConverterFactory.create())
         .build()
     return retrofit.create(ApiService::class.java)

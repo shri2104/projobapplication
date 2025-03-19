@@ -124,7 +124,7 @@ fun JobApplicationScreen(
                     }
                 }
                 IconButton(
-                    onClick = { },
+                    onClick = {navController.navigate("AvailableInterns/$userEmail") },
                     modifier = Modifier.weight(1f)
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -133,7 +133,7 @@ fun JobApplicationScreen(
                     }
                 }
                 IconButton(
-                    onClick = { },
+                    onClick = {navController.navigate("AvailableJobs/$userEmail") },
                     modifier = Modifier.weight(1f)
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {

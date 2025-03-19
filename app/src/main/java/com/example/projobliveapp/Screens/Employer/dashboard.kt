@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -81,31 +82,52 @@ fun JobPostingScreen(navController: NavController, userEmail: String, apiService
             )
         },
         bottomBar = {
-            BottomAppBar(
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                listOf(
-                    Pair(Icons.Default.Home, "Home"),
-                    Pair(Icons.Default.Assignment, "Applications"),
-                    Pair(Icons.Default.Work, "Jobs"),
-                    Pair(Icons.Default.Message, "Messages")
-                ).forEachIndexed { index, (icon, label) ->
+            BoxWithConstraints {
+                val density = LocalDensity.current
+                val textSize = with(density) { (maxWidth / 30).toSp() }
+                BottomAppBar(
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
                     IconButton(
-                        onClick = {
-                            when (index) {
-                                2 -> navController.navigate("postedjobs/${employerid}/${userEmail}")
-                            }
-                        },
+                        onClick = {  },
                         modifier = Modifier.weight(1f)
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Icon(icon, contentDescription = label)
-                            Text(text = label, style = MaterialTheme.typography.titleSmall)
+                            Icon(Icons.Default.Home, contentDescription = "Home")
+                            Text(text = "Home", style = MaterialTheme.typography.labelSmall.copy(fontSize = textSize))
+                        }
+                    }
+                    IconButton(
+                        onClick = { },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(Icons.Default.Groups, contentDescription = "Application")
+                            Text(text = "Application", style = MaterialTheme.typography.labelSmall.copy(fontSize = textSize))
+                        }
+                    }
+                    IconButton(
+                        onClick = { navController.navigate("postedjobs/${employerid}/${userEmail}") },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(Icons.Default.Work, contentDescription = "Jobs")
+                            Text(text = "Jobs",style = MaterialTheme.typography.labelSmall.copy(fontSize = textSize))
+                        }
+                    }
+                    IconButton(
+                        onClick = { },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(Icons.Default.Message, contentDescription = "Messages")
+                            Text(text = "Messages",style = MaterialTheme.typography.labelSmall.copy(fontSize = textSize))
                         }
                     }
                 }
             }
         }
+
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier

@@ -1,7 +1,9 @@
 package com.example.projobliveapp.Screens.Jobs
 
+import JobAppMenuContent
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -26,6 +28,7 @@ import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Message
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Work
@@ -51,6 +54,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
@@ -76,116 +80,151 @@ fun InternshipList(apiService: ApiService, navController: NavHostController, use
     var loading by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
     val appliedjobs = remember { mutableStateListOf<jobapplications>() }
-    LaunchedEffect(true) {
-        Log.d("JobList", "Fetching jobs from API...")
-        try {
-            val response = apiService.getAllJobs()
-            if (response.isSuccessful) {
-                val jobs = response.body()
-                if (!jobs.isNullOrEmpty()) {
-                    val filteredJobs = jobs.filter { it.contractType == "Internship" }
-                    internshipList.clear()
-                    internshipList.addAll(filteredJobs)
-                    Log.d("JobList", "Successfully fetched ${filteredJobs.size} jobs")
-                } else {
-                    Log.d("JobList", "No jobs found in the response")
-                }
-            } else {
-                Log.e("JobList", "API call failed: ${response.errorBody()?.string()}")
-                Toast.makeText(context, "Error: ${response.errorBody()?.string()}", Toast.LENGTH_SHORT).show()
-            }
-        } catch (e: Exception) {
-            Log.e("JobList", "Error fetching jobs: ${e.message}", e)
-            Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
-        }
-
-    }
-    LaunchedEffect(userEmail) {
-        if (userEmail.isNotBlank()) {
-            loading = true
-            error = null
-            try {
-                val userIdResponse = apiService.getuserid(userEmail)
-                val userId = userIdResponse.userId
-
-                if (!userId.isNullOrBlank()) {
-                    val response = apiService.getappliedjobids(userId)
-                    if (response.isNotEmpty()) {
-                        appliedjobs.clear()
-                        appliedjobs.addAll(response)
-                        Log.d("JobList", "Successfully fetched ${response.size} applied jobs")
+    var isMenuVisible by remember { mutableStateOf(false) }
+    val menuWidth by animateFloatAsState(
+        targetValue = if (isMenuVisible) 0.5f else 0f,
+        label = "MenuWidthAnimation"
+    )
+    Box(modifier = Modifier.fillMaxSize()) {
+        if (!isMenuVisible) {
+            LaunchedEffect(true) {
+                Log.d("JobList", "Fetching jobs from API...")
+                try {
+                    val response = apiService.getAllJobs()
+                    if (response.isSuccessful) {
+                        val jobs = response.body()
+                        if (!jobs.isNullOrEmpty()) {
+                            val filteredJobs = jobs.filter { it.contractType == "Internship" }
+                            internshipList.clear()
+                            internshipList.addAll(filteredJobs)
+                            Log.d("JobList", "Successfully fetched ${filteredJobs.size} jobs")
+                        } else {
+                            Log.d("JobList", "No jobs found in the response")
+                        }
                     } else {
-                        Log.d("JobList", "No applied jobs found for user")
+                        Log.e("JobList", "API call failed: ${response.errorBody()?.string()}")
+                        Toast.makeText(context, "Error: ${response.errorBody()?.string()}", Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: Exception) {
+                    Log.e("JobList", "Error fetching jobs: ${e.message}", e)
+                    Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+
+            }
+            LaunchedEffect(userEmail) {
+                if (userEmail.isNotBlank()) {
+                    loading = true
+                    error = null
+                    try {
+                        val userIdResponse = apiService.getuserid(userEmail)
+                        val userId = userIdResponse.userId
+
+                        if (!userId.isNullOrBlank()) {
+                            val response = apiService.getappliedjobids(userId)
+                            if (response.isNotEmpty()) {
+                                appliedjobs.clear()
+                                appliedjobs.addAll(response)
+                                Log.d("JobList", "Successfully fetched ${response.size} applied jobs")
+                            } else {
+                                Log.d("JobList", "No applied jobs found for user")
+                            }
+                        } else {
+                            error = "User ID not found"
+                        }
+                    } catch (e: Exception) {
+                        error = "Failed to fetch user data: ${e.message}"
+                        Log.e("JobList", error, e)
+                    } finally {
+                        loading = false
                     }
                 } else {
-                    error = "User ID not found"
+                    error = "Please enter a valid email"
                 }
-            } catch (e: Exception) {
-                error = "Failed to fetch user data: ${e.message}"
-                Log.e("JobList", error, e)
-            } finally {
-                loading = false
             }
-        } else {
-            error = "Please enter a valid email"
+            Scaffold(
+                bottomBar = {
+                    BoxWithConstraints {
+                        val density = LocalDensity.current
+                        val textSize = with(density) { (maxWidth / 30).toSp() } // Dynamically adjust text size
+
+                        BottomAppBar(
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            IconButton(
+                                onClick = {navController.navigate("homeScreen/$userEmail") },
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Icon(Icons.Default.Home, contentDescription = "Home")
+                                    Text(text = "Home", style = MaterialTheme.typography.labelSmall.copy(fontSize = textSize))
+                                }
+                            }
+                            IconButton(
+                                onClick = {  },
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Icon(Icons.Default.Groups, contentDescription = "Internships")
+                                    Text(text = "Internships", style = MaterialTheme.typography.labelSmall.copy(fontSize = textSize))
+                                }
+                            }
+                            IconButton(
+                                onClick = { navController.navigate("AvailableJobs/$userEmail") },
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Icon(Icons.Default.Work, contentDescription = "Jobs")
+                                    Text(text = "Jobs", style = MaterialTheme.typography.labelSmall.copy(fontSize = textSize))
+                                }
+                            }
+                            IconButton(
+                                onClick = { },
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Icon(Icons.Default.Message, contentDescription = "Messages")
+                                    Text(text = "Messages", style = MaterialTheme.typography.labelSmall.copy(fontSize = textSize))
+                                }
+                            }
+                        }
+                    }
+                }
+            ) { paddingValues ->
+                JobListScreen(
+                    jobs = internshipList,
+                    navController = navController,
+                    userEmail = userEmail,
+                    apiService = apiService,
+                    modifier = Modifier.padding(paddingValues),
+                    internorjob = "Internships(s)",
+                    appliedjobs = appliedjobs,
+                    Appliedjobsection = false,
+                    jobViewModel = jobViewModel,
+                    onMenuClick = { isMenuVisible = true }
+                )
+            }
         }
-    }
-    Scaffold(
-        bottomBar = {
-            BottomAppBar(
-                modifier = Modifier.fillMaxWidth(),
+        if (isMenuVisible) {
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .fillMaxWidth(menuWidth)
+                    .align(Alignment.CenterStart)
+                    .background(
+                        Color.White,
+                        RoundedCornerShape(topEnd = 16.dp, bottomEnd = 16.dp)
+                    )
             ) {
-                IconButton(
-                    onClick = { navController.navigate("homeScreen/$userEmail") },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Default.Home, contentDescription = "Home")
-                        Text(text = "Home", style = MaterialTheme.typography.titleSmall)
-                    }
-                }
-                IconButton(
-                    onClick = {  },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Default.Groups, contentDescription = "Internships")
-                        Text(text = "Internships", style = MaterialTheme.typography.titleSmall)
-                    }
-                }
-                IconButton(
-                    onClick = { navController.navigate("AvailableJobs/$userEmail")},
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Default.Work, contentDescription = "Jobs")
-                        Text(text = "Jobs", style = MaterialTheme.typography.titleSmall)
-                    }
-                }
-                IconButton(
-                    onClick = { },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Default.Message, contentDescription = "Messages")
-                        Text(text = "Messages", style = MaterialTheme.typography.titleSmall)
-                    }
-                }
+                JobAppMenuContent(
+                    onCloseMenu = { isMenuVisible = false },
+                    navController = navController,
+                    userEmail = userEmail,
+                    apiservice = apiService
+                )
             }
         }
-    ) { paddingValues ->
-        JobListScreen(
-            jobs = internshipList,
-            navController = navController,
-            userEmail = userEmail,
-            apiService = apiService,
-            modifier = Modifier.padding(paddingValues),
-            internorjob = "Internships(s)",
-            appliedjobs = appliedjobs,
-            Appliedjobsection = false,
-            jobViewModel = jobViewModel,
-        )
     }
+
 }
 
 @Composable
@@ -195,123 +234,158 @@ fun JobList(apiService: ApiService, navController: NavHostController, userEmail:
     val context = LocalContext.current
     var loading by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
-
-    LaunchedEffect(true) {
-        Log.d("JobList", "Fetching jobs from API...")
-        try {
-            val response = apiService.getAllJobs()
-            if (response.isSuccessful) {
-                val jobs = response.body()
-                if (!jobs.isNullOrEmpty()) {
-                    val filteredJobs = jobs.filter { it.contractType == "Job" }
-                    jobList.clear()
-                    jobList.addAll(filteredJobs)
-                    Log.d("JobList", "Successfully fetched ${filteredJobs.size} jobs")
-                } else {
-                    Log.d("JobList", "No jobs found in the response")
-                }
-            } else {
-                Log.e("JobList", "API call failed: ${response.errorBody()?.string()}")
-                Toast.makeText(context, "Error: ${response.errorBody()?.string()}", Toast.LENGTH_SHORT).show()
-            }
-        } catch (e: Exception) {
-            Log.e("JobList", "Error fetching jobs: ${e.message}", e)
-            Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
-        }
-
-    }
-
-    LaunchedEffect(userEmail) {
-        if (userEmail.isNotBlank()) {
-            loading = true
-            error = null
-            try {
-                val userIdResponse = apiService.getuserid(userEmail)
-                val userId = userIdResponse.userId
-
-                if (!userId.isNullOrBlank()) {
-                    val response = apiService.getappliedjobids(userId)
-                    if (response.isNotEmpty()) {
-                        appliedjobs.clear()
-                        appliedjobs.addAll(response)
-                        Log.d("JobList", "Successfully fetched ${response.size} applied jobs")
+    var isMenuVisible by remember { mutableStateOf(false) }
+    val menuWidth by animateFloatAsState(
+        targetValue = if (isMenuVisible) 0.5f else 0f,  // Set to half screen
+        label = "MenuWidthAnimation"
+    )
+    Box(modifier = Modifier.fillMaxSize()) {
+        if (!isMenuVisible) {
+            LaunchedEffect(true) {
+                Log.d("JobList", "Fetching jobs from API...")
+                try {
+                    val response = apiService.getAllJobs()
+                    if (response.isSuccessful) {
+                        val jobs = response.body()
+                        if (!jobs.isNullOrEmpty()) {
+                            val filteredJobs = jobs.filter { it.contractType == "Job" }
+                            jobList.clear()
+                            jobList.addAll(filteredJobs)
+                            Log.d("JobList", "Successfully fetched ${filteredJobs.size} jobs")
+                        } else {
+                            Log.d("JobList", "No jobs found in the response")
+                        }
                     } else {
-                        Log.d("JobList", "No applied jobs found for user")
+                        Log.e("JobList", "API call failed: ${response.errorBody()?.string()}")
+                        Toast.makeText(context, "Error: ${response.errorBody()?.string()}", Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: Exception) {
+                    Log.e("JobList", "Error fetching jobs: ${e.message}", e)
+                    Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+
+            }
+            LaunchedEffect(userEmail) {
+                if (userEmail.isNotBlank()) {
+                    loading = true
+                    error = null
+                    try {
+                        val userIdResponse = apiService.getuserid(userEmail)
+                        val userId = userIdResponse.userId
+
+                        if (!userId.isNullOrBlank()) {
+                            val response = apiService.getappliedjobids(userId)
+                            if (response.isNotEmpty()) {
+                                appliedjobs.clear()
+                                appliedjobs.addAll(response)
+                                Log.d("JobList", "Successfully fetched ${response.size} applied jobs")
+                            } else {
+                                Log.d("JobList", "No applied jobs found for user")
+                            }
+                        } else {
+                            error = "User ID not found"
+                        }
+                    } catch (e: Exception) {
+                        error = "Failed to fetch user data: ${e.message}"
+                        Log.e("JobList", error, e)
+                    } finally {
+                        loading = false
                     }
                 } else {
-                    error = "User ID not found"
+                    error = "Please enter a valid email"
                 }
-            } catch (e: Exception) {
-                error = "Failed to fetch user data: ${e.message}"
-                Log.e("JobList", error, e)
-            } finally {
-                loading = false
             }
-        } else {
-            error = "Please enter a valid email"
+            Scaffold(
+                bottomBar = {
+                    BoxWithConstraints {
+                        val density = LocalDensity.current
+                        val textSize = with(density) { (maxWidth / 30).toSp() } // Dynamically adjust text size
+
+                        BottomAppBar(
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            IconButton(
+                                onClick = {navController.navigate("homeScreen/$userEmail") },
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Icon(Icons.Default.Home, contentDescription = "Home")
+                                    Text(text = "Home", style = MaterialTheme.typography.labelSmall.copy(fontSize = textSize))
+                                }
+                            }
+                            IconButton(
+                                onClick = {  navController.navigate("AvailableInterns/$userEmail") },
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Icon(Icons.Default.Groups, contentDescription = "Internships")
+                                    Text(text = "Internships", style = MaterialTheme.typography.labelSmall.copy(fontSize = textSize))
+                                }
+                            }
+                            IconButton(
+                                onClick = { },
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Icon(Icons.Default.Work, contentDescription = "Jobs")
+                                    Text(text = "Jobs", style = MaterialTheme.typography.labelSmall.copy(fontSize = textSize))
+                                }
+                            }
+                            IconButton(
+                                onClick = { },
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Icon(Icons.Default.Message, contentDescription = "Messages")
+                                    Text(text = "Messages", style = MaterialTheme.typography.labelSmall.copy(fontSize = textSize))
+                                }
+                            }
+                        }
+                    }
+                }
+            ) { paddingValues ->
+                JobListScreen(
+                    jobs = jobList,
+                    appliedjobs = appliedjobs,
+                    navController = navController,
+                    userEmail = userEmail,
+                    apiService = apiService,
+                    modifier = Modifier.padding(paddingValues),
+                    internorjob = "Job(s)",
+                    Appliedjobsection = false,
+                    jobViewModel = jobViewModel,
+                    onMenuClick = { isMenuVisible = true }
+                )
+            }
+
         }
-    }
-    Scaffold(
-        bottomBar = {
-            BottomAppBar(
-                modifier = Modifier.fillMaxWidth(),
+        if (isMenuVisible) {
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .fillMaxWidth(menuWidth)
+                    .align(Alignment.CenterStart)
+                    .background(
+                        Color.White,
+                        RoundedCornerShape(topEnd = 16.dp, bottomEnd = 16.dp)
+                    )
             ) {
-                IconButton(
-                    onClick = { navController.navigate("homeScreen/$userEmail") },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Default.Home, contentDescription = "Home")
-                        Text(text = "Home", style = MaterialTheme.typography.titleSmall)
-                    }
-                }
-                IconButton(
-                    onClick = {navController.navigate("AvailableInterns/$userEmail")  },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Default.Groups, contentDescription = "Internships")
-                        Text(text = "Internships", style = MaterialTheme.typography.titleSmall)
-                    }
-                }
-                IconButton(
-                    onClick = { },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Default.Work, contentDescription = "Jobs")
-                        Text(text = "Jobs", style = MaterialTheme.typography.titleSmall)
-                    }
-                }
-                IconButton(
-                    onClick = { },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Default.Message, contentDescription = "Messages")
-                        Text(text = "Messages", style = MaterialTheme.typography.titleSmall)
-                    }
-                }
+                JobAppMenuContent(
+                    onCloseMenu = { isMenuVisible = false },
+                    navController = navController,
+                    userEmail = userEmail,
+                    apiservice = apiService
+                )
             }
         }
-    ) { paddingValues ->
-        JobListScreen(
-            jobs = jobList,
-            appliedjobs = appliedjobs,
-            navController = navController,
-            userEmail = userEmail,
-            apiService = apiService,
-            modifier = Modifier.padding(paddingValues),
-            internorjob = "Job(s)",
-            Appliedjobsection = false,
-            jobViewModel = jobViewModel
-        )
     }
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun JobListScreen(
+    onMenuClick: () -> Unit,
     jobs: List<JobPost>,
     appliedjobs: List<jobapplications>,
     navController: NavHostController,
@@ -341,6 +415,11 @@ fun JobListScreen(
                         modifier = Modifier.size(90.dp),
                         contentScale = ContentScale.Fit
                     )
+                }
+            },
+            navigationIcon = {
+                IconButton(onClick = onMenuClick) {
+                    Icon(Icons.Default.Menu, contentDescription = "Menu Icon")
                 }
             },
             actions = {

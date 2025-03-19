@@ -44,7 +44,6 @@ suspend fun downloadResume(
                     put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf")
                     put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
                 }
-
                 val resolver = context.contentResolver
                 val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
 

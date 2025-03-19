@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -39,7 +40,7 @@ fun MainJobScreenContent(
     jobViewModel: JobViewModel
 ) {
     val scrollState = rememberScrollState()
-    val openMenu = remember { mutableStateOf(false) }
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -61,55 +62,59 @@ fun MainJobScreenContent(
                     }
                 },
                 actions = {
-                    IconButton(onClick = {navController.navigate("notificationscreen/$userEmail")}) {
+                    IconButton(onClick = { navController.navigate("notificationscreen/$userEmail") }) {
                         Icon(Icons.Default.Notifications, contentDescription = "Notification Icon")
                     }
                 }
             )
-        }
-        ,bottomBar = {
-            BottomAppBar(
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                IconButton(
-                    onClick = { },
-                    modifier = Modifier.weight(1f)
+        },
+        bottomBar = {
+            BoxWithConstraints {
+                val density = LocalDensity.current
+                val textSize = with(density) { (maxWidth / 30).toSp() } // Dynamically adjust text size
+
+                BottomAppBar(
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Default.Home, contentDescription = "Home",)
-                        Text(text = "Home", style = MaterialTheme.typography.titleSmall)
+                    IconButton(
+                        onClick = { },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(Icons.Default.Home, contentDescription = "Home")
+                            Text(text = "Home", style = MaterialTheme.typography.labelSmall.copy(fontSize = textSize))
+                        }
                     }
-                }
-                IconButton(
-                    onClick = { navController.navigate("AvailableInterns/$userEmail")},
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Default.Groups, contentDescription = "Internships")
-                        Text(text = "Internships", style = MaterialTheme.typography.titleSmall)
+                    IconButton(
+                        onClick = { navController.navigate("AvailableInterns/$userEmail") },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(Icons.Default.Groups, contentDescription = "Internships")
+                            Text(text = "Internships", style = MaterialTheme.typography.labelSmall.copy(fontSize = textSize))
+                        }
                     }
-                }
-                IconButton(
-                    onClick = { navController.navigate("AvailableJobs/$userEmail")},
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Default.Work, contentDescription = "Jobs")
-                        Text(text = "Jobs", style = MaterialTheme.typography.titleSmall)
+                    IconButton(
+                        onClick = { navController.navigate("AvailableJobs/$userEmail") },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(Icons.Default.Work, contentDescription = "Jobs")
+                            Text(text = "Jobs", style = MaterialTheme.typography.labelSmall.copy(fontSize = textSize))
+                        }
                     }
-                }
-                IconButton(
-                    onClick = { },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Default.Message, contentDescription = "Messages")
-                        Text(text = "Messages", style = MaterialTheme.typography.titleSmall)
+                    IconButton(
+                        onClick = { },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(Icons.Default.Message, contentDescription = "Messages")
+                            Text(text = "Messages", style = MaterialTheme.typography.labelSmall.copy(fontSize = textSize))
+                        }
                     }
                 }
             }
         }
-
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -122,7 +127,7 @@ fun MainJobScreenContent(
                 apiService = apiservice
             )
 
-            JobForYou(apiservice,userEmail,navController)
+            JobForYou(apiservice, userEmail, navController)
             RecentlyViewedJobsSection(
                 apiService = apiservice,
                 navController = navController,
@@ -130,11 +135,12 @@ fun MainJobScreenContent(
                 userEmail
             )
             ActiveJobsInCitiesSection(apiservice)
-            TrustedByCompaniesSection(apiservice,userEmail)
+            TrustedByCompaniesSection(apiservice, userEmail)
             HowItWorksSection()
         }
     }
 }
+
 
 @Composable
 fun JobAppMenuContent(

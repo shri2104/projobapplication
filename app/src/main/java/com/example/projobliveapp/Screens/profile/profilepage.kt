@@ -18,6 +18,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -84,44 +85,49 @@ fun ProfilePage(
                 actions = { ProfileDropdownMenu() }
             )
         },
-                bottomBar = {
-            BottomAppBar(
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                IconButton(
-                    onClick = { navController.navigate("homeScreen/$userEmail")},
-                    modifier = Modifier.weight(1f)
+        bottomBar = {
+            BoxWithConstraints {
+                val density = LocalDensity.current
+                val textSize = with(density) { (maxWidth / 30).toSp() } // Dynamically adjust text size
+
+                BottomAppBar(
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Default.Home, contentDescription = "Home",)
-                        Text(text = "Home", style = MaterialTheme.typography.titleSmall)
+                    IconButton(
+                        onClick = {navController.navigate("homeScreen/$userEmail") },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(Icons.Default.Home, contentDescription = "Home")
+                            Text(text = "Home", style = MaterialTheme.typography.labelSmall.copy(fontSize = textSize))
+                        }
                     }
-                }
-                IconButton(
-                    onClick = { },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Default.Groups, contentDescription = "Internships")
-                        Text(text = "Internships", style = MaterialTheme.typography.titleSmall)
+                    IconButton(
+                        onClick = {  navController.navigate("AvailableInterns/$userEmail") },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(Icons.Default.Groups, contentDescription = "Internships")
+                            Text(text = "Internships", style = MaterialTheme.typography.labelSmall.copy(fontSize = textSize))
+                        }
                     }
-                }
-                IconButton(
-                    onClick = { navController.navigate("AvailableJobs/$userEmail")},
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Default.Work, contentDescription = "Jobs")
-                        Text(text = "Jobs", style = MaterialTheme.typography.titleSmall)
+                    IconButton(
+                        onClick = { navController.navigate("AvailableJobs/$userEmail") },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(Icons.Default.Work, contentDescription = "Jobs")
+                            Text(text = "Jobs", style = MaterialTheme.typography.labelSmall.copy(fontSize = textSize))
+                        }
                     }
-                }
-                IconButton(
-                    onClick = { },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Default.Message, contentDescription = "Messages")
-                        Text(text = "Messages", style = MaterialTheme.typography.titleSmall)
+                    IconButton(
+                        onClick = { },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(Icons.Default.Message, contentDescription = "Messages")
+                            Text(text = "Messages", style = MaterialTheme.typography.labelSmall.copy(fontSize = textSize))
+                        }
                     }
                 }
             }

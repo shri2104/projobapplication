@@ -61,9 +61,13 @@ fun LoginScreen(
                         if (response != null && response.email == email && response.UserType == userType.value) {
                             viewModel.signInWithEmailAndPassword(email, password) {
                                 if (userType.value == "Candidate") {
-                                    navController.navigate("homeScreen/$email")
+                                    navController.navigate("homeScreen/$email"){
+                                        popUpTo(Screen.LoginScreen.name) { inclusive = true }
+                                    }
                                 } else {
-                                    navController.navigate("EmployerHomeScreen/$email")
+                                    navController.navigate("EmployerHomeScreen/$email"){
+                                        popUpTo(Screen.LoginScreen.name) { inclusive = true }
+                                    }
                                 }
                             }
                         }
@@ -214,13 +218,18 @@ fun Signup(
                 }
             }
             if (userType == "Candidate") {
-                navController.navigate("homeScreen/$email")
+                navController.navigate("homeScreen/$email"){
+                    popUpTo("${Screen.Signupscreen.name}/{userType}") { inclusive = true }
+                }
             } else {
-                navController.navigate("EmployerHomeScreen/$email")
+                navController.navigate("EmployerHomeScreen/$email"){
+                    popUpTo("${Screen.Signupscreen.name}/{userType}") { inclusive = true }
+                }
             }
         }
     }
 }
+
 @Composable
 fun UserForm(
     loading: Boolean = false,
