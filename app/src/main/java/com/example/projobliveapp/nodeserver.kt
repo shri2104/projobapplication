@@ -6,7 +6,7 @@
 //const path = require('path');
 //const fs = require('fs');
 //
-//const app = express();
+//const app = express();q
 //const port = 3000;
 //
 //// MongoDB Connection
@@ -44,7 +44,6 @@
 //    if (!req.file) {
 //        return res.status(400).send({ success: false, message: 'No file uploaded' });
 //    }
-//
 //    const collection = database.collection("resumes");
 //    const resumeData = {
 //        userId: req.body.userId,  // Assume userId is sent in the request
@@ -52,7 +51,6 @@
 //        originalName: req.file.originalname,
 //        uploadedAt: new Date()
 //    };
-//
 //    try {
 //        const result = await collection.insertOne(resumeData);
 //        res.status(200).send({ success: true, id: result.insertedId, filePath: req.file.path });
@@ -259,6 +257,28 @@
 //        res.status(500).send({ success: false, error: error.message });
 //    }
 //});
+//app.put('/updateCandidatepersonaldata/:userId', async (req, res) => {
+//    const collection = database.collection("Candidatepersonaldata");
+//    const userId = req.params.userId;
+//    const updatedData = req.body;
+//
+//    try {
+//        const result = await collection.updateOne(
+//            { userId: userId }, // Find the user by userId
+//            { $set: updatedData } // Update the user's data
+//        );
+//
+//        if (result.modifiedCount > 0) {
+//            res.status(200).send({ success: true, message: "User data updated successfully" });
+//        } else {
+//            res.status(404).send({ success: false, message: "User not found or data is the same" });
+//        }
+//    } catch (error) {
+//        console.error("Update Error:", error);
+//        res.status(500).send({ success: false, error: error.message });
+//    }
+//});
+//
 //
 //app.post('/Candidatecontactladata', async (req,res) => {
 //    const collection = database.collection("Candidatecontactladata");
@@ -287,6 +307,29 @@
 //        res.status(500).send({ success: false, error: error.message });
 //    }
 //});
+//app.put('/updateCandidatecontactladata/:userId', async (req, res) => {
+//    const collection = database.collection("Candidatecontactladata");
+//    const userId = req.params.userId;
+//    const updateData = req.body;
+//
+//    try {
+//        const result = await collection.updateOne(
+//            { userId: userId }, // Find user by userId
+//            { $set: updateData } // Update with new data
+//        );
+//
+//        if (result.matchedCount === 0) {
+//            return res.status(404).send({ success: false, message: "User not found" });
+//        }
+//
+//        res.status(200).send({ success: true, message: "Data updated successfully" });
+//    } catch (error) {
+//        console.error("Update Error:", error);
+//        res.status(500).send({ success: false, error: error.message });
+//    }
+//});
+//
+//
 //
 //app.post('/Candidateeducationladata', async (req,res) => {
 //    const collection = database.collection("Candidateeducationladata");
@@ -316,6 +359,28 @@
 //        res.status(500).send({ success: false, error: error.message });
 //    }
 //});
+//app.put('/updateCandidateEducation/:id', async (req, res) => {
+//    const collection = database.collection("Candidateeducationladata");
+//    const id = req.params.id;
+//    const updateData = req.body;
+//
+//    try {
+//        const result = await collection.updateOne(
+//            { id: id }, // Find user by userId
+//            { $set: updateData } // Update with new data
+//        );
+//
+//        if (result.matchedCount === 0) {
+//            return res.status(404).send({ success: false, message: "User not found" });
+//        }
+//
+//        res.status(200).send({ success: true, message: "Data updated successfully" });
+//    } catch (error) {
+//        console.error("Update Error:", error);
+//        res.status(500).send({ success: false, error: error.message });
+//    }
+//});
+//
 //app.post('/Candidateexperienceladata', async (req,res) => {
 //    const collection = database.collection("Candidateexperienceladata");
 //    const data = req.body;
@@ -341,6 +406,27 @@
 //        }
 //    } catch (error) {
 //        console.error("Retrieve Error:", error);
+//        res.status(500).send({ success: false, error: error.message });
+//    }
+//});
+//app.put('/updateCandidateexperienceladata/:id', async (req, res) => {
+//    const collection = database.collection("Candidateexperienceladata");
+//    const id = req.params.id;
+//    const updateData = req.body;
+//
+//    try {
+//        const result = await collection.updateOne(
+//            { id: id }, // Find user by userId
+//            { $set: updateData } // Update with new data
+//        );
+//
+//        if (result.matchedCount === 0) {
+//            return res.status(404).send({ success: false, message: "User not found" });
+//        }
+//
+//        res.status(200).send({ success: true, message: "Data updated successfully" });
+//    } catch (error) {
+//        console.error("Update Error:", error);
 //        res.status(500).send({ success: false, error: error.message });
 //    }
 //});
@@ -375,10 +461,7 @@
 //    }
 //});
 //
-//
 //// API to Store a New Job Posting
-//
-//
 //
 //app.post('/addJobToFavorites', async (req, res) => {
 //    const collection = database.collection("savedjobs"); // Collection name: savedjobs
@@ -419,8 +502,6 @@
 //        res.status(500).json({ success: false, error: error.message });
 //    }
 //});
-//
-//
 //
 //app.post('/addJobToFavorites', async (req, res) => {
 //    const collection = database.collection("savedjobs"); // Collection name: savedjobs
@@ -719,6 +800,7 @@
 //    }
 //});
 //
+//
 //// API to delete job preference
 //app.delete('/deleteJobPreference/:userId', async (req, res) => {
 //    const collection = database.collection("jobPreferences");
@@ -737,8 +819,191 @@
 //    }
 //});
 //
+//app.get('/checkFollowStatus/:userId/:employerId', async (req, res) => {
+//    const collection = database.collection("follows");
+//    const { userId, employerId } = req.params;
 //
+//    if (!userId || !employerId) {
+//        return res.status(400).send({ success: false, message: 'Missing userId or employerId' });
+//    }
+//
+//    try {
+//        // Check if the user follows the employer
+//        const existingFollow = await collection.findOne({ userId, employerId });
+//
+//        if (existingFollow) {
+//            res.status(200).send({ success: true, following: true });
+//        } else {
+//            res.status(200).send({ success: true, following: false });
+//        }
+//    } catch (error) {
+//        console.error("Check Follow Status Error:", error);
+//        res.status(500).send({ success: false, error: error.message });
+//    }
+//});
+//app.post('/toggleFollow', async (req, res) => {
+//    const collection = database.collection("follows");
+//    const notificationsCollection = database.collection("notifications");
+//    const { userId, employerId } = req.body;
+//
+//    if (!userId || !employerId) {
+//        return res.status(400).send({ success: false, message: 'Missing userId or employerId' });
+//    }
+//
+//    try {
+//        // Check if user already follows the employer
+//        const existingFollow = await collection.findOne({ userId, employerId });
+//
+//        if (existingFollow) {
+//            // Unfollow (Remove from collection)
+//            await collection.deleteOne({ userId, employerId });
+//            res.status(200).send({ success: true, following: false, message: "Unfollowed employer successfully" });
+//        } else {
+//            // Follow (Insert into collection)
+//            await collection.insertOne({ userId, employerId, followedAt: new Date() });
+//
+//            // Send Notification to Employer
+//            await notificationsCollection.insertOne({
+//                employerId,
+//                userId,
+//                message: `A new candidate has started following you.`,
+//                createdAt: new Date(),
+//                read: false
+//            });
+//
+//            res.status(200).send({ success: true, following: true, message: "Followed employer successfully" });
+//        }
+//    } catch (error) {
+//        console.error("Follow/Unfollow Error:", error);
+//        res.status(500).send({ success: false, error: error.message });
+//    }
+//});
+//
+//app.get('/getNotifications/:employerId', async (req, res) => {
+//    const { employerId } = req.params;
+//
+//    try {
+//        const notifications = await database.collection("notifications")
+//            .find({ employerId })
+//            .toArray();
+//        res.status(200).send({
+//            success: true,
+//            notifications: notifications.map(n => ({
+//            id: n._id ? n._id.toString() : null,
+//            employerId: n.employerId,
+//            userId: n.userId,
+//            message: n.message,
+//            createdAt: n.createdAt,
+//            read: n.read
+//        }))
+//        });
+//    } catch (error) {
+//        console.error("Error fetching notifications:", error);
+//        res.status(500).send({ success: false, error: error.message });
+//    }
+//});
+//
+//
+//
+//
+//app.delete('/deleteNotification/:notificationId', async (req, res) => {
+//    const { notificationId } = req.params;
+//
+//    if (!notificationId) {
+//        return res.status(400).send({ success: false, message: 'Missing notificationId' });
+//    }
+//
+//    try {
+//        const result = await database.collection("notifications").deleteOne({ _id: new ObjectId(notificationId) });
+//
+//        if (result.deletedCount === 1) {
+//            res.status(200).send({ success: true, message: "Notification deleted successfully" });
+//        } else {
+//            res.status(404).send({ success: false, message: "Notification not found" });
+//        }
+//    } catch (error) {
+//        console.error("Delete Notification Error:", error);
+//        res.status(500).send({ success: false, error: error.message });
+//    }
+//});
+//
+//
+//app.get('/getFollowedCompanies/:userId', async (req, res) => {
+//    const collection = database.collection("follows");
+//    const { userId } = req.params;
+//
+//    if (!userId) {
+//        return res.status(400).send({ success: false, message: 'Missing userId' });
+//    }
+//
+//    try {
+//        // Fetch all employers that the user follows
+//        const followedCompanies = await collection.find({ userId }).toArray();
+//
+//        res.status(200).send({
+//            success: true,
+//            companies: followedCompanies.map(follow => follow.employerId) // Returning only employerIds
+//        });
+//    } catch (error) {
+//        console.error("Get Followed Companies Error:", error);
+//        res.status(500).send({ success: false, error: error.message });
+//    }
+//});
+//app.get('/getRecommendedJobs/:userId', async (req, res) => {
+//    const { userId } = req.params;
+//    try {
+//        const preferencesCollection = database.collection("jobPreferences");
+//        const jobsCollection = database.collection("jobPosting");
+//
+//        // Fetch user preferences
+//        const userPreferences = await preferencesCollection.findOne({ userId });
+//        if (!userPreferences) {
+//            return res.status(404).send({ success: false, message: "User preferences not found" });
+//        }
+//
+//        const { jobLocations, selectedSkills } = userPreferences;
+//
+//        // Fetch all jobs
+//        const allJobs = await jobsCollection.find({}).toArray();
+//
+//        // Assign scores based on skill & location matches
+//        const scoredJobs = allJobs.map(job => {
+//            let skillMatchCount = job.keySkills.filter(skill => selectedSkills.includes(skill)).length;
+//            let locationMatchCount = job.jobLocation.filter(location => jobLocations.includes(location)).length;
+//
+//            let score = (skillMatchCount * 2) + locationMatchCount;
+//
+//            return { job, score };
+//        });
+//
+//        // Sort jobs by score
+//        const sortedJobs = scoredJobs.sort((a, b) => b.score - a.score).map(item => item.job);
+//
+//        // Return only the jobs array
+//        res.status(200).send(sortedJobs.slice(0, 10)); // Returning an array
+//    } catch (error) {
+//        console.error("Error fetching recommended jobs:", error);
+//        res.status(500).send({ success: false, error: error.message });
+//    }
+//});
+//app.get('/checkapplication/:jobid/:userid', async (req, res) => {
+//    const { jobid, userid } = req.params;
+//    const collection = database.collection("jobapplications");
+//    try {
+//        // Check if the combination of jobid and userid exists
+//        const job = await collection.findOne({ jobid, userid });
+//
+//        if (job) {
+//            res.status(200).json(true);  // Return true if found
+//        } else {
+//            res.status(404).json(false); // Return false if not found
+//        }
+//    } catch (error) {
+//        console.error("Fetch Error:", error.message);
+//        res.status(500).json({ success: false, error: error.message });
+//    }
+//});
 //app.listen(port, () => {
 //    console.log(`Server running at http://localhost:${port}`);
 //});
-//
+

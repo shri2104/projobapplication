@@ -5,10 +5,8 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import retrofit2.Call
-
 import retrofit2.Response
 import retrofit2.Retrofit
-
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -19,6 +17,7 @@ import retrofit2.http.PUT
 import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Streaming
+
 
 data class PersonalData(
     val userId: String,
@@ -113,8 +112,6 @@ data class JobPost(
     val Companyname:String,
     val createdAt: String,
 )
-
-
 
 data class Job(
     val _id: String,
@@ -417,6 +414,7 @@ interface ApiService {
 
     @DELETE("deleteNotification/{notificationId}")
     suspend fun deleteNotification(@Path("notificationId") notificationId: String): Response<DeleteResponse>
+
 
     @Multipart
     @POST("updateResume")

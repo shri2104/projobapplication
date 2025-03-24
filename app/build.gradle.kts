@@ -92,5 +92,8 @@ dependencies {
 
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.1")
 
+    implementation(platform("com.google.firebase:firebase-bom:32.7.2")) // Latest BOM
+    implementation("com.google.firebase:firebase-messaging-ktx")
+
 
 }
