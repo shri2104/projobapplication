@@ -100,21 +100,22 @@ Create your own Firebase project to test the app.
 </p>
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/1450163e-8bac-4647-be18-ea19001783a9" width="35%" />
-  <img src="https://github.com/user-attachments/assets/1f902485-61f2-4851-9810-52130bb9e0bd" width="35%" />
-</p>
-<p align="center">
-  <b>Profile</b> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  <b>Profile</b>
-</p>
-
-<p align="center">
   <img src="https://github.com/user-attachments/assets/c6c0ae21-46e8-4fe4-baf3-0cfa61608a80" width="35%" />
   <img src="https://github.com/user-attachments/assets/81991e55-5ff5-4e33-b4c4-75aafeeb7f2b" width="35%" />
 </p>
 <p align="center">
   <b>Apply For Job</b> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
   <b>Apply For Job</b>
+</p>
+
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/1450163e-8bac-4647-be18-ea19001783a9" width="35%" />
+  <img src="https://github.com/user-attachments/assets/1f902485-61f2-4851-9810-52130bb9e0bd" width="35%" />
+</p>
+<p align="center">
+  <b>Profile</b> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <b>Profile</b>
 </p>
 
 <br/>
