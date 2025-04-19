@@ -79,28 +79,64 @@ Create your own Firebase project to test the app.
    Sync Gradle
    Build and run on emulator/device
 
-👤 Candidate Dashboard
+<h3 align="center">👤 Candidate Dashboard</h3>
 
-<img width="306" alt="Screenshot 2025-04-19 at 7 50 49 PM" src="https://github.com/user-attachments/assets/85d508cb-05a9-46e2-86ff-9bf874607458" />
-Login
-<img width="302" alt="Screenshot 2025-04-19 at 7 46 50 PM" src="https://github.com/user-attachments/assets/879a0f74-9844-48b4-8b3e-d28e5b25e076" />
-Candidate Dashboard
-<img width="295" alt="Screenshot 2025-04-19 at 7 47 03 PM" src="https://github.com/user-attachments/assets/470138b5-835c-419f-b8ff-3b9212dfefab" />
-Candidate Dashboard
-<img width="295" alt="Screenshot 2025-04-19 at 7 47 25 PM" src="https://github.com/user-attachments/assets/a8b67e0f-bd07-4f6d-aef5-4199f5004454" />
-Job Listings
-<img width="304" alt="Screenshot 2025-04-19 at 7 47 50 PM" src="https://github.com/user-attachments/assets/1450163e-8bac-4647-be18-ea19001783a9" />
-Profile
-<img width="306" alt="Screenshot 2025-04-19 at 7 47 59 PM" src="https://github.com/user-attachments/assets/1f902485-61f2-4851-9810-52130bb9e0bd" />
-Profile
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/85d508cb-05a9-46e2-86ff-9bf874607458" width="35%" />
+  <img src="https://github.com/user-attachments/assets/879a0f74-9844-48b4-8b3e-d28e5b25e076" width="35%" />
+</p>
+<p align="center">
+  <b>Login</b> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <b>Candidate Dashboard</b>
+</p>
 
-🧑‍💼 Employer Screens
-<img width="297" alt="Screenshot 2025-04-19 at 7 58 21 PM" src="https://github.com/user-attachments/assets/2d0a859a-43d2-443a-9cc0-2b09df567b84" />
-Dashboard
-<img width="300" alt="Screenshot 2025-04-19 at 7 58 31 PM" src="https://github.com/user-attachments/assets/20a76c39-fc57-4e10-ad50-a62b93eab8c0" />
-Post Job	
-<img width="301" alt="Screenshot 2025-04-19 at 7 58 57 PM" src="https://github.com/user-attachments/assets/a4a8f158-b6c7-47ab-b8f3-1a016779bb07" />
-Company Profile
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/470138b5-835c-419f-b8ff-3b9212dfefab" width="35%" />
+  <img src="https://github.com/user-attachments/assets/a8b67e0f-bd07-4f6d-aef5-4199f5004454" width="35%" />
+</p>
+<p align="center">
+  <b>Candidate Dashboard 2</b> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <b>Job Listings</b>
+</p>
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/1450163e-8bac-4647-be18-ea19001783a9" width="35%" />
+  <img src="https://github.com/user-attachments/assets/1f902485-61f2-4851-9810-52130bb9e0bd" width="35%" />
+</p>
+<p align="center">
+  <b>Profile</b> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <b>Profile</b>
+</p>
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/c6c0ae21-46e8-4fe4-baf3-0cfa61608a80" width="35%" />
+  <img src="https://github.com/user-attachments/assets/81991e55-5ff5-4e33-b4c4-75aafeeb7f2b" width="35%" />
+</p>
+<p align="center">
+  <b>Apply For Job</b> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <b>Apply For Job</b>
+</p>
+
+<br/>
+
+<h3 align="center">🧑‍💼 Employer Screens</h3>
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/2d0a859a-43d2-443a-9cc0-2b09df567b84" width="35%" />
+  <img src="https://github.com/user-attachments/assets/20a76c39-fc57-4e10-ad50-a62b93eab8c0" width="35%" />
+</p>
+<p align="center">
+  <b>Employer Dashboard</b> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <b>Post Job</b>
+</p>
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/a4a8f158-b6c7-47ab-b8f3-1a016779bb07" width="35%" />
+</p>
+<p align="center">
+  <b>Company Profile</b>
+</p>
+
 
 
 
