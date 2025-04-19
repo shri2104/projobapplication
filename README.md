@@ -1,4 +1,4 @@
-<img width="262" alt="Screenshot 2025-04-18 at 10 58 54 PM" src="https://github.com/user-attachments/assets/ec063f34-c832-4306-b270-e1b40cd0dec4" /># Projob – Job & Internship Recruitment Platform
+# Projob – Job & Internship Recruitment Platform
 
 **Projob** is a modern Android application designed to connect job seekers with employers in a seamless and secure way. Built with **Jetpack Compose**, **Kotlin**, **Firebase**, and **MongoDB**, it offers dedicated dashboards for candidates and employers, making job search and hiring fast, intuitive, and efficient.
 
@@ -88,6 +88,8 @@ Create your own Firebase project to test the app.
 <img width="297" alt="Screenshot 2025-04-19 at 7 58 21 PM" src="https://github.com/user-attachments/assets/2d0a859a-43d2-443a-9cc0-2b09df567b84" />
 <img width="300" alt="Screenshot 2025-04-19 at 7 58 31 PM" src="https://github.com/user-attachments/assets/20a76c39-fc57-4e10-ad50-a62b93eab8c0" />
 <img width="301" alt="Screenshot 2025-04-19 at 7 58 57 PM" src="https://github.com/user-attachments/assets/a4a8f158-b6c7-47ab-b8f3-1a016779bb07" />
+<img width="304" alt="Screenshot 2025-04-19 at 7 49 35 PM" src="https://github.com/user-attachments/assets/ad5cd0ec-d1a5-4593-8abc-d45f65aa6ec9" />
+
 
 
 
