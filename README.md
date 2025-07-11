@@ -2,7 +2,6 @@
 
 **Projob** is a modern Android application designed to connect job seekers with employers in a seamless and secure way. Built with **Jetpack Compose**, **Kotlin**, **Firebase**, and **MongoDB**, it offers dedicated dashboards for candidates and employers, making job search and hiring fast, intuitive, and efficient.
 
-> 🛠️ Developed during internship (Dec 2024 – Mar 2025)
 
 ---
 
